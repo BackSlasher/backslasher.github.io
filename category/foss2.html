@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>FOSS - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+    <meta name="author" content="Nitz" />
+    <meta name="keywords" content="FOSS" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="BackSlasher"/>
+        <meta property="og:url" content="https://blog.backslasher.net"/>
+        <meta property="og:description" content="BackSlasher"/>
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+            <article>
+                <h2><a href="https://blog.backslasher.net/chef-jenkins-helpers.html">Some Jenkins helpers for Chef</a></h2>
+                <div class="summary"><p>I've decided to share some code I use in Chef to pull some data and files from Jenkins</p>
+<h3>JenkinsQuery</h3>
+<p>This is a helper class, in charge of getting build-related data</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># slasher_development/libraries/jenkins_query.rb</span>
+
+<span class="k">module</span> <span class="nn">SlasherDevelopment</span>
+  <span class="k">class</span> <span class="nc">JenkinsQuery</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">server</span><span class="p">,</span><span class="n">user</span><span class="p">,</span><span class="n">password</span><span class="p">,</span><span class="n">job</span><span class="p">)</span>
+      <span class="vi">@scheme</span><span class="o">=</span><span class="s1">&#39;https&#39;</span> <span class="c1"># Modify if needed</span>
+      <span class="vi">@server …</span></code></pre></div>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/chef-jenkins-helpers.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/shell-filter.html">Filtering in Shell</a></h2>
+                <div class="summary"><p>Today I told someone that a feature I'm missing in Bash is filtering.<br>
+Then I thought about how much I miss it, so I went ahead and "implemented" it.</p>
+<h3>Filtering in other lanaugaes</h3>
+<p>Basically, I'm referring to taking a collection/stream of items, running some code on every one, and …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/shell-filter.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/cookbook-versioning.html">Cookbook Versioning Script</a></h2>
+                <div class="summary"><h2>The Problem</h2>
+<p>I've always disliked releasing cookbook versions manually. The process requires a lot of bureaucratic steps which are easy to forget and require no thought at all.<br>
+Before I had this script, I sometimes avoided modifying the cookbook's version when I only applied "a little fix", losing the ability …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/cookbook-versioning.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/grafana-migrate-dashboards.html">Migrating Grafana's Dashboards</a></h2>
+                <div class="summary"><p>Similar to my <a href="https://blog.backslasher.net/graphite-migrate-dashboards.html">Graphite dashboard migration script</a>, I made a Grafana one.<br>
+I'm targeting Grafana v2+.<br>
+Note it's using <a href="https://github.com/httprb/http">http</a> for its HTTP calls.</p>
+<div class="highlight"><pre><span></span><code><span class="n">old_server</span><span class="o">=</span><span class="s1">&#39;http://OLDY&#39;</span>
+<span class="n">new_server</span><span class="o">=</span><span class="s1">&#39;http://NEWY&#39;</span>
+<span class="n">creds</span><span class="o">=[</span><span class="s1">&#39;user&#39;</span><span class="p">,</span><span class="s1">&#39;pass&#39;</span><span class="o">]</span>
+
+<span class="nb">require</span> <span class="s1">&#39;http&#39;</span>
+<span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
+<span class="n">h</span><span class="o">=</span><span class="no">HTTP</span><span class="o">.</span><span class="n">basic_auth</span><span class="p">(</span><span class="ss">user</span><span class="p">:</span> <span class="n">creds</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="ss">pass</span><span class="p">:</span> <span class="n">creds</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="p">)</span>
+
+<span class="n">board_names</span><span class="o">=</span><span class="no">JSON</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">h …</span></code></pre></div>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/grafana-migrate-dashboards.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/running-external-ruby-code-from-vagrant.html">Running external Ruby code from Vagrant</a></h2>
+                <div class="summary"><h2>The Story</h2>
+<p>Like a lot of Chef users, I'm using Vagrant for testing my cookbooks. I'm also using Berkshelf for providing the Vagrant box with the cookbooks it needs.<br>
+Until recently, I was happy using the ChefDK-provided Berlshelf (v4.0.1). I stopped being happy when running <code>berks</code> started consuming …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/running-external-ruby-code-from-vagrant.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/backslasher-python.html">Backslasher-Python: a simple Chef Python cookbook</a></h2>
+                <div class="summary"><h3>What's wrong with the current Python cookbook</h3>
+<p>Until now, we were using the <a href="https://github.com/poise/python">Python cookbook</a>. This worked well for a while, until I noticed these things:</p>
+<ol>
+<li>This cookbook is being deprecated, and replaced by <a href="https://github.com/poise/poise-python">poise-python</a>, meaning some day the Python cookbook will be a wrapper around poise-python.</li>
+<li>Even today, when …</li></ol>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/backslasher-python.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/chef-custom-resources.html">Chef Custom Resources - Missing Documentation</a></h2>
+                <div class="summary"><p>The new Chef documentation for <a href="https://docs.chef.io/custom_resources.html">Custom Resources</a> is pretty lackluster.<br>
+This is probably because they're too busy making awesome stuff, but I still needed to learn some stuff the hard way.<br>
+Thought I'd share them.  </p>
+<h3>The basics</h3>
+<p>There is no longer a "state-only" resource and an implementing provider. Instead, there …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/chef-custom-resources.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/aws-billing.html">Parsing AWS billing</a></h2>
+                <div class="summary"><h2>The Story</h2>
+<p>I never understood the AWS billing very well and happily left it to my CTO.<br>
+A couple of days ago, however, my CTO secretly told me he's mainly interested in learning 2 things from those bills:</p>
+<ol>
+<li>How much are we paying for every component of the application?</li>
+<li>How …</li></ol>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/aws-billing.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/jenkins-token.html">Managing Jenkins API Tokens</a></h2>
+                <div class="summary"><h2>The problem</h2>
+<p><a href="https://wiki.jenkins-ci.org/display/JENKINS/Authenticating+scripted+clients">Api Tokens</a> are like user passwords, except they are always managed by Jenkins (even if you're using an external authentication scheme), and can only be used for "API" actions (e.g. using <code>curl</code>).<br>
+The storage scheme of these tokens is a little weird - the stored value is hashed …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/jenkins-token.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/open-gridview.html">Open-Gridview - the FOSS Out-Gridview</a></h2>
+                <div class="summary"><h2>The Story</h2>
+<p>I've been a Microsoft SysAdmin for a long time before switching for Linux. During which, I scripted a lot in PowerShell.<br>
+PowerShell has several "output" functions like <code>Out-File</code> (which passes the input to a file), <code>Out-Null</code> etc.<br>
+One of these functions was <a href="https://technet.microsoft.com/en-us/library/hh849920.aspx">Out-Gridview</a> which tabularizes its input and …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/open-gridview.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        <ul class="pagination">
+                <li class="prev"><a href="https://blog.backslasher.net/category/foss.html">&laquo;</a>
+                </li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/foss.html">1</a></li>
+                    <li class="active"><a
+                            href="https://blog.backslasher.net/category/foss2.html">2</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/foss3.html">3</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/foss4.html">4</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/foss5.html">5</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/foss6.html">6</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/foss7.html">7</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/foss8.html">8</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/foss9.html">9</a></li>
+                <li class="next"><a
+                        href="https://blog.backslasher.net/category/foss3.html">&raquo;</a></li>
+        </ul>
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

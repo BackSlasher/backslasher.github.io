@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Event Log Permissions, With Scripts! - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/event-log-permissions-with-scripts.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Security,Scripts,PowerShell,Registry,Event Log" />
+        <meta name="description" content="I&#39;m going to keep it short, because there&#39;s a lot of technical background. So, I&#39;m assuming you know about: Assigning permissions to the registry SDDLs Event Log concepts (sources, logs) So, to business: Intro Event viewer data is stored in .evt/.evtx files in %SystemRoot%\System32\Winevt\Logs\, but as …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Event Log Permissions, With Scripts!"/>
+        <meta property="og:url" content="https://blog.backslasher.net/event-log-permissions-with-scripts.html"/>
+        <meta property="og:description" content="I&#39;m going to keep it short, because there&#39;s a lot of technical background. So, I&#39;m assuming you know about: Assigning permissions to the registry SDDLs Event Log concepts (sources, logs) So, to business: Intro Event viewer data is stored in .evt/.evtx files in %SystemRoot%\System32\Winevt\Logs\, but as …"/>
+        <meta property="article:published_time" content="2011-01-13" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="Security" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="PowerShell" />
+            <meta property="article:tag" content="Registry" />
+            <meta property="article:tag" content="Event Log" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/event-log-permissions-with-scripts.html"
+                       rel="bookmark"
+                       title="Permalink to Event Log Permissions, With Scripts!">
+                        Event Log Permissions, With Scripts!
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2011-01-13T11:48:00+01:00"> Thu 13 January 2011</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/security.html">Security</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+        /
+	<a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+        /
+	<a href="https://blog.backslasher.net/tag/event-log.html">Event Log</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>I'm going to keep it short, because there's a lot of technical background.<br>
+So, I'm assuming you know about:  </p>
+<ul>
+<li><a href="http://technet.microsoft.com/en-us/library/cc728310%28WS.10%29.aspx">Assigning permissions to the registry</a></li>
+<li><a href="http://msdn.microsoft.com/en-us/library/aa379567%28v=vs.85%29.aspx">SDDLs</a></li>
+<li>Event Log concepts (sources, logs)</li>
+</ul>
+<p>So, to business:  </p>
+<h3>Intro</h3>
+<p>Event viewer data is stored in <code>.evt</code>/<code>.evtx</code> files in <code>%SystemRoot%\System32\Winevt\Logs\</code>, but as with any half-decent DB, no one but <code>SYSTEM</code> is touching the files themselves.<br>
+The permissions are basically divided into two interesting parts - event-related permissions (reading / writing / clearing event logs) and source-related permissions (creating / deleting sources).  </p>
+<h4>Other permissions</h4>
+<p>Of course there is also creating / deleting logs themselves, but it
+happens so rarely that I just do it with my admin account.</p>
+<h3>Event-Related</h3>
+<p>Event-related permissions are per log (<code>application</code>/<code>system</code> etc.) and are stored in an SDDL in <code>HKLM\SYSTEM\CurrentControlSet\services\eventlog\LOGNAME:CustomSD</code><br>
+To grant or deny principles some privileges, edit the SDDL, using the
+following bits:</p>
+<ul>
+<li>0x01: Read</li>
+<li>0x02: Write</li>
+<li>0x04: Clear</li>
+</ul>
+<p><strong>Note:</strong> Restart is required to apply those permissions</p>
+<h4>Scripting Time</h4>
+<p>I use PowerShell to read the registry value, parse the SDDL into an ACL object, edit it, and export the SDDL-equivalent back into the registry.<br>
+This stub of a script will grant some principle permissions to read from and write to a certain log:  </p>
+<div class="highlight"><pre><span></span><code><span class="k">param</span><span class="p">(</span>
+<span class="no">[string]</span><span class="nv">$Principle</span> <span class="p">=</span> <span class="s1">&#39;Builtin\Remote Desktop Users&#39;</span><span class="p">,</span>
+<span class="no">[string]</span><span class="nv">$LogName</span> <span class="p">=</span> <span class="s1">&#39;Application&#39;</span>
+<span class="p">)</span>
+
+<span class="c"># Get SDDL:</span>
+<span class="nv">$orgSDDL</span> <span class="p">=</span> <span class="nb">gp </span><span class="p">(</span><span class="s1">&#39;HKLM:\SYSTEM\CurrentControlSet\Services\Eventlog\&#39;</span><span class="p">+</span><span class="nv">$LogName</span><span class="p">)</span> <span class="n">CustomSD</span> <span class="p">|</span> <span class="nb">select </span><span class="n">-exp</span> <span class="n">CustomSD</span><span class="p">;</span>
+
+<span class="nb">write-host</span> <span class="s1">&#39;Before:&#39;</span>
+<span class="nv">$orgSDDL</span><span class="p">;</span>
+
+<span class="c"># Create ACL</span>
+<span class="nv">$acl</span> <span class="p">=</span> <span class="nb">new-object</span> <span class="n">System</span><span class="p">.</span><span class="n">Security</span><span class="p">.</span><span class="n">AccessControl</span><span class="p">.</span><span class="n">RegistrySecurity</span><span class="p">;</span>
+<span class="nv">$acl</span><span class="p">.</span><span class="n">SetSecurityDescriptorSddlForm</span><span class="p">(</span><span class="nv">$orgSDDL</span><span class="p">);</span>
+
+<span class="c"># Create ACE</span>
+<span class="nv">$ace</span> <span class="p">=</span> <span class="nb">New-Object</span> <span class="n">System</span><span class="p">.</span><span class="n">Security</span><span class="p">.</span><span class="n">AccessControl</span><span class="p">.</span><span class="n">RegistryAccessRule</span> <span class="nv">$Principle</span><span class="p">,</span><span class="n">3</span><span class="p">,</span><span class="s1">&#39;allow&#39;</span><span class="p">;</span>
+
+<span class="c"># Combine ACL</span>
+<span class="nv">$acl</span><span class="p">.</span><span class="n">AddAccessRule</span><span class="p">(</span><span class="nv">$ace</span><span class="p">);</span>
+<span class="nv">$newSDDL</span> <span class="p">=</span> <span class="nv">$acl</span><span class="p">.</span><span class="n">SDDL</span><span class="p">;</span>
+
+<span class="nb">write-host</span> <span class="s1">&#39;After:&#39;</span>
+<span class="nv">$newSDDL</span><span class="p">;</span>
+
+<span class="c"># Store SDDL:</span>
+<span class="nb">sp </span><span class="p">(</span><span class="s1">&#39;HKLM:\SYSTEM\CurrentControlSet\Services\Eventlog\&#39;</span><span class="p">+</span><span class="nv">$LogName</span><span class="p">)</span> <span class="n">CustomSD</span> <span class="nv">$newSDDL</span><span class="p">;</span>
+</code></pre></div>
+
+<h3>Source-Related</h3>
+<p>Sources are actually manipulated using the registry (not through some API), and therefore require actual permissions on the registry key of the log itself. For instance, to create a new event source in the <code>Application</code> log, I would need the privilege to create a key under
+<code>HKLM\SYSTEM\CurrentControlSet\services\eventlog\Application</code>.<br>
+<strong>Note:</strong> Consider creating all of the event sources in one concentrated blow as
+an admin, to avoid messing with the registry's permissions.<br>
+No restart is required to apply these permissions.</p>
+<h4>Scripting Time</h4>
+<p>Granting / denying privileges on the registry is fairly easy with PowerShell. Here's a bit that adds read/write permissions for sources on a specific log to a specific principle:</p>
+<div class="highlight"><pre><span></span><code><span class="c"># Set parameters:</span>
+<span class="k">param</span><span class="p">(</span>
+<span class="no">[string]</span><span class="nv">$Principle</span> <span class="p">=</span> <span class="s1">&#39;Builtin\Remote Desktop Users&#39;</span><span class="p">,</span>
+<span class="no">[string]</span><span class="nv">$LogName</span> <span class="p">=</span> <span class="s1">&#39;Application&#39;</span>
+<span class="p">)</span>
+
+<span class="c"># Compose Key:</span>
+<span class="nv">$LogPath</span> <span class="p">=</span> <span class="s1">&#39;HKLM:\SYSTEM\CurrentControlSet\services\eventlog\&#39;</span><span class="p">+</span><span class="nv">$LogName</span><span class="p">;</span>
+<span class="k">if</span><span class="p">(</span><span class="nb">Test-Path</span> <span class="nv">$LogPath</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="nv">$acl</span> <span class="p">=</span> <span class="nb">Get-Acl</span> <span class="nv">$LogPath</span>
+    <span class="nv">$ace</span> <span class="p">=</span> <span class="nb">New-Object</span> <span class="n">System</span><span class="p">.</span><span class="n">Security</span><span class="p">.</span><span class="n">AccessControl</span><span class="p">.</span><span class="n">RegistryAccessRule</span> <span class="nv">$Principle</span><span class="p">,</span><span class="s1">&#39;WriteKey, ReadKey&#39;</span><span class="p">,</span><span class="s1">&#39;allow&#39;</span>
+    <span class="nv">$acl</span><span class="p">.</span><span class="n">AddAccessRule</span><span class="p">(</span><span class="nv">$ace</span><span class="p">)</span>
+    <span class="c">#Set-Acl $LogPath $acl</span>
+<span class="p">}</span><span class="k">else</span><span class="p">{</span><span class="nb">Write-Error</span> <span class="s2">&quot;Cannot acesss log $LogName&quot;</span><span class="p">}</span>
+</code></pre></div>
+
+<h3>Further Reading</h3>
+<ul>
+<li><a href="http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.aspx">System.Security.AccessControl
+    namespace</a></li>
+<li><a href="http://msdn.microsoft.com/en-us/library/aa363661%28VS.85%29.aspx">Event
+    Sources</a></li>
+</ul>
+<p>Enjoy messing with the event log!</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

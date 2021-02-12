@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Network Monitor capture filter limitations - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/network-monitor-capture-filter-limitations.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="TCP,Mysteries Solved,Firewall,Network Monitor" />
+        <meta name="description" content="I recently had to deal with some network traffic issues, so naturally I turned to NetMon. My problem was with some TCP packets not reaching their destination. Since TCP has packet acknowledgements (meaning the receiving end says &#34;packet received&#34; or the packet is sent again), the issue was detectable as …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Network Monitor capture filter limitations"/>
+        <meta property="og:url" content="https://blog.backslasher.net/network-monitor-capture-filter-limitations.html"/>
+        <meta property="og:description" content="I recently had to deal with some network traffic issues, so naturally I turned to NetMon. My problem was with some TCP packets not reaching their destination. Since TCP has packet acknowledgements (meaning the receiving end says &#34;packet received&#34; or the packet is sent again), the issue was detectable as …"/>
+        <meta property="article:published_time" content="2013-08-30" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="TCP" />
+            <meta property="article:tag" content="Mysteries Solved" />
+            <meta property="article:tag" content="Firewall" />
+            <meta property="article:tag" content="Network Monitor" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/network-monitor-capture-filter-limitations.html"
+                       rel="bookmark"
+                       title="Permalink to Network Monitor capture filter limitations">
+                        Network Monitor capture filter limitations
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2013-08-30T09:11:00+02:00"> Fri 30 August 2013</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/tcp.html">TCP</a>
+        /
+	<a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+        /
+	<a href="https://blog.backslasher.net/tag/firewall.html">Firewall</a>
+        /
+	<a href="https://blog.backslasher.net/tag/network-monitor.html">Network Monitor</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>I recently had to deal with some network traffic issues, so naturally I turned to NetMon.<br>
+My problem was with some TCP packets not reaching their destination.<br>
+Since TCP has packet acknowledgements (meaning the receiving end says "packet received" or the packet is sent again), the issue was detectable as "retransmits" on the sending side.<br>
+While some retransmits are acceptable, I had an unreasonable amount of these.  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/network-monitor-capture-filter/NetMonRetransmit.png"><br>
+This is a <code>SynRetransmit</code> (and not <code>TCPRetransmit</code>) because it's easier to recreate, but the idea is the same.</p>
+<p>Filtering for retransmits can be done using "Property.TCPRetransmit" or
+"Property.TCPSynRetransmit" (depending on what you're looking for):<br>
+<img alt="" src="https://blog.backslasher.net/images/network-monitor-capture-filter/NetMonFilter.png">  </p>
+<p>As any NetMon novice knows, there are two filters you can use during a
+capture:</p>
+<ul>
+<li><strong>Capture Filter</strong>, affecting the packets being collected and parsed into NetMon</li>
+<li><strong>Display Filter</strong>, controlling which collected packets are presented on screen</li>
+</ul>
+<p>After learning the difference, it's common sense that as much filtering as possible should be done using the capture filter, to save NetMon the job of collecting and parsing unneeded packets. So I spent 30 minutes trying to understand why filtering for <code>TCPRetransmit</code>s using the capture filter yielded no packets whatsoever.<br>
+Eventually, after reading up on <code>TCPRetransmit</code>s and the way NetMon parses them (file <code>tcp.npl</code>, around row 239), I realised:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/network-monitor-capture-filter/NetMonTCPDefinition.png"></p>
+<p>The retransmits have no special identifying property - NetMon just looks for previous packets in the conversation that have the same sequence number, so if it doesn't capture the original packet, it has nothing to compare the sequence number to, so it won't find the retransmits as well.  </p>
+<h3>To sum up:</h3>
+<p>You can't detect retransmits using the capture filter. You should use the capture filter to narrow the packet options using other properties (like <code>IPv4.Address</code>) and filter for retransmits only using the display filter.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

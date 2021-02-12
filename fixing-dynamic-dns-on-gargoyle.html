@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Fixing Dynamic DNS on Gargoyle - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/fixing-dynamic-dns-on-gargoyle.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="DNS,Mysteries Solved,Gargoyle,Scripts,Linux,Networking,DDNS,Bash" />
+        <meta name="description" content="Note: I switched to inadyn on my home server eventually. I left this article because it&#39;s still relevant I was digging through the logs of my latest Gargoyle installation (a router firmware based on OpenWrt, with a better UI in my opinion), and found out that Dynamic DNS updates were …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Fixing Dynamic DNS on Gargoyle"/>
+        <meta property="og:url" content="https://blog.backslasher.net/fixing-dynamic-dns-on-gargoyle.html"/>
+        <meta property="og:description" content="Note: I switched to inadyn on my home server eventually. I left this article because it&#39;s still relevant I was digging through the logs of my latest Gargoyle installation (a router firmware based on OpenWrt, with a better UI in my opinion), and found out that Dynamic DNS updates were …"/>
+        <meta property="article:published_time" content="2014-03-23" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="DNS" />
+            <meta property="article:tag" content="Mysteries Solved" />
+            <meta property="article:tag" content="Gargoyle" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="Networking" />
+            <meta property="article:tag" content="DDNS" />
+            <meta property="article:tag" content="Bash" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/fixing-dynamic-dns-on-gargoyle.html"
+                       rel="bookmark"
+                       title="Permalink to Fixing Dynamic DNS on Gargoyle">
+                        Fixing Dynamic DNS on Gargoyle
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-03-23T13:07:00+01:00"> Sun 23 March 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/dns.html">DNS</a>
+        /
+	<a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+        /
+	<a href="https://blog.backslasher.net/tag/gargoyle.html">Gargoyle</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/networking.html">Networking</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ddns.html">DDNS</a>
+        /
+	<a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><strong>Note</strong>: I switched to <code>inadyn</code> on my home server eventually. I left this article because it's still relevant</p>
+<p>I was digging through the logs of my latest
+<a href="http://www.gargoyle-router.com/">Gargoyle</a> installation (a router
+firmware based on OpenWrt, with a better UI in my opinion), and found
+out that <a href="http://en.wikipedia.org/wiki/Dynamic_DNS">Dynamic DNS</a> updates
+were failing.<br>
+I was a little disappointed that I couldn't find any documentation about
+what to do - the messages, both in the log and in the UI weren't too
+informative.<br>
+They were either:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/fixing-dynamic-dns-on-gargoyle/DDNSCliError.png"></p>
+<p><code>Successfully retrieved local ip from url</code>..., so no real error there<br>
+Or:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/fixing-dynamic-dns-on-gargoyle/DDNSUIError.png"></p>
+<div class="highlight"><pre><span></span><code><span class="err">Update of new dynamic DNS service configuration(s) failed</span>
+<span class="err">...</span>
+<span class="err">Service(s) could not be update properly and have therefore been</span>
+<span class="err">removed.</span>
+</code></pre></div>
+
+<p>Which gives me no info.<br>
+Luckily, it's all Linux, so I quickly found the configuration files and
+got to work.<br>
+Because my DDNS provider is <a href="http://dnsexit.com/">dnsexit.com</a>, I
+searched for files containing "dnsexit" in the <code>/etc</code> directory (which
+is where configuration is usually kept), like this:  </p>
+<div class="highlight"><pre><span></span><code>grep -r <span class="s2">&quot;dnsexit&quot;</span> /etc
+</code></pre></div>
+
+<p>I found the configuration in <code>/etc/ddns_providers.conf</code>. You'll see
+there the configuration for all of different DDNS providers. I'll copy
+my current one:  </p>
+<div class="highlight"><pre><span></span><code>service dnsexit.com
+ url_template   https://www.dnsexit.com/RemoteUpdate.sv?login=[[USERNAME]]&amp;password=[[PASSWORD]]&amp;host=[[DOMAIN]]&amp;myip=[[IP]]
+ required_variables  domain username password
+ required_variable_names  DyDNS.DoNm,DyDNS.UsrN,DyDNS.Pssw
+ success_regexp   /^0=Success|1=IP*/
+</code></pre></div>
+
+<p>Using this configuration, we can deduce that hitting the url under
+<code>url_template</code> while replacing all double-bracketed variables with
+actual values will try and update my IP, and the response has to match
+the <a href="http://en.wikipedia.org/wiki/Regular_expression">regular expression</a> under
+<code>success_regexp</code>. My next action was building this small bash script to
+try and emulate Gargoyle's actions:   </p>
+<div class="highlight"><pre><span></span><code><span class="nv">HOST</span><span class="o">=</span>BESTHOSTEVER.com
+<span class="nv">USER</span><span class="o">=</span>SOMETHING
+<span class="nv">PASS</span><span class="o">=</span>SOMETHINGELSE
+
+<span class="nv">IP</span><span class="o">=</span><span class="k">$(</span>curl -s ifconfig.me/ip<span class="k">)</span>
+curl <span class="s2">&quot;https://www.dnsexit.com/RemoteUpdate.sv?login=</span><span class="nv">$USER</span><span class="s2">&amp;password=</span><span class="nv">$PASS</span><span class="s2">&amp;host=</span><span class="nv">$HOST</span><span class="s2">&amp;myip=</span><span class="nv">$IP</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p>Note the line starting with IP. It uses <code>cURL</code> to hit a nice website,
+which is supposed to return your external IP address. The result I got
+looked like:   </p>
+<div class="highlight"><pre><span></span><code> HTTP/1.1 200 OK
+4=IP not changed. To save our system resources, please don&#39;t post updates unless the IP got changed.
+</code></pre></div>
+
+<p>So it looks like dnsexit says something like "no change is needed.
+Please don't bother us for no reason." According to <a href="http://downloads.dnsexit.com/ipUpdate.doc">this document</a> I found, the code
+returned should be 1 (same IP) and not 4 (stop hammering our servers),
+because I tried that action once every couple of hours. I can instruct
+Gargoyle to accept this as a reasonable answer by modifying
+"success_regexp" to this:   </p>
+<div class="highlight"><pre><span></span><code> success_regexp   /^0=Success|1=IP|4=IP not changed*/
+</code></pre></div>
+
+<p>After backing up the file, editing and trying again, lo and behold!
+Everything works!</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

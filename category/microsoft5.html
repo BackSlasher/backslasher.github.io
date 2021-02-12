@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Microsoft - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+    <meta name="author" content="Nitz" />
+    <meta name="keywords" content="Microsoft" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="BackSlasher"/>
+        <meta property="og:url" content="https://blog.backslasher.net"/>
+        <meta property="og:description" content="BackSlasher"/>
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+            <article>
+                <h2><a href="https://blog.backslasher.net/automaticlly-extracting-downloaded-torrents.html">Automaticlly Extracting Downloaded Torrents</a></h2>
+                <div class="summary"><p>As every average geek, I too download torrents (containing only legal, copyright-free material, of course), and most of the time the torrents contain multi-file archives that contain the really juicy data.<br>
+A lot of times I return home and find some new torrent has completed downloading, but I have to …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/automaticlly-extracting-downloaded-torrents.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/remotley-viewing-machine-certificates-with-minimal-permissions.html">Remotely Viewing Machine Certificates With Minimal Permissions</a></h2>
+                <div class="summary"><p>We've started remotely monitoring our certificate stores on critical
+servers, and wanted the monitoring software to be able to remotely
+connect to our servers' personal certificate stores.<br>
+I quickly found a script to enumerate all certificates in a specific
+store on a remote computer:  </p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span> <span class="nb">Get-Cert</span><span class="p">(</span> <span class="nv">$computer</span><span class="p">=</span><span class="nv">$env:computername</span> <span class="p">){</span>
+<span class="nv">$ro …</span></code></pre></div>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/remotley-viewing-machine-certificates-with-minimal-permissions.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/determining-size-of-all-tables-in-a-database.html">Determining Size of all Tables in a Database</a></h2>
+                <div class="summary"><p>Just a quick SQL script to get the rowcount and size data of every table
+in the current database:  </p>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">#</span><span class="n">sizeof</span> <span class="p">(</span>
+ <span class="n">name</span> <span class="nb">varchar</span> <span class="p">(</span><span class="mi">70</span><span class="p">),</span>
+ <span class="p">[</span><span class="k">rows</span><span class="p">]</span> <span class="nb">int</span><span class="p">,</span>
+ <span class="n">reserved</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span>
+ <span class="k">data</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span>
+ <span class="n">index_size</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span>
+ <span class="n">unused</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">DELCARE</span> <span class="o">@</span><span class="n">name</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">70</span><span class="p">)</span>
+<span class="k">DECLARE</span> <span class="n">cur</span> <span class="k">CURSOR</span> <span class="k">FOR</span> <span class="k">select</span> <span class="n">name</span> <span class="k">from …</span></code></pre></div>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/determining-size-of-all-tables-in-a-database.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/creating-proxied-http-requests-with-powershell.html">Creating proxied http requests with PowerShell</a></h2>
+                <div class="summary"><p>I'm working on some sort of HTTP proxy (maybe more details about it later), and to test it I've created a short PowerShell script.<br>
+Note it also performs basic authentication voluntarily (without waiting for a server challenge) by injecting an <code>Authorization</code> header, because I was testing something extra special.<br>
+I …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/creating-proxied-http-requests-with-powershell.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/active-directory-object-specific-aces.html">Active Directory's Object Specific ACEs and PowerShell</a></h2>
+                <div class="summary"><p>I recently checked the option of handing out AD permissions through PowerShell scripts, and I found out that setting object-specific ACEs is not trivial scriptwise.<br>
+Active Directory ACE (access control entries) are different from your regular ACEs (for example, NTFS), because they can be used to grant permissions only on …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/active-directory-object-specific-aces.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/making-sure-your-audit-collection-server-is-collecting.html">Making sure your Audit Collection Server is collecting</a></h2>
+                <div class="summary"><p>A few days ago I wanted to make sure that my ACS (Audit Collection
+Server) is collecting events from all of my DCs.<br>
+For those unfamiliar with ACS, it's an additional component to SCOM
+(System Center Configuration Manager) that allows you to collect events
+from the security log of several …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/making-sure-your-audit-collection-server-is-collecting.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/monitoring-sharepoint-2010-on-scom.html">Monitoring SharePoint 2010 on SCOM - Minimal Permissions</a></h2>
+                <div class="summary"><p>I've recently started monitoring my new SharePoint 2010 farms on SCOM,
+and found the management pack's documentation to be rather lacking in
+setup instructions, and the required permissions for SCOM's account on
+the farm were rather shocking:  </p>
+<ul>
+<li>Local admin on all SharePoint servers</li>
+<li>Local admin on all SQL servers</li>
+<li>dbowner …</li></ul>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/monitoring-sharepoint-2010-on-scom.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/module-owssvrdll-could-not-be-loaded.html">"The module ... owssvr.dll could not be loaded due to a configuration problem"</a></h2>
+                <div class="summary"><p>Recently, one of my teammates installed ArcGis Server 9.3 on our fresh
+SharePoint 2010 box, causing all sites to respond with <code>503 Service
+Unavailable</code>. A quick inspection showed that the application pools have
+stopped themselves, and the Windows application event log was spammed
+with:  </p>
+<div class="highlight"><pre><span></span><code>Event ID: 2282
+Source: Microsoft-Windows-IIS-W3SVC-WP …</code></pre></div>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/module-owssvrdll-could-not-be-loaded.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/solving-and-preventing-topology-discovery-failed.html">Solving and preventing "Topology Discovery failed, error 0x80040a02"</a></h2>
+                <div class="summary"><p>Recently our Exchange 2003 environment broke down when we demoted our
+last ancient DCs. We panicked and re-promoted them, but no avail. The
+Exchange servers won't finish loading (they'd get stuck on "Applying
+computer settings", while actually waiting for the <code>Microsoft Exchange System
+Attendant</code> service to finish starting).<br>
+The error …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/solving-and-preventing-topology-discovery-failed.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/showing-mail-icon-in-control-panel-through-group-policy.html">Showing "Mail" icon in control panel through Group Policy</a></h2>
+                <div class="summary"><p>I recently had to lock down a Windows 2008R2 remote desktop server
+(terminal server)<br>
+One of the requirements was to show only some control panel items, a
+setting that can be achieved using the Group Policy setting "Show only
+specified Control Panel items" (under <code>Policies &gt; Administrative
+Templates &gt; Control Panel</code>), but …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/showing-mail-icon-in-control-panel-through-group-policy.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        <ul class="pagination">
+                <li class="prev"><a href="https://blog.backslasher.net/category/microsoft4.html">&laquo;</a>
+                </li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/microsoft.html">1</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/microsoft2.html">2</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/microsoft3.html">3</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/microsoft4.html">4</a></li>
+                    <li class="active"><a
+                            href="https://blog.backslasher.net/category/microsoft5.html">5</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/microsoft6.html">6</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/category/microsoft7.html">7</a></li>
+                <li class="next"><a
+                        href="https://blog.backslasher.net/category/microsoft6.html">&raquo;</a></li>
+        </ul>
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Hijacking a process's i/o streams using gdb - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/hijacking-processs-io-streams-using-gdb.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Scripts,Linux,gdb,Debugging,Bash" />
+        <meta name="description" content="The Story I recently had a very annoying problem - some daemon failed, but ran fine when told to run at foreground (not daemonize). Running at foreground is the easiest way to debug processes, because that way you get their input / output / error streams in your terminal. Said daemon had no …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Hijacking a process&#39;s i/o streams using gdb"/>
+        <meta property="og:url" content="https://blog.backslasher.net/hijacking-processs-io-streams-using-gdb.html"/>
+        <meta property="og:description" content="The Story I recently had a very annoying problem - some daemon failed, but ran fine when told to run at foreground (not daemonize). Running at foreground is the easiest way to debug processes, because that way you get their input / output / error streams in your terminal. Said daemon had no …"/>
+        <meta property="article:published_time" content="2014-05-28" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="gdb" />
+            <meta property="article:tag" content="Debugging" />
+            <meta property="article:tag" content="Bash" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/hijacking-processs-io-streams-using-gdb.html"
+                       rel="bookmark"
+                       title="Permalink to Hijacking a process's i/o streams using gdb">
+                        Hijacking a process's i/o streams using gdb
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-05-28T12:13:00+02:00"> Wed 28 May 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/gdb.html">gdb</a>
+        /
+	<a href="https://blog.backslasher.net/tag/debugging.html">Debugging</a>
+        /
+	<a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h3>The Story</h3>
+<p>I recently had a very annoying problem - some daemon failed, but ran
+fine when told to run at foreground (not daemonize). Running at
+foreground is the easiest way to debug processes, because that way you
+get their input / output / error streams in your terminal.<br>
+Said daemon had no "log to file" option as well, so the only indication
+I had that something was wrong is that the daemon didn't do what it's
+supposed to do.  </p>
+<p>When processes daemonize, they create a sub process that isn't attached
+to anything (so it won't be affected by the terminal closing, for
+instance).<br>
+The originating process usually exists after creating the sub process,
+and so you can't easily capture the output of the sub process.  </p>
+<p>I eventually realized that I need to "hijack" the <code>stderr</code> stream from the
+sub process. I did some stupid attempts, like this (<strong>NOT WORKING</strong>):</p>
+<div class="highlight"><pre><span></span><code>tail -f /proc/<span class="k">$(</span>pidof <span class="nv">$DAEMON</span><span class="k">)</span>/ld/2
+</code></pre></div>
+
+<p>Eventually I wrote something using strace, which was
+OK:</p>
+<div class="highlight"><pre><span></span><code>sudo strace -ff -p <span class="k">$(</span>pidof <span class="nv">$DAEMON</span><span class="k">)</span> -e <span class="nv">write</span><span class="o">=</span><span class="m">1</span>,2 -s <span class="m">1024</span> <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="p">|</span> grep <span class="s2">&quot;^ |&quot;</span>
+</code></pre></div>
+
+<p><img alt="" src="https://blog.backslasher.net/images/hijacking-processs-io-streams-using-gdb/strace-ok-solution.png"></p>
+<p>It gave me the output I wanted, and I solved my issue (which was me
+passing relative file locations, inaccessible to the sub process created
+because it doesn't inherit the parent's working directory). However, I
+wanted something more elegant. I found the commands in <a href="http://gcolpart.evolix.net/blog21/capture-inputoutput-of-a-process-with-gdb/">this
+post</a>,
+which did something better - given a <code>pid</code>, they redirect its input,
+output and error streams to some <code>tty</code> (terminal), giving you control over
+the process.<br>
+However, it wasn't a fire-and forget script. I tried to fix that :-)  </p>
+<h3>The Solution</h3>
+<p>My script will hook the process to your current terminal.<br>
+<strong>Please note:</strong> I don't think it's a good idea to leave the hijacked
+daemon running after finishing troubleshooting. You should probably
+restart it.</p>
+<div class="highlight"><pre><span></span><code><span class="nv">DAEMON</span><span class="o">=</span>afuse
+<span class="nv">MYT</span><span class="o">=</span><span class="k">$(</span>tty<span class="k">)</span>
+sudo gdb -p <span class="k">$(</span>pidof <span class="nv">$DAEMON</span><span class="k">)</span> <span class="s">&lt;&lt;EOF</span>
+<span class="s">call close(0)</span>
+<span class="s">call close(1)</span>
+<span class="s">call close(2)</span>
+<span class="s">call open(&quot;$MYT&quot;, 2, 0)</span>
+<span class="s">call dup(0)</span>
+<span class="s">call dup(0)</span>
+<span class="s">detach</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<p>Notice the output - much better:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/hijacking-processs-io-streams-using-gdb/gdb-great-solution.png"></p>
+<p>The way the script works is this:<br>
+First, it uses <code>tty</code> to find the path to the current terminal.<br>
+gdb is then called to close streams 0,1,2 (which are almost always
+<code>stdin</code>, <code>stdout</code>, <code>stderr</code>) and open a new stream to the <code>tty</code> found before.
+The new stream opens at index 0 (because it's the lowest index
+available, since we just closed 0,1,2) and copies it to 1 and 2 as well.
+Now <code>stdin</code>, <code>stdout</code> and <code>stderr</code> are all mapped to the current terminal -
+success!</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

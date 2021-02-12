@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Parsing Event Log Subscription Runtime Status using PowerShell and Regex - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/parsing-event-log-subscription-runtime-status.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Scripts,Regular Expressions,Windows,PowerShell,Event Log" />
+        <meta name="description" content="The Story Since Event Log Subscription doesn&#39;t have a module or a .NET class, interacting with its settings and status has to be done either via UI or the command line utility, wecutil.exe I was especially interested in getting the computers runtime status, to see which machines are failing …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Parsing Event Log Subscription Runtime Status using PowerShell and Regex"/>
+        <meta property="og:url" content="https://blog.backslasher.net/parsing-event-log-subscription-runtime-status.html"/>
+        <meta property="og:description" content="The Story Since Event Log Subscription doesn&#39;t have a module or a .NET class, interacting with its settings and status has to be done either via UI or the command line utility, wecutil.exe I was especially interested in getting the computers runtime status, to see which machines are failing …"/>
+        <meta property="article:published_time" content="2013-10-12" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Regular Expressions" />
+            <meta property="article:tag" content="Windows" />
+            <meta property="article:tag" content="PowerShell" />
+            <meta property="article:tag" content="Event Log" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/parsing-event-log-subscription-runtime-status.html"
+                       rel="bookmark"
+                       title="Permalink to Parsing Event Log Subscription Runtime Status using PowerShell and Regex">
+                        Parsing Event Log Subscription Runtime Status using PowerShell and Regex
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2013-10-12T16:00:00+02:00"> Sat 12 October 2013</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/regular-expressions.html">Regular Expressions</a>
+        /
+	<a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+        /
+	<a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+        /
+	<a href="https://blog.backslasher.net/tag/event-log.html">Event Log</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h3>The Story</h3>
+<p>Since Event Log Subscription doesn't have a module or a .NET class,
+interacting with its settings and status has to be done either via UI or
+the command line utility, <code>wecutil.exe</code><br>
+I was especially interested in getting the computers runtime status, to
+see which machines are failing (and why).<br>
+Let’s look at the output generated by <code>wecutil gr</code>:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/parsing-event-log-subscription-runtime/WecutilOutput.png"></p>
+<p>As we can see, every server's status is represented by multiple lines,
+which rules out easy one-line-at-a-time parsing.<br>
+Since Wecutil has no script-friendly output (e.g. CSV), I had to use multiline regex parsing.<br>
+This is done by joining the lines using <code>`n</code> (since PowerShell returns
+an array of rows rather than the complete string), using the .NET class
+<code>Regex</code> (<a href="http://msdn.microsoft.com/en-us/library/system.text.regularexpressions.regex.aspx">System.Text.RegularExpressions.Regex</a>)
+and creating a complicated regex pattern to parse by.<br>
+My full script also supports remoting (using
+<a href="http://technet.microsoft.com/en-us/library/hh849719.aspx">Invoke-Command</a>)
+and parsing all of the fields into meaningful objects (e.g. extracting
+the error messages out of the XML).<br>
+The really interseting part is the regex pattern, especially these
+parts:  </p>
+<ul>
+<li><strong>Nonecapturing groups:</strong> Using <code>(?:)</code> means the group isn't kept for
+    data extraction</li>
+<li><strong>Positive lookbehind:</strong> both the beginning and the end of my string
+    contain line-breaks, so I had to use lookbehind <code>(?\&lt;=)</code> or lookahead
+    <code>(?=)</code> (or both) groups to avoid "competition" for the same line-break
+    between two close matches.</li>
+<li><strong>Capturing ALL characters:</strong> apperantly, <code>.</code> captures every
+    character except <code>\n</code> (newline) so <code>(?:.|\\n)</code> will match every
+    character. Although this difference isn't visible when dealing with
+    single line expressions (since you don't encounter line breaks),
+    it's vital when handling multiline ones.</li>
+<li><strong>Optional segments:</strong> The fields <code>ErrorMessage</code>, <code>ErrorTime</code> and
+    <code>NextRetryTime</code> only appear when <code>LastError</code> isn't 0, so we can't
+    mandate them in the pattern. On the other hand, we do want to
+    capture them when they're present. Surrounding them all with
+    <code>(?:</code>text<code>)?</code> will ensure that the entire expression won't fall if
+    they're not present but populate the right capturing groups if they
+    are.</li>
+<li><strong>Reaching the real end:</strong> The last line isn't terminated with a
+    newline but rather with End-Of-String, so our string ends with
+    <code>(?:\n|$)</code> to match either.</li>
+</ul>
+<h4>The Script</h4>
+<div class="highlight"><pre><span></span><code><span class="k">param</span><span class="p">(</span>
+    <span class="no">[string]</span><span class="nv">$computerName</span><span class="p">,</span>
+    <span class="p">[</span><span class="k">parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+    <span class="no">[string]</span><span class="nv">$subscriptionName</span>
+<span class="p">)</span>
+
+<span class="nv">$wecUtil</span><span class="p">={</span><span class="n">wecutil</span> <span class="n">gr</span> <span class="nv">$args</span><span class="p">[</span><span class="n">0</span><span class="p">]}</span>
+<span class="nv">$splatTable</span><span class="p">=@{}</span>
+<span class="k">if</span><span class="p">(</span><span class="nv">$computeRName</span><span class="p">)</span> <span class="p">{</span><span class="nv">$splatTable</span><span class="p">[</span><span class="s1">&#39;ComputerName&#39;</span><span class="p">]=</span><span class="nv">$computerName</span><span class="p">}</span>
+<span class="nv">$in</span> <span class="p">=</span> <span class="nb">Invoke-Command</span> <span class="nv">@splatTable</span> <span class="nv">$wecUtil</span> <span class="n">-ArgumentList</span> <span class="nv">$subscriptionName</span>
+<span class="nv">$in2</span> <span class="p">=</span> <span class="p">(</span><span class="nv">$in</span> <span class="n">-join</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nv">$pattern</span> <span class="p">=</span> <span class="s1">&#39;(?&lt;=\n)\t{2}(?!\t)(.+)\n\t{3}RunTimeStatus: (.+)\n\t{3}LastError: (.+)(?:\n\t{3}ErrorMessage: ((?:\n|.)+?)\n\t{3}ErrorTime: (.+)\n\t{3}NextRetryTime: (.+))?(?:\n|$)&#39;</span>
+<span class="no">[regex]</span><span class="p">::</span><span class="n">Matches</span><span class="p">(</span><span class="nv">$in2</span><span class="p">,</span><span class="nv">$pattern</span><span class="p">,</span><span class="s1">&#39;Multiline&#39;</span><span class="p">)</span> <span class="p">|</span> <span class="p">%{</span>
+    <span class="nv">$arr</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Groups</span> <span class="p">|</span> <span class="nb">select </span><span class="n">-s</span> <span class="n">1</span> <span class="n">-exp</span> <span class="n">value</span>
+    <span class="n">5</span><span class="p">|</span> <span class="nb">select </span><span class="p">`</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;Name&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="nv">$arr</span><span class="p">[</span><span class="n">0</span><span class="p">]}},</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;RunTimeStatus&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="nv">$arr</span><span class="p">[</span><span class="n">1</span><span class="p">]}},</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;LastError&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="no">[int]</span><span class="nv">$arr</span><span class="p">[</span><span class="n">2</span><span class="p">]}},</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;ErrorMessage&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span>
+        <span class="nv">$msg</span> <span class="p">=</span> <span class="p">(</span><span class="no">[xml]</span><span class="nv">$arr</span><span class="p">[</span><span class="n">3</span><span class="p">]).</span><span class="n">WSManFault</span><span class="p">.</span><span class="n">Message</span>
+        <span class="k">if</span><span class="p">(</span><span class="nv">$msg</span> <span class="o">-is</span> <span class="no">[string]</span><span class="p">)</span> <span class="p">{</span><span class="nv">$msg</span><span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span><span class="nv">$msg</span><span class="p">.</span><span class="n">ProviderFault</span><span class="p">.</span><span class="n">ProviderError</span><span class="p">.</span><span class="s1">&#39;#text&#39;</span><span class="p">}</span>
+    <span class="p">}},</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;ErrorTime&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="no">[datetime]</span><span class="nv">$arr</span><span class="p">[</span><span class="n">4</span><span class="p">]}},</span>
+    <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;NextRetryTime&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="no">[datetime]</span><span class="nv">$arr</span><span class="p">[</span><span class="n">5</span><span class="p">]}}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4>Further Reading</h4>
+<ul>
+<li>MSDN:<br>
+<a href="http://msdn.microsoft.com/en-us/library/az24scfc.aspx">Regular Expression Language - Quick Reference</a><br>
+<a href="http://msdn.microsoft.com/en-us/library/bs2twtah.aspx">Grouping Constructs in Regular
+Expressions</a></li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

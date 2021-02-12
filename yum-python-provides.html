@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Scripting YUM provides search using Python - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/yum-python-provides.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Python,Scripts,CentOS,Linux" />
+        <meta name="description" content="Update 24-06-15 Thanks to this page, I fixed my script. It no longer requires root privillages. I also muted informational messages because they were not very informational. The Story Today I had a list of files (nagios check scripts), and I wanted to check for every file if there&#39;s a …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Scripting YUM provides search using Python"/>
+        <meta property="og:url" content="https://blog.backslasher.net/yum-python-provides.html"/>
+        <meta property="og:description" content="Update 24-06-15 Thanks to this page, I fixed my script. It no longer requires root privillages. I also muted informational messages because they were not very informational. The Story Today I had a list of files (nagios check scripts), and I wanted to check for every file if there&#39;s a …"/>
+        <meta property="article:published_time" content="2015-04-14" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Python" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="CentOS" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/yum-python-provides.html"
+                       rel="bookmark"
+                       title="Permalink to Scripting YUM provides search using Python">
+                        Scripting YUM provides search using Python
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-04-14T16:50:00+02:00"> Tue 14 April 2015</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/python.html">Python</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/centos.html">CentOS</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h3>Update 24-06-15</h3>
+<p>Thanks to <a href="http://yum.baseurl.org/wiki/5MinuteExamples">this page</a>, I fixed my script. It no longer requires root privillages. I also muted informational messages because they were not very informational.</p>
+<h2>The Story</h2>
+<p>Today I had a list of files (nagios check scripts), and I wanted to check for every file if there's a package containing it (I'm a big fan of getting files from the repo rather than downloading manually).
+Although YUM provides a way to search for packages containing a file pattern, like this:</p>
+<div class="highlight"><pre><span></span><code>yum provides <span class="s1">&#39;*/check_mailq&#39;</span>
+</code></pre></div>
+
+<p>The output is quite complicated to parse:</p>
+<div class="highlight"><pre><span></span><code>Loaded plugins: fastestmirror, presto
+Loading mirror speeds from cached hostfile
+ * base: mirrors.seas.harvard.edu
+ * epel: mirror.symnds.com
+ * extras: mirror.ash.fastserv.com
+ * updates: mirror.cogentco.com
+private-chef-1.4.15-1.el6.x86_64 : The full stack of private-chef
+Repo        : chef-stable
+Matched from:
+Filename    : /opt/opscode/embedded/nagios/libexec/check_mailq
+
+
+
+private-chef-1.4.14-1.el6.x86_64 : The full stack of private-chef
+Repo        : chef-stable
+Matched from:
+Filename    : /opt/opscode/embedded/nagios/libexec/check_mailq
+
+
+
+nagios-plugins-mailq-1.4.16-10.el6.x86_64 : Nagios Plugin - check_mailq
+Repo        : epel
+Matched from:
+Filename    : /usr/lib64/nagios/plugins/check_mailq
+</code></pre></div>
+
+<p>The first part is irrelevant (info messages that should IMO go to <code>stderr</code>), and every entry in the actual result contains multiple lines... bah.
+Luckily, YUM is completely written in python so we can copy its behaviour with a custom script.</p>
+<h2>The Solution</h2>
+<p>I used <a href="http://mo.morsi.org/blog/node/220">this post</a> to help me with basic discovery. The rest is my work.<br>
+This script requires root (or <code>sudo</code>). I didn't bother finding out how to run it otherwise.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">yum</span>
+<span class="n">yb</span><span class="o">=</span><span class="n">yum</span><span class="o">.</span><span class="n">YumBase</span><span class="p">()</span>
+<span class="n">yb</span><span class="o">.</span><span class="n">setCacheDir</span><span class="p">()</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span> <span class="c1"># Mute loggers</span>
+<span class="n">files</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;YOUR&#39;</span><span class="p">,</span><span class="s1">&#39;file&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="s1">&#39;go&#39;</span><span class="p">,</span><span class="s1">&#39;here&#39;</span><span class="p">]</span>
+
+<span class="n">res</span><span class="o">=</span><span class="p">{}</span>
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+  <span class="n">r</span><span class="o">=</span><span class="n">yb</span><span class="o">.</span><span class="n">searchPackageProvides</span><span class="p">([</span><span class="s1">&#39;*/&#39;</span><span class="o">+</span><span class="n">f</span><span class="p">])</span> <span class="c1"># ,(&#39;*/&#39;+f+&#39;.*&#39;)</span>
+  <span class="n">res</span><span class="p">[</span><span class="n">f</span><span class="p">]</span><span class="o">=</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+</code></pre></div>
+
+<p>The following part varies by your objective. I wanted to list the packages required for each file, and also a sorted list of all relevant packages:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span> <span class="s1">&#39;**No matches:&#39;</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">x</span><span class="p">])</span><span class="o">==</span><span class="mi">0</span><span class="p">,</span> <span class="n">res</span><span class="p">):</span> <span class="nb">print</span> <span class="n">p</span>
+
+<span class="nb">print</span>
+<span class="nb">print</span> <span class="s1">&#39;**Matches:&#39;</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">x</span><span class="p">])</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="n">res</span><span class="p">):</span> <span class="nb">print</span> <span class="n">p</span><span class="p">,</span><span class="n">res</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+
+<span class="nb">print</span>
+<span class="nb">print</span> <span class="s1">&#39;**Duplicates:&#39;</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">x</span><span class="p">])</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">,</span> <span class="n">res</span><span class="p">):</span> <span class="nb">print</span> <span class="n">p</span><span class="p">,</span><span class="n">res</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+
+<span class="nb">print</span>
+<span class="nb">print</span> <span class="s1">&#39;**Packages to be installed:&#39;</span>
+<span class="n">pkgs</span><span class="o">=</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">res</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">x</span><span class="p">])</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="n">res</span><span class="p">))</span>
+<span class="nb">print</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">pkgs</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">])))</span>
+</code></pre></div>
+
+<p>The result is quite nice:</p>
+<div class="highlight"><pre><span></span><code><span class="o">**</span><span class="n">No</span> <span class="n">matches</span><span class="p">:</span>
+<span class="n">check_sockets</span><span class="o">.</span><span class="n">sh</span>
+<span class="n">check_threads</span><span class="o">.</span><span class="n">sh</span>
+<span class="n">check_exit_code</span><span class="o">.</span><span class="n">pl</span>
+<span class="n">check_duplicate_process</span>
+
+<span class="o">**</span><span class="n">Matches</span><span class="p">:</span>
+<span class="n">check_nagios</span> <span class="p">[</span><span class="s1">&#39;nagios-plugins-nagios&#39;</span><span class="p">]</span>
+<span class="n">check_breeze</span> <span class="p">[</span><span class="s1">&#39;nagios-plugins-breeze&#39;</span><span class="p">]</span>
+<span class="n">check_mrtgtraf</span> <span class="p">[</span><span class="s1">&#39;nagios-plugins-mrtgtraf&#39;</span><span class="p">]</span>
+<span class="n">check_ldap</span> <span class="p">[</span><span class="s1">&#39;check-mk&#39;</span><span class="p">,</span> <span class="s1">&#39;check-mk-docs&#39;</span><span class="p">,</span> <span class="s1">&#39;nagios-plugins-ldap&#39;</span><span class="p">]</span>
+<span class="n">check_ircd</span> <span class="p">[</span><span class="s1">&#39;nagios-plugins-ircd&#39;</span><span class="p">]</span>
+
+<span class="o">**</span><span class="n">Duplicates</span><span class="p">:</span>
+<span class="n">check_ldap</span> <span class="p">[</span><span class="s1">&#39;check-mk&#39;</span><span class="p">,</span> <span class="s1">&#39;check-mk-docs&#39;</span><span class="p">,</span> <span class="s1">&#39;nagios-plugins-ldap&#39;</span><span class="p">]</span>
+<span class="n">check_dns</span> <span class="p">[</span><span class="s1">&#39;nagios-plugins-dns&#39;</span><span class="p">,</span> <span class="s1">&#39;check-mk&#39;</span><span class="p">,</span> <span class="s1">&#39;check-mk-docs&#39;</span><span class="p">]</span>
+<span class="n">check_smtp</span> <span class="p">[</span><span class="s1">&#39;check-mk&#39;</span><span class="p">,</span> <span class="s1">&#39;nagios-plugins-smtp&#39;</span><span class="p">,</span> <span class="s1">&#39;check-mk-docs&#39;</span><span class="p">]</span>
+
+<span class="o">**</span><span class="n">Packages</span> <span class="n">to</span> <span class="n">be</span> <span class="n">installed</span><span class="p">:</span>
+<span class="p">[</span><span class="s1">&#39;check-mk&#39;</span><span class="p">,</span> <span class="s1">&#39;check-mk-docs&#39;</span><span class="p">,</span> <span class="s1">&#39;nagios-plugins-breeze&#39;</span><span class="p">,</span> <span class="s1">&#39;nagios-plugins-dns&#39;</span><span class="p">,</span> <span class="s1">&#39;nagios-plugins-ircd&#39;</span><span class="p">,</span> <span class="s1">&#39;nagios-plugins-ldap&#39;</span><span class="p">,</span> <span class="s1">&#39;nagios-plugins-mrtgtraf&#39;</span><span class="p">,</span> <span class="s1">&#39;nagios-plugins-nagios&#39;</span><span class="p">,</span> <span class="s1">&#39;nagios-plugins-smtp&#39;</span><span class="p">]</span>
+</code></pre></div>
+
+<p>Looks good.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

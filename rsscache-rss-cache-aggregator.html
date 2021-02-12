@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>RssCache - An RSS Cache / Aggregator - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/rsscache-rss-cache-aggregator.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="MySQL,Programming,PHP,RSS,BitTorrent,Ramblings,SQL" />
+        <meta name="description" content="Note: I&#39;m no longer using this site, and might take it down. Let me know if you want the code. Recently I&#39;ve decided that I want to use μTorrent&#39;s Feed ability to auto download BitTorrent torrents, after I gave up on Miro (I moved my video library and discovered that …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="RssCache - An RSS Cache / Aggregator"/>
+        <meta property="og:url" content="https://blog.backslasher.net/rsscache-rss-cache-aggregator.html"/>
+        <meta property="og:description" content="Note: I&#39;m no longer using this site, and might take it down. Let me know if you want the code. Recently I&#39;ve decided that I want to use μTorrent&#39;s Feed ability to auto download BitTorrent torrents, after I gave up on Miro (I moved my video library and discovered that …"/>
+        <meta property="article:published_time" content="2012-02-12" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="MySQL" />
+            <meta property="article:tag" content="Programming" />
+            <meta property="article:tag" content="PHP" />
+            <meta property="article:tag" content="RSS" />
+            <meta property="article:tag" content="BitTorrent" />
+            <meta property="article:tag" content="Ramblings" />
+            <meta property="article:tag" content="SQL" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/rsscache-rss-cache-aggregator.html"
+                       rel="bookmark"
+                       title="Permalink to RssCache - An RSS Cache / Aggregator">
+                        RssCache - An RSS Cache / Aggregator
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2012-02-12T19:28:00+01:00"> Sun 12 February 2012</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/mysql.html">MySQL</a>
+        /
+	<a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+        /
+	<a href="https://blog.backslasher.net/tag/php.html">PHP</a>
+        /
+	<a href="https://blog.backslasher.net/tag/rss.html">RSS</a>
+        /
+	<a href="https://blog.backslasher.net/tag/bittorrent.html">BitTorrent</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+        /
+	<a href="https://blog.backslasher.net/tag/sql.html">SQL</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><strong>Note:</strong> I'm no longer using this site, and might take it down. Let me know if you want the code.  </p>
+<p>Recently I've decided that I want to use μTorrent's Feed ability to auto
+download BitTorrent torrents, after I gave up on Miro (I moved my video
+library and discovered that Miro couldn't take it, and to change that
+setting without losing all of my preferences I would have to edit some
+mini-db... ugh). This minor decision had some interesting effects.</p>
+<h3>The Problem</h3>
+<p>I'm a member of a certain torrent sharing site, and I tried feeding that
+site's feed to uTrorrent.<br>
+The problem I discovered - The feed was only showing the latest 100 items, and since a new torrent is uploaded every
+10 mins or so, If I leave my client off for a day, some items are bound
+to go undiscovered.<br>
+I tried leaving my PC on at night, but I couldn't sleep. I considered moving my torrent-box to an "offsite" place (another room), but found it too complex.  </p>
+<h3>The Solution</h3>
+<p>Eventually, I came up with quite an elegant solution - Creating a small
+PHP site (which I call RssCache) that'll consume the torrent site's
+feed, save the items on its own db, and present the client with a bigger
+feed.  </p>
+<p><strong>Edit:</strong><br>
+Today I've finished all of the UI using
+<a href="http://www.yiiframework.com/">YII</a>! You're more than welcome to <a href="http://apps.oneboredadmin.com/rssCache/">check it out</a>.  </p>
+<p>I chose a PHP/MySQL solution, because I have a nice hosting package at
+dreamhost.com.<br>
+My primary pages are:</p>
+<ul>
+<li><strong>Cron.php</strong>: Triggered by a cron job (duh) and populates the database
+  with the feed items  </li>
+<li><strong>Feed.php</strong>: Given the right key, creates an RSS feed from the db and
+presents it  </li>
+</ul>
+<p>The coding itself isn't that impressive - it's a very small solution.<br>
+However, there are some interesting points I've encountered and wish to
+share with you:  </p>
+<h4>Purging items</h4>
+<p>I figured that although I want the list to be beefy, items will have to
+die sometime. So I created a <code>created</code> column and added a little
+statement at the start of the cron script to purge the table from items
+72 hours old.   </p>
+<h4>Storing feed items in the db</h4>
+<p>I initially started parsing the feed with
+<a href="http://magpierss.sourceforge.net/">MagpieRSS</a>, but then thought about
+what info to store in the db:<br>
+<strong>If I use one table column for one item field</strong>, I won't have room for extra/unexpected item data.<br>
+<strong>If I serialize the PHP object</strong>, I'd have to reconstruct it when I serve the feed.<br>
+Eventually I decided to simply store the entire item's XML in
+the db.  </p>
+<h4>Detecting duplicates</h4>
+<p>Storing feed items in the db is easy, but avoiding duplicate items is
+quite difficult, especially because the RSS structure offers no id or
+unique key.<br>
+I started comparing rows based on the entire item xml, but
+later found out that my particular torrent site changed the item's
+description based on the seed/leech ratio, which made the item appear
+twice.<br>
+I thought about that for a while, and decided that item URLs are
+supposed to be unique, so I created a <code>link</code> column in the item table,
+used solely to detect duplicates, combined with the item's parent (the
+source feed).</p>
+<h4>Avoiding db-intensive operations</h4>
+<p>Like any decent programmer, I try to avoid overworking the db, because
+it's almost always the weak spot in data-driven applications (even tiny
+ones like mine).<br>
+Unfortunately for my MySQL server, I'm inserting the feed items to the
+db one at a time (I know I can add several items with a single <code>INSERT</code>,
+but it'll be more difficult to utilize <code>PDO</code>'s prepared statements, which
+save me the trouble of escaping my data, which can be quite annoying
+when messing with xml).<br>
+However, I decided that to compensate for the single-item statements,
+I'll save the duplicate-checking for later.<br>
+Eventually I ended up inserting the items to a temporary table, and adding to the real table the results of a <code>left outer join</code> between the tables, selecting only the temp rows that have no matching "permanent" rows. The query looks
+something like this:  </p>
+<div class="highlight"><pre><span></span><code><span class="k">insert</span> <span class="k">into</span> <span class="n">items</span> <span class="p">(</span><span class="k">select</span> <span class="n">t</span><span class="p">.</span><span class="n">FeedId</span><span class="p">,</span><span class="n">t</span><span class="p">.</span><span class="n">RssData</span><span class="p">,</span><span class="k">current_timestamp</span><span class="p">,</span><span class="n">t</span><span class="p">.</span><span class="n">link</span> <span class="k">from</span> <span class="n">tempitems</span> <span class="n">t</span>
+    <span class="k">left</span> <span class="k">join</span> <span class="n">items</span> <span class="n">i</span> <span class="k">ON</span> <span class="n">i</span><span class="p">.</span><span class="n">FeedId</span> <span class="o">=</span> <span class="n">t</span><span class="p">.</span><span class="n">FeedId</span> <span class="k">AND</span> <span class="n">i</span><span class="p">.</span><span class="n">link</span> <span class="o">=</span> <span class="n">t</span><span class="p">.</span><span class="n">link</span>
+    <span class="k">WHERE</span> <span class="n">i</span><span class="p">.</span><span class="n">FeedId</span> <span class="k">IS</span> <span class="k">NULL</span><span class="p">)</span>
+</code></pre></div>
+
+<h4>Sorting items</h4>
+<p>When I started testing my little script, I saw that new items are
+appended to the end of the list (rather than the head, where it's placed
+at the "real" feed). I considered sorting the items by <code>created</code>
+(descending, of course), but eventually realised that it's not that
+important for now, and will consume considerable time when the table
+gets larger.  </p>
+<h4>Some sort of security</h4>
+<p>I didn't want to be bothered with authentication on this site (after
+all, creating a user management system for two php pages is kind of
+stupid), and I don't have https on my hosting, but I still didn't want
+my rss to be available for the whole world to see.<br>
+In addition to separating the served feeds into "channels" (each channel can aggregate several feeds) and giving each channel a unique int id and a friendly
+name (used as a title), I gave each channel its own 20-Character key.
+This key is used when fetching the feed, serving as a sort of password.</p>
+<h4>Intelligent Indexing</h4>
+<p>Considering the fact that the item table is expected to be quite large
+and have many rows removed from it on an hourly basis, I avoided adding
+the almost-mandatory <code>id</code> column to this table.<br>
+The reason is that I'll never be required to identify a single item, and creating a primary key means that the server maintains an index on the table, and has to update it when rows are added and more importantly, removed.<br>
+Instead, I created a non-unique index on the <code>created</code> column, to help the server find expired items.<br>
+I also count on the <code>feeds-items</code> foreign key to assist the server in
+looking up items based on feed (useful when serving a specific feed).  </p>
+<h3>The Result</h3>
+<p>I finished coding in about 6 hours and the site is currently very much
+alive at
+<a href="http://apps.oneboredadmin.com/rssCache">http://Apps.OneBoredAdmin.com/rssCache</a>
+(fair warning  - at the moment the site has no UI whatsoever). I'll make
+it more user-friendly when I feel like it. The important point is - I
+can turn my computer off tonight safely!<br>
+If you'd like to use my site feel free to comment, message me or
+whatever, and I'll try to speed the UI development up.<br>
+<strong>Edit:</strong> Finished! Check top for link</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Managing Jenkins API Tokens - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/jenkins-token.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Jenkins,Security,Scripts,Groovy" />
+        <meta name="description" content="The problem Api Tokens are like user passwords, except they are always managed by Jenkins (even if you&#39;re using an external authentication scheme), and can only be used for &#34;API&#34; actions (e.g. using curl). The storage scheme of these tokens is a little weird - the stored value is hashed …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Managing Jenkins API Tokens"/>
+        <meta property="og:url" content="https://blog.backslasher.net/jenkins-token.html"/>
+        <meta property="og:description" content="The problem Api Tokens are like user passwords, except they are always managed by Jenkins (even if you&#39;re using an external authentication scheme), and can only be used for &#34;API&#34; actions (e.g. using curl). The storage scheme of these tokens is a little weird - the stored value is hashed …"/>
+        <meta property="article:published_time" content="2015-12-31" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Jenkins" />
+            <meta property="article:tag" content="Security" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Groovy" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/jenkins-token.html"
+                       rel="bookmark"
+                       title="Permalink to Managing Jenkins API Tokens">
+                        Managing Jenkins API Tokens
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-12-31T00:00:00+01:00"> Thu 31 December 2015</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/jenkins.html">Jenkins</a>
+        /
+	<a href="https://blog.backslasher.net/tag/security.html">Security</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/groovy.html">Groovy</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>The problem</h2>
+<p><a href="https://wiki.jenkins-ci.org/display/JENKINS/Authenticating+scripted+clients">Api Tokens</a> are like user passwords, except they are always managed by Jenkins (even if you're using an external authentication scheme), and can only be used for "API" actions (e.g. using <code>curl</code>).<br>
+The storage scheme of these tokens is a little weird - the stored value is hashed and then compared to the user-submitted input (usually the process goes the other way around):</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/jenkins/security/ApiTokenProperty.java#L111</span>
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">matchesPassword</span><span class="o">(</span><span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span>  <span class="nf">getApiTokenInsecure</span><span class="o">().</span><span class="na">equals</span><span class="o">(</span><span class="n">password</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div>
+
+<!-- -->
+
+<div class="highlight"><pre><span></span><code><span class="c1">// https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/jenkins/security/ApiTokenProperty.java#L99</span>
+<span class="nd">@Nonnull</span>
+<span class="nd">@Restricted</span><span class="o">(</span><span class="n">NoExternalUse</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="cm">/*package*/</span> <span class="n">String</span> <span class="n">getApiTokenInsecure</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">p</span> <span class="o">=</span> <span class="n">apiToken</span><span class="o">.</span><span class="na">getPlainText</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">Util</span><span class="o">.</span><span class="na">getDigestOf</span><span class="o">(</span><span class="n">Jenkins</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">getSecretKey</span><span class="o">()+</span><span class="s2">&quot;:&quot;</span><span class="o">+</span><span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">())))</span> <span class="o">{</span>
+        <span class="c1">// if the current token is the initial value created by pre SECURITY-49 Jenkins, we can&#39;t use that.</span>
+        <span class="c1">// force using the newer value</span>
+        <span class="n">apiToken</span> <span class="o">=</span> <span class="n">Secret</span><span class="o">.</span><span class="na">fromString</span><span class="o">(</span><span class="n">p</span><span class="o">=</span><span class="n">API_KEY_SEED</span><span class="o">.</span><span class="na">mac</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getId</span><span class="o">()));</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">Util</span><span class="o">.</span><span class="na">getDigestOf</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div>
+
+<p>The implication of this is that in order to modify the API token, it's not enough to know the token, but rather the "seed" used to calculate it. One could say that the UI/API doesn't offer a way to set the token directly anyway (only to <a href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/jenkins/security/ApiTokenProperty.java#L148">generate a random one</a>), but I still don't see the logic behind this.<br>
+Because of the storage scheme, the normal "ensure password is XYZ" action one would expect is split into 2 actions:</p>
+<ul>
+<li>Calculate the token from the current seed and compare it to our required token, and if there's a mismatch, get angry (provided the required token)</li>
+<li>Compare the seed to our required seed, and modify it if it mismatches (provided the required seed)</li>
+</ul>
+<p>I don't want my clients to depend on the hashing method done by Jenkins, so I have to present them with the token.<br>
+I also want to be able to reset the token if it diverges (rather than throw a tantrum), so I have to keep the seed.
+So sadly I have to keep both.  </p>
+<h2>The solution</h2>
+<p>I created this Groovy script to do both tasks (modify the seed if needed, and ensure it matches the token):</p>
+<div class="highlight"><pre><span></span><code><span class="kt">def</span> <span class="n">username</span> <span class="o">=</span> <span class="s1">&#39;???&#39;</span>
+<span class="kt">def</span> <span class="n">token</span> <span class="o">=</span> <span class="s1">&#39;???&#39;</span>
+<span class="kt">def</span> <span class="n">seed</span> <span class="o">=</span> <span class="s1">&#39;???&#39;</span> <span class="c1">// Leave null if unkown</span>
+
+<span class="kn">import</span> <span class="nn">hudson.model.User</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jenkins.security.ApiTokenProperty</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">hudson.util.Secret</span><span class="o">;</span>
+
+<span class="c1">// Get the actual token</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">username</span><span class="o">)</span>
+<span class="n">tokprop</span> <span class="o">=</span>  <span class="n">u</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="n">ApiTokenProperty</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="n">actual_token</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="na">getApiTokenInsecure</span><span class="o">()</span>
+
+<span class="c1">// Get pissed if not equal</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">token</span> <span class="o">!=</span> <span class="n">actual_token</span><span class="o">)</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">seed</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// Try to modify seed</span>
+    <span class="n">tokprop</span><span class="o">.</span><span class="na">apiToken</span> <span class="o">=</span> <span class="n">Secret</span><span class="o">.</span><span class="na">fromString</span><span class="o">(</span><span class="n">seed</span><span class="o">)</span>
+    <span class="c1">// Check that seed will yield required token</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">token</span> <span class="o">==</span> <span class="n">tokprop</span><span class="o">.</span><span class="na">getApiTokenInsecure</span><span class="o">())</span>
+      <span class="n">u</span><span class="o">.</span><span class="na">save</span><span class="o">()</span>
+    <span class="k">else</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nf">Exception</span><span class="o">(</span><span class="n">sprintf</span><span class="o">(</span><span class="s1">&#39;Token mismatch, seed wont cause token to become required token\\ncurrent key:%s\\nresulting key:%s&#39;</span><span class="o">,[</span><span class="n">actual_token</span><span class="o">,</span> <span class="n">tokprop</span><span class="o">.</span><span class="na">getApiTokenInsecure</span><span class="o">()]))</span>
+  <span class="o">}</span>
+  <span class="k">else</span>
+    <span class="c1">// Can&#39;t set a better token, just complain</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">Exception</span><span class="o">(</span><span class="n">sprintf</span><span class="o">(</span><span class="s1">&#39;Mismatching tokens. Actual token:%s&#39;</span><span class="o">,</span> <span class="o">[</span><span class="n">actual_token</span><span class="o">]))</span>
+</code></pre></div>
+
+<p>I actually implemented this as a LWRP in Chef using the <code>jenkins_script</code> resource found in the <a href="https://github.com/chef-cookbooks/jenkins">Jenkins cookbook</a>. If the implementation is interesting, leave me a comment and I might add it.</p>
+<p><strong>Update 20.02.16</strong>: Here is my current implementation</p>
+<h3>Chef implementation</h3>
+<p>resources/jenkins_key:</p>
+<div class="highlight"><pre><span></span><code><span class="n">actions</span> <span class="ss">:set</span>
+<span class="n">default_action</span> <span class="ss">:set</span>
+
+<span class="n">attribute</span> <span class="ss">:user</span><span class="p">,</span> <span class="ss">kind_of</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span> <span class="ss">name_attribute</span><span class="p">:</span> <span class="kp">true</span>
+<span class="n">attribute</span> <span class="ss">:key</span><span class="p">,</span> <span class="ss">kind_of</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span> <span class="ss">required</span><span class="p">:</span> <span class="kp">true</span> <span class="c1"># We can&#39;t set this, only verify it matches</span>
+                                               <span class="c1"># This is because the actual key is being realtime-hashed from some string</span>
+<span class="n">attribute</span> <span class="ss">:raw_key</span><span class="p">,</span> <span class="ss">kind_of</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span> <span class="ss">default</span><span class="p">:</span> <span class="kp">nil</span> <span class="c1"># Used to allow setting the new key</span>
+</code></pre></div>
+
+<p>providers/jenkins_key:</p>
+<div class="highlight"><pre><span></span><code><span class="n">use_inline_resources</span>
+
+<span class="n">action</span> <span class="ss">:set</span> <span class="k">do</span>
+
+  <span class="n">jenkins_script</span> <span class="s1">&#39;ensure_key&#39;</span> <span class="k">do</span>
+    <span class="n">command</span> <span class="o">&lt;&lt;-</span><span class="dl">EOH</span>
+<span class="sh">    def username = &#39;#{new_resource.user}&#39;</span>
+<span class="sh">    def wanted_key = &#39;#{new_resource.key}&#39;</span>
+<span class="sh">    def raw_key = &#39;#{new_resource.raw_key.to_s}&#39;</span>
+
+<span class="sh">    import hudson.model.User;</span>
+<span class="sh">    import jenkins.security.ApiTokenProperty;</span>
+<span class="sh">    import hudson.util.Secret;</span>
+
+<span class="sh">    // Get the actual key</span>
+<span class="sh">    u = User.get(username)</span>
+<span class="sh">    tok =  u.getProperty(ApiTokenProperty.class)</span>
+<span class="sh">    actual_key = tok.getApiTokenInsecure()</span>
+
+<span class="sh">    // Get pissed if not equal</span>
+<span class="sh">    if (wanted_key != actual_key)</span>
+<span class="sh">      if (raw_key) {</span>
+<span class="sh">        old_key = tok.getApiTokenInsecure()</span>
+<span class="sh">        tok.apiToken = Secret.fromString(raw_key)</span>
+<span class="sh">        // Check that raw key will yield required key</span>
+<span class="sh">        if (wanted_key == tok.getApiTokenInsecure())</span>
+<span class="sh">          u.save()</span>
+<span class="sh">        else</span>
+<span class="sh">          throw new Exception(sprintf(&#39;Key mismatch, raw_key wont cause wanted_key to become actualy key\\ncurrent key:%s\\nresulting key:%s&#39;,[actual_key, tok.getApiTokenInsecure()]))</span>
+<span class="sh">      }</span>
+<span class="sh">      else</span>
+<span class="sh">        // Can&#39;t set a better key, just complain</span>
+<span class="sh">        throw new Exception(sprintf(&#39;Mismatching keys. Actual key:%s&#39;, [actual_key]))</span>
+<span class="dl">    EOH</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

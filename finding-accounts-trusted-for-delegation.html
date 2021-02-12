@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Finding Accounts Trusted for Delegation - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/finding-accounts-trusted-for-delegation.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Kerberos,Security,Scripts,Windows,Delegation,PowerShell,One-Liner,Active Directory" />
+        <meta name="description" content="As part of a security audit, I was asked to help in finding all accounts marked with &#34;Trusted for Delegation&#34; What is &#34;Trust for Delegation&#34; You can try reading the TechNet Article, but in short - delegation (also known as kerberos double-hop) is allowing a service to impersonate clients in order …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Finding Accounts Trusted for Delegation"/>
+        <meta property="og:url" content="https://blog.backslasher.net/finding-accounts-trusted-for-delegation.html"/>
+        <meta property="og:description" content="As part of a security audit, I was asked to help in finding all accounts marked with &#34;Trusted for Delegation&#34; What is &#34;Trust for Delegation&#34; You can try reading the TechNet Article, but in short - delegation (also known as kerberos double-hop) is allowing a service to impersonate clients in order …"/>
+        <meta property="article:published_time" content="2014-01-23" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="Kerberos" />
+            <meta property="article:tag" content="Security" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Windows" />
+            <meta property="article:tag" content="Delegation" />
+            <meta property="article:tag" content="PowerShell" />
+            <meta property="article:tag" content="One-Liner" />
+            <meta property="article:tag" content="Active Directory" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/finding-accounts-trusted-for-delegation.html"
+                       rel="bookmark"
+                       title="Permalink to Finding Accounts Trusted for Delegation">
+                        Finding Accounts Trusted for Delegation
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-01-23T13:10:00+01:00"> Thu 23 January 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+        /
+	<a href="https://blog.backslasher.net/tag/security.html">Security</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+        /
+	<a href="https://blog.backslasher.net/tag/delegation.html">Delegation</a>
+        /
+	<a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+        /
+	<a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+        /
+	<a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>As part of a security audit, I was asked to help in finding all accounts
+marked with "Trusted for Delegation"  </p>
+<h3>What is "Trust for Delegation"</h3>
+<p>You can try reading the <a href="http://technet.microsoft.com/en-us/library/cc739740%28v=ws.10%29.aspx">TechNet Article</a>,
+but in short - delegation (also known as kerberos double-hop) is
+allowing a service to impersonate clients in order to access other
+services, e.g. allowing an ASP.NET site to pull CRM records via CRM web
+service, using the client's credentials (and so showing only records
+relevant to the client).<a name="more"></a>  </p>
+<h3>The Risk</h3>
+<p>Accounts that are trusted for delegation can access other services in
+the domain (e.g. Active Directory, Exchange, in-house software that uses
+kerberos authentication, external software using ADFS) without the
+user's explicit action or consent (sometimes without him even accessing
+the system, see next paragraph) and without any limits or indication
+that it's not the original user.<br>
+Some configurations also allow the delegate access to any service in the
+domain (as opposed to specified ones) or giving the delegate access
+without the user actually accessing the delegate in the first place
+(read on).<br>
+To sum it up, delegation must be used sparingly due to its dangerous
+nature.  </p>
+<h3>Technical Implementation and Quirks</h3>
+<p>Delegation is all about an application getting a kerberos TGS (Ticket
+Granting Service) for another resource, using the client's identity
+(allowing the server to impersonate the client for that resource).</p>
+<p><img alt="" src="https://blog.backslasher.net/images/finding-accounts-trusted-for-delegation/kerbDelegationDialog.jpg">  </p>
+<p>Delegation configuration is saved like that:  </p>
+<style type="text/css">
+.borderline table td,th { border: 1px solid #000; }
+</style>
+<div class="borderline">
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>UserAccountControl &amp; 0x80000 (TRUSTED_FOR_DELEGATION)</th>
+<th>UserAccountControl &amp; 0x100000 (TRUSTED_TO_AUTHENTICATE_FOR_DELEGATION)</th>
+<th>msDS-AllowedToDelegateTo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Do not trust this user for delegation</td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+</tr>
+<tr>
+<td>Trust this user for delegation to any service (Kerberos only)</td>
+<td>V</td>
+<td>X</td>
+<td>X</td>
+</tr>
+<tr>
+<td>Trust this user for delegation for specified services only (Kerberos protocol)</td>
+<td>X</td>
+<td>X</td>
+<td>V (List of SPNs)</td>
+</tr>
+<tr>
+<td>Trust this user for delegation for specified services only (Any authentication protocol)</td>
+<td>X</td>
+<td>V</td>
+<td>V (List of SPNs)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4>Notes</h4>
+<ul>
+<li><strong>When "Any protocol" is enabled</strong>, services don't need to present an existing kerberos TGS, but can fabricate one using only the user's id. (Source: <a href="http://msdn.microsoft.com/en-us/library/ff650469.aspx">Technet</a>)<br>
+   This method is designed to accommodate services that don't use kerberos authentication (e.g. websites that use forms authentication), but has a very serious implication - accounts allowed to do so don't have to present any proof that a specific user has even accessed the system - they can create any TGS out of thin air.</li>
+<li><strong>When constrained to specific services</strong>, the resulting TGS is itself delegation-constrained to those services, so to allow a "triple hop" like this:<br>
+<code>S1 &gt; S2 &gt; S3</code><br>
+<code>S1</code> must be configured either to allow delegation to <code>any service</code> or to <code>S2</code> <strong>AND</strong> <code>S3</code>.</li>
+<li><strong>For really sensitive accounts</strong> (such as domain admins), one can mark "Account is sensitive and cannot be delegated" to prevent AD allowing any form of delegation with this account. This account will suffer from reduced functionality on applications requiring delegation to work (like the site described earlier).</li>
+</ul>
+<h3>Finding Allowed Accounts</h3>
+<p>Although PowerShell's module for Active Directory has some calculated variables for delegation (e.g. <code>TrustedForDelegation</code>), they can't be used to filter <code>ADObject</code> (only <code>ADUSer</code> or <code>ADComputer</code>), so I built my own script
+to find trusted-for-delegation accounts:   </p>
+<div class="highlight"><pre><span></span><code><span class="nb">Get-ADObject</span> <span class="n">-fi</span> <span class="p">{(</span><span class="n">msDS-AllowedToDelegateTo</span> <span class="o">-like</span> <span class="s1">&#39;*&#39;</span><span class="p">)</span> <span class="o">-or</span> <span class="p">(</span><span class="n">UserAccountControl</span> <span class="o">-band</span> <span class="n">0x0080000</span><span class="p">)</span> <span class="o">-or</span> <span class="p">(</span><span class="n">UserAccountControl</span> <span class="o">-band</span> <span class="n">0x1000000</span><span class="p">)}</span> <span class="n">-prop</span> <span class="n">samAccountName</span><span class="p">,</span><span class="n">msDS-AllowedToBeDelegateTo</span><span class="p">,</span><span class="n">servicePrincipalName</span><span class="p">,</span><span class="n">userAccountControl</span> <span class="p">`</span>
+<span class="p">|</span> <span class="nb">select </span><span class="n">DistinguishedName</span><span class="p">,</span><span class="n">ObjectClass</span><span class="p">,</span><span class="n">samAccountName</span><span class="p">,</span><span class="n">servicePrincipalName</span><span class="p">,</span>
+ <span class="p">@{</span><span class="n">name</span><span class="p">=</span><span class="s1">&#39;DelegationStatus&#39;</span><span class="p">;</span><span class="n">expression</span><span class="p">={</span><span class="k">if</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">UserAccountControl</span> <span class="o">-band</span> <span class="n">0x80000</span><span class="p">){</span><span class="s1">&#39;AllServices&#39;</span><span class="p">}</span><span class="k">else</span><span class="p">{</span><span class="s1">&#39;SpecificServices&#39;</span><span class="p">}}},</span>
+ <span class="p">@{</span><span class="n">name</span><span class="p">=</span><span class="s1">&#39;AllowedProtocols&#39;</span><span class="p">;</span><span class="n">expression</span><span class="p">={</span><span class="k">if</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">UserAccountControl</span> <span class="o">-band</span> <span class="n">0x1000000</span><span class="p">){</span><span class="s1">&#39;Any&#39;</span><span class="p">}</span><span class="k">else</span><span class="p">{</span><span class="s1">&#39;Kerberos&#39;</span><span class="p">}}},</span>
+<span class="p">@{</span><span class="n">name</span><span class="p">=</span><span class="s1">&#39;DestinationServices&#39;</span><span class="p">;</span><span class="n">expression</span><span class="p">={</span><span class="nv">$_</span><span class="p">.</span><span class="s1">&#39;msDS-AllowedToDelegateTo&#39;</span><span class="p">}}</span>
+</code></pre></div>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

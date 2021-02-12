@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>SharePoint - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+    <meta name="author" content="Nitz" />
+    <meta name="keywords" content="SharePoint" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="BackSlasher"/>
+        <meta property="og:url" content="https://blog.backslasher.net"/>
+        <meta property="og:description" content="BackSlasher"/>
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+            <article>
+                <h2><a href="https://blog.backslasher.net/adding-ssl-to-sharepoint-2010-web.html">Adding SSL to a SharePoint 2010 Web Application, the Right Way</a></h2>
+                <div class="summary"><h3>The Story</h3>
+<p>I haven't touched SharePoint in a while, but I've been asked by a friend to help him do something "the right way".<br>
+We were looking for a way to add an HTTPS binding to an existing SharePoint 2010 site. Google is full of ways of doing that, but …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/adding-ssl-to-sharepoint-2010-web.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/wget-in-powershell-v3.html">Wget in PowerShell v3</a></h2>
+                <div class="summary"><p>I've been envying my *nix brethren for having
+<a href="http://en.wikipedia.org/wiki/Wget">Wget</a> for a long time. To get the
+contents of a web page or download a file using http I had to use
+workarounds that took more than one command - either creating a new
+System.Net.WebRequest or using a BITS module …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/wget-in-powershell-v3.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/copying-list-permissions-in-sharepoint.html">Copying List Permissions in SharePoint 2010</a></h2>
+                <div class="summary"><p>I just wrote a small script to copy permissions from one SharePoint list to the other.  </p>
+<h3>Things to consider</h3>
+<ul>
+<li><strong>Custom permission levels are not preserved:</strong> For some reason, my method of copying permissions isn't custom-permission-level friendly. The customized permissions will still be copied, but an auto-generated permission level will be …</li></ul>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/copying-list-permissions-in-sharepoint.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/reverse-lookup-in-sharepoint-2010.html">Reverse Lookup in SharePoint 2010</a></h2>
+                <div class="summary"><p>Every SharePoint noob knows that one can create list lookup
+relationships, like specifying that a book belongs in a specific
+bookshelf.<br>
+What I didn't know until today is SharePoint 2010 supports "reverse
+lookup" out of the box!</p>
+<h3>What's Lookup?</h3>
+<p>Consider this.You have 2 lists in your SharePoint site - one …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/reverse-lookup-in-sharepoint-2010.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/applying-spwebconfigmodification-objects-safely.html">Applying SPWebConfigModification objects safely</a></h2>
+                <div class="summary"><p>My SharePoint team and I wanted to move to <a href="http://msdn.microsoft.com/en-us/library/microsoft.sharepoint.administration.spwebconfigmodification.aspx">SPWebConfigModification</a> rather that just modifying the web.config file manually, but I was always worried that applying faulty modifications will ruin my file.<br>
+Why?</p>
+<h3>How SPWebConfigModification objects work</h3>
+<p>Some code requires you to modify the SharePoint web application's <code>web.config</code> file …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/applying-spwebconfigmodification-objects-safely.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/some-things-i-didnt-know-about-people-picker.html">Some Things I Didn't Know About People Picker</a></h2>
+                <div class="summary"><p>Recently I got to mess with SharePoint 2010's People Picker - a control
+that emulates Windows' "Directory Object Picker", allowing the user to
+select security principals  </p>
+<ul>
+<li>Active Directory's People Picker:<br>
+<img alt="" src="https://blog.backslasher.net/images/some-things-i-didnt-know-about-people-picker/ActiveDirectoryObjectPickerDialog.gif"></li>
+<li>The SharePoint 2010 Variant:<br>
+<img alt="" src="https://blog.backslasher.net/images/some-things-i-didnt-know-about-people-picker/24-browse-for-users.jpg"></li>
+</ul>
+<p>After the Devs asked me to customize it for them, I went rummaging
+through the dark corners …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/some-things-i-didnt-know-about-people-picker.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/monitoring-sharepoint-2010-on-scom.html">Monitoring SharePoint 2010 on SCOM - Minimal Permissions</a></h2>
+                <div class="summary"><p>I've recently started monitoring my new SharePoint 2010 farms on SCOM,
+and found the management pack's documentation to be rather lacking in
+setup instructions, and the required permissions for SCOM's account on
+the farm were rather shocking:  </p>
+<ul>
+<li>Local admin on all SharePoint servers</li>
+<li>Local admin on all SQL servers</li>
+<li>dbowner …</li></ul>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/monitoring-sharepoint-2010-on-scom.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/module-owssvrdll-could-not-be-loaded.html">"The module ... owssvr.dll could not be loaded due to a configuration problem"</a></h2>
+                <div class="summary"><p>Recently, one of my teammates installed ArcGis Server 9.3 on our fresh
+SharePoint 2010 box, causing all sites to respond with <code>503 Service
+Unavailable</code>. A quick inspection showed that the application pools have
+stopped themselves, and the Windows application event log was spammed
+with:  </p>
+<div class="highlight"><pre><span></span><code>Event ID: 2282
+Source: Microsoft-Windows-IIS-W3SVC-WP …</code></pre></div>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/module-owssvrdll-could-not-be-loaded.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/internet-explorer-and-spns.html">Internet Explorer and SPNs</a></h2>
+                <div class="summary"><p>After learning how SPNs work (read my <a href="https://blog.backslasher.net/spns-who-why-where.html">"Who? Why? Where"</a>
+to learn what's an SPN), I was frustrated to find out that I can't
+implement my experience in the real world.<br>
+I've created a Sharepoint
+Central Admin site on port 1234, and wanted to enable kerberos
+authentication for it, so …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/internet-explorer-and-spns.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/stsadm-new-spsite-is-slow.html">Stsadm / new SPSite is slow</a></h2>
+                <div class="summary"><p><strong>Update:</strong> Get the script <a href="https://blog.backslasher.net/disabling-generate-publisher-evidence.html">here</a>  </p>
+<h3>The Story</h3>
+<p>A couple of days ago, developer extraordinaire <a href="http://blogs.microsoft.co.il/blogs/itaysk/">Itay
+Shakury</a> was doing
+performance tuning on one of our SharePoint applications, and came to me with
+a problem - creating a new SPSite object took about 30 secs. The
+stranger part was that <strong>only the first …</strong></p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/stsadm-new-spsite-is-slow.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        <ul class="pagination">
+                <li class="prev disabled"><a href="#">&laquo;</a></li>
+                    <li class="active"><a
+                            href="https://blog.backslasher.net/tag/sharepoint.html">1</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/tag/sharepoint2.html">2</a></li>
+                <li class="next"><a
+                        href="https://blog.backslasher.net/tag/sharepoint2.html">&raquo;</a></li>
+        </ul>
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2013 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

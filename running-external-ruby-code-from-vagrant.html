@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Running external Ruby code from Vagrant - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/running-external-ruby-code-from-vagrant.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Linux,Vagrant,Ruby,Mysteries Solved,Chef" />
+        <meta name="description" content="The Story Like a lot of Chef users, I&#39;m using Vagrant for testing my cookbooks. I&#39;m also using Berkshelf for providing the Vagrant box with the cookbooks it needs. Until recently, I was happy using the ChefDK-provided Berlshelf (v4.0.1). I stopped being happy when running berks started consuming …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Running external Ruby code from Vagrant"/>
+        <meta property="og:url" content="https://blog.backslasher.net/running-external-ruby-code-from-vagrant.html"/>
+        <meta property="og:description" content="The Story Like a lot of Chef users, I&#39;m using Vagrant for testing my cookbooks. I&#39;m also using Berkshelf for providing the Vagrant box with the cookbooks it needs. Until recently, I was happy using the ChefDK-provided Berlshelf (v4.0.1). I stopped being happy when running berks started consuming …"/>
+        <meta property="article:published_time" content="2016-02-21" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="Vagrant" />
+            <meta property="article:tag" content="Ruby" />
+            <meta property="article:tag" content="Mysteries Solved" />
+            <meta property="article:tag" content="Chef" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/running-external-ruby-code-from-vagrant.html"
+                       rel="bookmark"
+                       title="Permalink to Running external Ruby code from Vagrant">
+                        Running external Ruby code from Vagrant
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-02-21T12:00:00+01:00"> Sun 21 February 2016</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/vagrant.html">Vagrant</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+        /
+	<a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+        /
+	<a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>The Story</h2>
+<p>Like a lot of Chef users, I'm using Vagrant for testing my cookbooks. I'm also using Berkshelf for providing the Vagrant box with the cookbooks it needs.<br>
+Until recently, I was happy using the ChefDK-provided Berlshelf (v4.0.1). I stopped being happy when running <code>berks</code> started consuming CPU for ~5 mins and then failing when my <code>Berksfile</code> contained multiple sources (the Chef Supermarket and my private Chef server).<br>
+While troubleshooting it I've learned that there's an issue with the native dependency graph solver, and I won't be able to fix it in less than a week.<br>
+I also noticed that the latest version of the Berkshelf gem (v4.1.1) had no such issues (unless I'm mistaken, it's because it switched to the native Ruby graph solver).  </p>
+<p>The next logical step was migrating to the new version of Berkshelf</p>
+<h3>Attempting to upgrade Berkshelf in the ChefDK</h3>
+<p>I firstly tried working inside ChefDK by upgrading its version of ChefDK.<br>
+This made me learn several interesting things:</p>
+<ol>
+<li>The <code>/usr/bin/berks</code> file (actually <code>/opt/chefdk/bin/berks</code>) loads specific versions of Gems.<br>
+    This means that even if I install the new version of Berkshelf correctly, I'd have to modify this entry point, and it won't be trivial.</li>
+<li>The ChefDK Ruby environment is configured to install new Gems into the User's home directory (using <code>GEM_HOME</code>).<br>
+    I'm not sure why (<a href="https://github.com/chef/chef-dk/pull/160">something related</a> with developing gems?)</li>
+<li>The only way I could execute the new Berkshelf gem "properly" inside the ChefDK was using a <code>Gemfile</code> and something like <code>chef exec bundle exec Berkshelf</code>, which was really annoying</li>
+</ol>
+<p>Eventually I decided that the comfort of working inside the ChefDK isn't worth the effort, as taking a clean Ruby 2 environment (e.g. using RVM or Bundler) and installing the Berkshelf Gem inside was effortless.<br>
+This worked well for non-Vagrant usage (e.g. calling it from Jenkins), but I still had quite a lot of work.</p>
+<h3>Running Ruby in Vagrant</h3>
+<p>My second issue was with running any Ruby code from inside Vagrant.<br>
+As any Vagrant-Berkshelf veteran knows, the workflow goes something like this:</p>
+<ol>
+<li>User runs some command requiring provisioning, like <code>vagrant up</code></li>
+<li>Vagrant calls the <code>vagrant-berkshelf</code> methods pretty early in the Vagrant workflow (after <code>Vagrant::Action::Builtin::ConfigValidate</code>)</li>
+<li><code>vagrant-berkshelf</code> runs <code>berks install</code> to locate all relevant cookbooks and generate the <code>Bersfile.lock</code></li>
+<li><code>vagrant-berkshelf</code> calls <code>berks vendor</code> to make a directory containing all cookbooks that the VM needs, which will be accessed by the Chef client on the VM
+And so forth</li>
+</ol>
+<p>This workflow heavily depends on Vagrant executing Berkshelf, which works with ChefDK's Berkshelf because its entry point is "environment-variable proof":</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/opt/chefdk/embedded/bin/ruby</span>
+<span class="c1">#--APP_BUNDLER_BINSTUB_FORMAT_VERSION=1--</span>
+<span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;GEM_HOME&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;GEM_PATH&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="kp">nil</span> <span class="k">unless</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;APPBUNDLER_ALLOW_RVM&quot;</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+<span class="c1">#...</span>
+</code></pre></div>
+
+<p>Compare this to the "normal" entry point generated by Gems:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/ruby2.0</span>
+<span class="c1">#</span>
+<span class="c1"># This file was generated by RubyGems.</span>
+<span class="c1">#</span>
+<span class="c1"># The application &#39;berkshelf&#39; is installed as part of a gem, and</span>
+<span class="c1"># this file is here to facilitate running it.</span>
+<span class="c1">#</span>
+
+<span class="nb">require</span> <span class="s1">&#39;rubygems&#39;</span>
+
+<span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;&gt;= 0&quot;</span>
+
+<span class="k">if</span> <span class="no">ARGV</span><span class="o">.</span><span class="n">first</span>
+  <span class="n">str</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">.</span><span class="n">first</span>
+  <span class="n">str</span> <span class="o">=</span> <span class="n">str</span><span class="o">.</span><span class="n">dup</span><span class="o">.</span><span class="n">force_encoding</span><span class="p">(</span><span class="s2">&quot;BINARY&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">str</span><span class="o">.</span><span class="n">respond_to?</span> <span class="ss">:force_encoding</span>
+  <span class="k">if</span> <span class="n">str</span> <span class="o">=~</span> <span class="sr">/\A_(.*)_\z/</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="vg">$1</span>
+    <span class="no">ARGV</span><span class="o">.</span><span class="n">shift</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">gem</span> <span class="s1">&#39;berkshelf&#39;</span><span class="p">,</span> <span class="n">version</span>
+<span class="nb">load</span> <span class="no">Gem</span><span class="o">.</span><span class="n">bin_path</span><span class="p">(</span><span class="s1">&#39;berkshelf&#39;</span><span class="p">,</span> <span class="s1">&#39;berks&#39;</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+</code></pre></div>
+
+<p>The environment negation (deleting <code>GEM_HOME</code> and <code>GEM_PATH</code>) is (IMO) related to the Vagrant use-case.<br>
+Fact is, Vagrant is polluting the environment of subprocesses with Vagrant-specific Ruby-related variables.</p>
+<h3>Vagrant, Bundler and external processes</h3>
+<p>Vagrant uses Bundler as a way of managing its Ruby dependencies (both internal and plugins), so Vagrant suffers from the same issue that Bundler has - it assumes that subprocesses are supposed to run inside its own Ruby environment. To do so, it modifies its own ruby-related environment variables, such as <code>GEM_PATH</code> (where to look for gems) and <code>GEM_HOME</code> (where gems should be installed).<br>
+For cases where it's not true, Bundler offers a method called <a href="http://www.rubydoc.info/github/bundler/bundler/Bundler.with_clean_env"><code>Bundler.with_clean_env</code></a>. This should yield (execute a given code block) with the "original" environment (the one bundler had when it started), so any processes spawned from that block should be free of the Bundler contamination.<br>
+Vagrant tries to utilize this method, but it doesn't work as expected.  </p>
+<h4><code>with_clean_env</code> internals</h4>
+<p>Let's drill down a bit:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># https://github.com/bundler/bundler/blob/5131fcd/lib/bundler.rb#L211</span>
+
+<span class="k">def</span> <span class="nf">with_clean_env</span>
+  <span class="n">with_original_env</span> <span class="k">do</span>
+    <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;MANPATH&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;BUNDLE_ORIG_MANPATH&#39;</span><span class="o">]</span>
+    <span class="no">ENV</span><span class="o">.</span><span class="n">delete_if</span> <span class="p">{</span> <span class="o">|</span><span class="n">k</span><span class="p">,</span><span class="n">_</span><span class="o">|</span> <span class="n">k</span><span class="o">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">7</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39;BUNDLE_&#39;</span> <span class="p">}</span>
+    <span class="k">if</span> <span class="no">ENV</span><span class="o">.</span><span class="n">has_key?</span> <span class="s1">&#39;RUBYOPT&#39;</span>
+      <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;RUBYOPT&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;RUBYOPT&#39;</span><span class="o">].</span><span class="n">sub</span> <span class="s1">&#39;-rbundler/setup&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+      <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;RUBYOPT&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;RUBYOPT&#39;</span><span class="o">].</span><span class="n">sub</span> <span class="s2">&quot;-I</span><span class="si">#{</span><span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">,</span> <span class="bp">__FILE__</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">end</span>
+    <span class="k">yield</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># https://github.com/bundler/bundler/blob/5131fcd/lib/bundler.rb#L203</span>
+
+<span class="k">def</span> <span class="nf">with_original_env</span>
+  <span class="n">bundled_env</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">.</span><span class="n">to_hash</span>
+  <span class="no">ENV</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="no">ORIGINAL_ENV</span><span class="p">)</span>
+  <span class="k">yield</span>
+<span class="k">ensure</span>
+  <span class="no">ENV</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">bundled_env</span><span class="o">.</span><span class="n">to_hash</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># https://github.com/bundler/bundler/blob/5131fcd/lib/bundler.rb#L16</span>
+<span class="k">module</span> <span class="nn">Bundler</span>
+  <span class="no">ORIGINAL_ENV</span> <span class="o">=</span> <span class="n">environment_preserver</span><span class="o">.</span><span class="n">restore</span>
+  <span class="no">ENV</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">environment_preserver</span><span class="o">.</span><span class="n">backup</span><span class="p">)</span>
+<span class="c1">#...</span>
+</code></pre></div>
+
+<p>So, when the Bundler module is loaded, it creates a backup of the current environment variables. This backup (plus some modifications) is used whenever <code>with_clean_env</code> is called. How can it break?</p>
+<p>By adding debug prints inside the Bundler gem, I deduced the following facts:</p>
+<ol>
+<li>
+<p>Bundler is invoked twice<br>
+    First, the entry point is <code>pre-rubygems.rb</code>, as evident from the <a href="https://github.com/mitchellh/vagrant-installers/blob/c5eb9bb/substrate/launcher/main.go">vagrant launcher</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Line 187</span>
+
+<span class="nx">cmd</span><span class="p">.</span><span class="nx">Args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">=</span> <span class="s">&quot;ruby&quot;</span>
+<span class="nx">cmd</span><span class="p">.</span><span class="nx">Args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">=</span> <span class="nx">filepath</span><span class="p">.</span><span class="nx">Join</span><span class="p">(</span><span class="nx">gemPath</span><span class="p">,</span> <span class="s">&quot;lib&quot;</span><span class="p">,</span> <span class="s">&quot;vagrant&quot;</span><span class="p">,</span> <span class="s">&quot;pre-rubygems.rb&quot;</span><span class="p">)</span>
+<span class="c1">//...</span>
+<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cmd</span><span class="p">.</span><span class="nx">Start</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+<span class="c1">// ...</span>
+</code></pre></div>
+
+<p>Note these bits at <a href="https://github.com/mitchellh/vagrant/blob/27157b5/lib/vagrant/pre-rubygems.rb">lib/vagrant/pre-rubygems.rb</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Line 19</span>
+<span class="n">require_relative</span> <span class="s2">&quot;bundler&quot;</span>
+</code></pre></div>
+
+<!-- -->
+<div class="highlight"><pre><span></span><code><span class="c1"># Line 30</span>
+
+<span class="k">if</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;VAGRANT_EXECUTABLE&quot;</span><span class="o">]</span>
+  <span class="no">Kernel</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="s2">&quot;ruby&quot;</span><span class="p">,</span> <span class="no">ENV</span><span class="o">[</span><span class="s2">&quot;VAGRANT_EXECUTABLE&quot;</span><span class="o">]</span><span class="p">,</span> <span class="o">*</span><span class="no">ARGV</span><span class="p">)</span>
+<span class="k">else</span>
+  <span class="no">Kernel</span><span class="o">.</span><span class="n">exec</span><span class="p">(</span><span class="s2">&quot;vagrant&quot;</span><span class="p">,</span> <span class="o">*</span><span class="no">ARGV</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>And finally, this in <a href="https://github.com/mitchellh/vagrant/blob/27157b5/bin/vagrant"><code>bin/vagrant</code></a>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Line 69</span>
+
+<span class="nb">require</span> <span class="s2">&quot;bundler&quot;</span>
+</code></pre></div>
+
+<p>As you can see, the <code>pre-rubygems.rb</code> file is invoked first, loads Bundler, and then <a href="http://linux.die.net/man/3/exec">execs</a> the Vagrant entry point, which loads its own Bundler.
+So the Bundler gem is loaded twice, and the second instance "saves" the environment already modified by the first instace, meaning <code>with_clean_env</code> is useless.  </p>
+</li>
+<li>
+<p>Vagrant works around this<br>
+    The Vagrant devs tried to solve this issue by backing up the environment variables before any modification, like so:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// https://github.com/mitchellh/vagrant-installers/blob/c5eb9bb/substrate/launcher/main.go</span>
+<span class="c1">// Line 18</span>
+<span class="kd">const</span> <span class="nx">envPrefix</span> <span class="p">=</span> <span class="s">&quot;VAGRANT_OLD_ENV&quot;</span>
+</code></pre></div>
+
+<!-- -->
+<div class="highlight"><pre><span></span><code><span class="c1">// https://github.com/mitchellh/vagrant-installers/blob/c5eb9bb/substrate/launcher/main.go</span>
+<span class="c1">// Line 150</span>
+<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">value</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Environ</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">idx</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nx">IndexRune</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="sc">&#39;=&#39;</span><span class="p">)</span>
+  <span class="nx">key</span> <span class="o">:=</span> <span class="nx">fmt</span><span class="p">.</span><span class="nx">Sprintf</span><span class="p">(</span><span class="s">&quot;%s_%s&quot;</span><span class="p">,</span> <span class="nx">envPrefix</span><span class="p">,</span> <span class="nx">value</span><span class="p">[:</span><span class="nx">idx</span><span class="p">])</span>
+  <span class="nx">newEnv</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="p">=</span> <span class="nx">value</span><span class="p">[</span><span class="nx">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>And then allow restoring from it:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># https://github.com/mitchellh/vagrant/blob/27157b5/lib/vagrant.rb</span>
+<span class="c1"># Line 236</span>
+
+<span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">original_env</span>
+    <span class="p">{}</span><span class="o">.</span><span class="n">tap</span> <span class="k">do</span> <span class="o">|</span><span class="n">h</span><span class="o">|</span>
+      <span class="no">ENV</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="o">|</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;VAGRANT_OLD_ENV&quot;</span><span class="p">)</span>
+          <span class="n">key</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sr">/^VAGRANT_OLD_ENV_/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+          <span class="n">h</span><span class="o">[</span><span class="n">key</span><span class="o">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">end</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>This method works (sort of).</p>
+</li>
+</ol>
+<h3><code>with_original_env</code> is done wrong</h3>
+<p>Both the Bundler backup environment and the Vagrant backup environment are being handled in <a href="https://github.com/mitchellh/vagrant/blob/dec5f70/lib/vagrant/util/env.rb"><code>Vagrant::Util::Env.with_original_env</code></a>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">with_original_env</span>
+  <span class="n">original_env</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">.</span><span class="n">to_hash</span>
+  <span class="no">ENV</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="o">::</span><span class="no">Bundler</span><span class="o">::</span><span class="no">ORIGINAL_ENV</span><span class="p">)</span> <span class="k">if</span> <span class="n">defined?</span><span class="p">(</span><span class="o">::</span><span class="no">Bundler</span><span class="o">::</span><span class="no">ORIGINAL_ENV</span><span class="p">)</span>
+  <span class="no">ENV</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="no">Vagrant</span><span class="o">.</span><span class="n">original_env</span><span class="p">)</span>
+  <span class="k">yield</span>
+<span class="k">ensure</span>
+  <span class="no">ENV</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">original_env</span><span class="o">.</span><span class="n">to_hash</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>Now, notice the two issues here:</p>
+<ol>
+<li>In the normal Vagrant flow (working via the Vagrant launcher), the <code>Bundler::ORIGINAL_ENV</code> hash is useless because of the double invocation of Bundler.</li>
+<li>
+<p>Because we're only using <code>update</code> with the "proper" environment backup, values won't be deleted, only replaced:</p>
+<div class="highlight"><pre><span></span><code><span class="n">good</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="o">=&gt;</span><span class="mi">1</span><span class="p">}</span>
+<span class="n">bad</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="o">=&gt;</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;b&#39;</span><span class="o">=&gt;</span><span class="mi">3</span><span class="p">}</span>
+<span class="n">bad</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">good</span><span class="p">)</span>
+<span class="n">bad</span>
+<span class="c1"># =&gt; {&quot;a&quot;=&gt;1, &quot;b&quot;=&gt;3}</span>
+</code></pre></div>
+
+<p>So values that didn't exist in the backup and do exist in the current environment (e.g. <code>GEM_PATH</code>) will stay.</p>
+</li>
+</ol>
+<h2>The Solution</h2>
+<p><a href="https://github.com/mitchellh/vagrant/pull/7047">This</a> is the relevant PR</p>
+<p>Firsty, I modified <code>Vagrant::Util::Env.with_original_env</code>.<br>
+I made the assumption that if we're going through the Vagrant launcher, we only need to restore its environment.<br>
+If not, we'll restore the Bundler environment, if one exists.<br>
+The result looks like this:</p>
+<div class="highlight"><pre><span></span><code><span class="n">proxy_env</span> <span class="o">=</span> <span class="no">Vagrant</span><span class="o">.</span><span class="n">original_env</span>
+<span class="k">if</span> <span class="no">Vagrant</span><span class="o">.</span><span class="n">original_env</span><span class="o">.</span><span class="n">any?</span>
+  <span class="no">ENV</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">proxy_env</span><span class="p">)</span>
+<span class="k">elsif</span> <span class="n">defined?</span><span class="p">(</span><span class="o">::</span><span class="no">Bundler</span><span class="o">::</span><span class="no">ORIGINAL_ENV</span><span class="p">)</span>
+  <span class="no">ENV</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="o">::</span><span class="no">Bundler</span><span class="o">::</span><span class="no">ORIGINAL_ENV</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>After that, I had to locate the code in charge of spawning new processes and make sure that it's using the right logic.<br>
+The interesting method is <code>Vagrant::Util::Subprocess#execute</code> in <a href="https://github.com/mitchellh/vagrant/blob/dec5f70/lib/vagrant/util/subprocess.rb">lib/vagrant/util/subprocess.rb</a>.<br>
+It's very long, but you can save yourself reading it by believing me that the only thing it does about saving the subprocess from the Bundler modifications is calling <code>jailbreak</code>, which is defined in the same file.<br>
+The introduction for this method is best quoted from the file direct:</p>
+<blockquote>
+<p>This is, quite possibly, the saddest function in all of Vagrant.</p>
+</blockquote>
+<p>The method itself does plenty with the environment, mainly dealing with environment-related corner cases. Our interesting part is this:</p>
+<div class="highlight"><pre><span></span><code><span class="n">env</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="o">::</span><span class="no">Bundler</span><span class="o">::</span><span class="no">ORIGINAL_ENV</span><span class="p">)</span> <span class="k">if</span> <span class="n">defined?</span><span class="p">(</span><span class="o">::</span><span class="no">Bundler</span><span class="o">::</span><span class="no">ORIGINAL_ENV</span><span class="p">)</span>
+<span class="n">env</span><span class="o">.</span><span class="n">merge!</span><span class="p">(</span><span class="no">Vagrant</span><span class="o">.</span><span class="n">original_env</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Instead of repeating the logic from <code>with_original_env</code>, I removed it from <code>jailbreak</code>, and instead took <code>process.start</code> from <code>execute</code> and wrapped it in <code>with_original_env</code>, like so:</p>
+<div class="highlight"><pre><span></span><code><span class="no">Vagrant</span><span class="o">::</span><span class="no">Util</span><span class="o">::</span><span class="no">Env</span><span class="o">.</span><span class="n">with_original_env</span> <span class="k">do</span>
+  <span class="n">process</span><span class="o">.</span><span class="n">start</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>I might have misunderstood jailbreak a bit, but hopefully it'll work OK.  </p>
+<p>And there you have it.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

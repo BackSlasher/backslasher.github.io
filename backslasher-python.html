@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Backslasher-Python: a simple Chef Python cookbook - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/backslasher-python.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Ruby,Python,Chef" />
+        <meta name="description" content="What&#39;s wrong with the current Python cookbook Until now, we were using the Python cookbook. This worked well for a while, until I noticed these things: This cookbook is being deprecated, and replaced by poise-python, meaning some day the Python cookbook will be a wrapper around poise-python. Even today, when …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Backslasher-Python: a simple Chef Python cookbook"/>
+        <meta property="og:url" content="https://blog.backslasher.net/backslasher-python.html"/>
+        <meta property="og:description" content="What&#39;s wrong with the current Python cookbook Until now, we were using the Python cookbook. This worked well for a while, until I noticed these things: This cookbook is being deprecated, and replaced by poise-python, meaning some day the Python cookbook will be a wrapper around poise-python. Even today, when …"/>
+        <meta property="article:published_time" content="2016-02-20" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Ruby" />
+            <meta property="article:tag" content="Python" />
+            <meta property="article:tag" content="Chef" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/backslasher-python.html"
+                       rel="bookmark"
+                       title="Permalink to Backslasher-Python: a simple Chef Python cookbook">
+                        Backslasher-Python: a simple Chef Python cookbook
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-02-20T12:00:00+01:00"> Sat 20 February 2016</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+        /
+	<a href="https://blog.backslasher.net/tag/python.html">Python</a>
+        /
+	<a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h3>What's wrong with the current Python cookbook</h3>
+<p>Until now, we were using the <a href="https://github.com/poise/python">Python cookbook</a>. This worked well for a while, until I noticed these things:</p>
+<ol>
+<li>This cookbook is being deprecated, and replaced by <a href="https://github.com/poise/poise-python">poise-python</a>, meaning some day the Python cookbook will be a wrapper around poise-python.</li>
+<li>Even today, when the poise-python cookbook is used in a Chef-run, it's taking over the Python cookbook's resources</li>
+</ol>
+<h3>What's wrong with the Poise-Python cookbook</h3>
+<p>This new cookbook is way too magical for me.<br>
+I'm not in the habit of criticising other people's work, and I'm sure CodeRanger knows what he's doing, but I find the following facts disturbing:</p>
+<ol>
+<li>All of the cookbook logic is stored inside <code>lib/</code>, and processed using <a href="https://github.com/poise/halite">halite</a><br>
+    This means the division of recipes/resources/helpers is unclear and you have to "hunt" for the file containing the resource you want to troubleshoot.</li>
+<li>The resources use inheritance for state and logic<br>
+    After you found the proper file for your resource, you might need to search other files for methods that are part of the flow you're troubleshooting.</li>
+<li>Some of the inheritance extends to other cookbooks, like <a href="https://github.com/poise/poise-languages">poise-languages</a> and <a href="https://github.com/poise/poise">poise</a>.<br>
+    This is even more annoying because you now have multiple libraries/artifact to troubleshoot (so more lines in your Berksfile, more repos to clone etc), and it's unclear which logic arives from where.  </li>
+<li>
+<p>Some of the methods used are "magical"<br>
+    By "magical" I mean methods that aren't defined in the normal way:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">methodname</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+  <span class="c1"># Logic here</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>Instead, they are created by using <a href="http://apidock.com/ruby/Module/define_method">define_method</a> or <a href="http://ruby-doc.org/core-2.1.0/BasicObject.html#method-i-method_missing">method_missing</a>, and can't be easily found in the files.</p>
+</li>
+<li>
+<p>Some resources automatically backreference other resources.<br>
+    I'm talking about this usage pattern:</p>
+<div class="highlight"><pre><span></span><code><span class="n">python_runtime</span> <span class="s1">&#39;2&#39;</span>
+
+<span class="n">python_virtualenv</span> <span class="s1">&#39;/opt/myapp/.env&#39;</span> <span class="c1"># Uses the `python_runtime` defined above automatically</span>
+</code></pre></div>
+
+<p>This is done by looking at the resource collection and looking for the last item matching some definition (as far as I could understand).<br>
+While this might seem neat, in order for this method to work you have to reorder your code to match the "proper" way. For instance, you can't separate the runtime and the venv to diffent recipes, because then some other runtime (even from a different cookbook) might be declared and be the one discovered by the virtualenv resource.</p>
+</li>
+</ol>
+<p>All of these facts, in addition to missing documentation, add up to make the cookbook code really difficult to understand or troubleshoot.<br>
+On one hand, the reosurces included in this cookbook should be pretty simple. For instance, the package resource should install a python package (a single command), only if it's not already installed (another command).<br>
+On the other hand, I wrestled with thie Poise-Python cookbook for 3 days and still couldn't get it to do what the original Python cookbook did. It might be because I have a unique use case (custom-compiled Python), but it's still furstrating.</p>
+<h3>Enter <a href="https://supermarket.chef.io/cookbooks/backslasher-python">backslasher-python</a> (<a href="https://github.com/BackSlasher/chef-backslasher-python">source</a>)</h3>
+<p>Eventually, I chose to re-implement the Python cookbook by myself.<br>
+I made sure to choose a different namespace for the resources (<code>backslasher_python_*</code>), so it won't interfere with the existing usage of the Python cookbook (external cookbooks etc).<br>
+The new cookbook is written as plainly as possible. <del>Its only vice is using the new custom resource syntax</del> (Edit: Moved back to old syntax. <code>comapt_resource</code> breaks so easily).</p>
+<p>For instance, this is the entire <code>backslasher_python_virtualenv</code> definition (34 lines of code):</p>
+<div class="highlight"><pre><span></span><code><span class="n">property</span> <span class="ss">:path</span><span class="p">,</span> <span class="nb">String</span><span class="p">,</span> <span class="ss">name_attribute</span><span class="p">:</span> <span class="kp">true</span>
+<span class="n">property</span> <span class="ss">:interpreter</span><span class="p">,</span> <span class="nb">String</span>
+<span class="n">property</span> <span class="ss">:owner</span><span class="p">,</span> <span class="nb">String</span><span class="p">,</span> <span class="ss">regex</span><span class="p">:</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Config</span><span class="o">[</span><span class="ss">:user_valid_regex</span><span class="o">]</span>
+<span class="n">property</span> <span class="ss">:group</span><span class="p">,</span> <span class="nb">String</span><span class="p">,</span> <span class="ss">regex</span><span class="p">:</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Config</span><span class="o">[</span><span class="ss">:group_valid_regex</span><span class="o">]</span>
+<span class="n">property</span> <span class="ss">:options</span><span class="p">,</span> <span class="nb">String</span> <span class="c1"># Additional options for venv initialization</span>
+
+<span class="n">default_action</span> <span class="ss">:create</span>
+
+<span class="k">def</span> <span class="nf">exists?</span>
+  <span class="o">::</span><span class="no">File</span><span class="o">.</span><span class="n">exist?</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">::</span><span class="no">File</span><span class="o">.</span><span class="n">directory?</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="p">\</span>
+    <span class="o">&amp;&amp;</span> <span class="o">::</span><span class="no">File</span><span class="o">.</span><span class="n">exists?</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">path</span><span class="si">}</span><span class="s2">/bin/activate&quot;</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="n">action</span> <span class="ss">:create</span> <span class="k">do</span>
+  <span class="n">nr</span> <span class="o">=</span> <span class="nb">self</span> <span class="c1"># me as new_resource</span>
+  <span class="n">directory</span> <span class="n">path</span> <span class="k">do</span>
+    <span class="n">user</span> <span class="n">nr</span><span class="o">.</span><span class="n">owner</span> <span class="k">if</span> <span class="n">nr</span><span class="o">.</span><span class="n">owner</span>
+    <span class="n">group</span> <span class="n">nr</span><span class="o">.</span><span class="n">group</span> <span class="k">if</span> <span class="n">nr</span><span class="o">.</span><span class="n">group</span>
+  <span class="k">end</span>
+  <span class="n">execute</span> <span class="s2">&quot;virtualenv </span><span class="si">#{</span><span class="s2">&quot;--python=&quot;</span><span class="o">+</span><span class="n">interpreter</span> <span class="k">if</span> <span class="n">interpreter</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">options</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">do</span>
+    <span class="n">user</span> <span class="n">nr</span><span class="o">.</span><span class="n">owner</span> <span class="k">if</span> <span class="n">nr</span><span class="o">.</span><span class="n">owner</span>
+    <span class="n">group</span> <span class="n">nr</span><span class="o">.</span><span class="n">group</span> <span class="k">if</span> <span class="n">nr</span><span class="o">.</span><span class="n">group</span>
+    <span class="n">environment</span> <span class="p">({</span> <span class="s1">&#39;HOME&#39;</span> <span class="o">=&gt;</span> <span class="o">::</span><span class="no">Dir</span><span class="o">.</span><span class="n">home</span><span class="p">(</span><span class="n">nr</span><span class="o">.</span><span class="n">owner</span><span class="p">)</span> <span class="p">})</span> <span class="k">if</span> <span class="n">nr</span><span class="o">.</span><span class="n">owner</span>
+
+    <span class="n">not_if</span> <span class="p">{</span><span class="n">nr</span><span class="o">.</span><span class="n">exists?</span><span class="p">}</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">action</span> <span class="ss">:delete</span> <span class="k">do</span>
+  <span class="n">directory</span> <span class="n">path</span> <span class="k">do</span>
+    <span class="n">action</span> <span class="ss">:delete</span>
+    <span class="n">recursive</span> <span class="kp">true</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>This code is not dependent on any external code (except for the Chef core logic), and is pretty easy to read.<br>
+Compare it to the <a href="https://github.com/poise/poise-python/blob/master/lib/poise_python/resources/python_virtualenv.rb">Poise-Python implementation</a>.</p>
+<p>Personally, I've successfully replaced the Python cookbook with my Backslasher-Python cookbook in all of my internal uses and consider it a success. I'm curious to see what will happen in public cookbooks.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

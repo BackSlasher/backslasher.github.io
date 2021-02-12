@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Adding SSL to a SharePoint 2010 Web Application, the Right Way - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/adding-ssl-to-sharepoint-2010-web.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Security,HTTP,SharePoint,Scripts,IIS,PowerShell,One-Liner" />
+        <meta name="description" content="The Story I haven&#39;t touched SharePoint in a while, but I&#39;ve been asked by a friend to help him do something &#34;the right way&#34;. We were looking for a way to add an HTTPS binding to an existing SharePoint 2010 site. Google is full of ways of doing that, but …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Adding SSL to a SharePoint 2010 Web Application, the Right Way"/>
+        <meta property="og:url" content="https://blog.backslasher.net/adding-ssl-to-sharepoint-2010-web.html"/>
+        <meta property="og:description" content="The Story I haven&#39;t touched SharePoint in a while, but I&#39;ve been asked by a friend to help him do something &#34;the right way&#34;. We were looking for a way to add an HTTPS binding to an existing SharePoint 2010 site. Google is full of ways of doing that, but …"/>
+        <meta property="article:published_time" content="2013-11-11" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="Security" />
+            <meta property="article:tag" content="HTTP" />
+            <meta property="article:tag" content="SharePoint" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="IIS" />
+            <meta property="article:tag" content="PowerShell" />
+            <meta property="article:tag" content="One-Liner" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/adding-ssl-to-sharepoint-2010-web.html"
+                       rel="bookmark"
+                       title="Permalink to Adding SSL to a SharePoint 2010 Web Application, the Right Way">
+                        Adding SSL to a SharePoint 2010 Web Application, the Right Way
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2013-11-11T18:52:00+01:00"> Mon 11 November 2013</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/security.html">Security</a>
+        /
+	<a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+        /
+	<a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/iis.html">IIS</a>
+        /
+	<a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+        /
+	<a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h3>The Story</h3>
+<p>I haven't touched SharePoint in a while, but I've been asked by a friend to help him do something "the right way".<br>
+We were looking for a way to add an HTTPS binding to an existing SharePoint 2010 site. Google is full of ways of doing that, but they
+involve adding another binding manually via IIS, like this:</p>
+<p><img alt="" src="https://blog.backslasher.net/images/adding-ssl-to-sharepoint-2010-web/SharePointSSL1.png"></p>
+<p>Everyone who's familiar with SharePoint (and especially with cleaning after poor SharePoint infrastructure work) can see the issue immediately - even if this method works (and it might, with some added configuration) it will only apply to the current SharePoint front-end server - it won't be reflected in:  </p>
+<ul>
+<li>Other servers in the farm</li>
+<li>This server if it's rejoined (as a troubleshooting measure)</li>
+<li>Future servers added to the farm</li>
+</ul>
+<p>This happens because SharePoint is not informed of the new
+configuration. The right way is through Web Application Extension  </p>
+<h3>What is Web Application Extension</h3>
+<p>Having more than one binding (a port the IIS site is listening to) is new to IIS 7 (until then, each site had one HTTP port and one HTTPS port). Since SharePoint 2010 is in this mindset (maybe left-overs from 2007), each SharePoint web application is contained in one IIS site, which has only one port.<br>
+However, an administrator can "extend" a web application to a child-web application, allowing the same SharePoint sites to be served using different authentication mechanisms, ports etc.<br>
+More about extending <a href="http://technet.microsoft.com/en-us/library/cc261698%28v=office.14%29.aspx">here.</a><br>
+Basically, you supply SharePoint with information about the new Web Application you want (name, port, SSL, authentication etc.) and the zone it's capturing (for <a href="http://technet.microsoft.com/en-us/library/cc261814%28v=office.12%29.aspx">alternate access
+mappings</a>
+- other URLs that the application might be viewed from).  </p>
+<h3>Via Central Administration (GUI):</h3>
+<p>Open "Web Applications Management" and select the Web Application you wish to extend  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/adding-ssl-to-sharepoint-2010-web/SharePointSSL2.png"></p>
+<p>Hit "Extend" (under "Contribute") and fill the form to match the configuration of the <strong>new</strong> web application you wish to create. If you've used alternate access mappings before with this web application, make sure not to choose a zone you didn't use already (if you're not familiar with this term, you're probably OK with using "Intranet")  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/adding-ssl-to-sharepoint-2010-web/SharePointSSL3.png"></p>
+<p>Make sure the IIS site has been created. If you did choose SSL, you probably want to configure the certificate.<br>
+Unfortunately, this is done via IIS console (and has to be repeated for every server).<br>
+Open IIS console, find your new site and select "bindings". Choose the only binding there, select "edit" and choose your favorite certificate.  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/adding-ssl-to-sharepoint-2010-web/SharePointSSL4.png"></p>
+<p>Make sure everything works!  </p>
+<h3>Via PowerShell:</h3>
+<p>It's much quicker and even included in the official examples.<br>
+Straight from the <a href="http://technet.microsoft.com/en-us/library/ff607551%28v=office.14%29.aspx">Snap-in's documentation</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">Get-SPWebApplication</span> <span class="s1">&#39;http://sitename&#39;</span> <span class="p">|</span> <span class="nb">New-SPWebApplicationExtension</span> <span class="n">-Name</span> <span class="s2">&quot;ExtranetSite&quot;</span> <span class="n">-SecureSocketsLayer</span> <span class="n">-Zone</span> <span class="s2">&quot;Extranet&quot;</span> <span class="n">-URL</span> <span class="s2">&quot;https://extranet.sitename.com&quot;</span>
+</code></pre></div>
+
+<p>"This example extends the given Web application at http://sitename to
+the Extranet zone for SSL use."<br>
+You still have to configure the SSL certificate and make sure everything works.   </p>
+<h3>Undoing</h3>
+<p>To reverse the process, see <a href="http://technet.microsoft.com/en-us/library/cc288561%28v=office.14%29.aspx">"Unextend a Web application"</a> for both GUI and PowerShell methods.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

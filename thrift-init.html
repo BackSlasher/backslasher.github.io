@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Init file for HBase Thrift Server - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/thrift-init.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Bash,HBase,Linux,SysVInit" />
+        <meta name="description" content="As part of our HBase setup, we run Thrift servers. This is pretty simple, except for the init files. Since we&#39;re running Thrift standalone (and not as part of a full HBase server), I couldn&#39;t find a perfect fit from googling. I eventually settled for this puppet template, but it …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Init file for HBase Thrift Server"/>
+        <meta property="og:url" content="https://blog.backslasher.net/thrift-init.html"/>
+        <meta property="og:description" content="As part of our HBase setup, we run Thrift servers. This is pretty simple, except for the init files. Since we&#39;re running Thrift standalone (and not as part of a full HBase server), I couldn&#39;t find a perfect fit from googling. I eventually settled for this puppet template, but it …"/>
+        <meta property="article:published_time" content="2015-04-29" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Bash" />
+            <meta property="article:tag" content="HBase" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="SysVInit" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/thrift-init.html"
+                       rel="bookmark"
+                       title="Permalink to Init file for HBase Thrift Server">
+                        Init file for HBase Thrift Server
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-04-29T12:00:00+02:00"> Wed 29 April 2015</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+        /
+	<a href="https://blog.backslasher.net/tag/hbase.html">HBase</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/sysvinit.html">SysVInit</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>As part of our HBase setup, we run <a href="http://wiki.apache.org/hadoop/Hbase/ThriftApi">Thrift servers</a>. This is pretty simple, except for the init files.<br>
+Since we're running Thrift standalone (and not as part of a full HBase server), I couldn't find a perfect fit from googling.<br>
+I eventually settled for <a href="https://github.com/chrisglass/puppet-hadoop-modules/blob/master/modules/adobe-hbase/templates/service/hbase-thrift.erb">this puppet template</a>, but it had a big deficiency - no support for <code>status</code>.</p>
+<h3>A tiny bit about init</h3>
+<p><a href="http://en.wikipedia.org/wiki/Init">SysVInit</a> is the old-school way of managing services in Linux (and Unix).<br>
+Every service has an "init script", located in <code>/etc/init.d/SERVICENAME</code>, which is in charge of controlling the sevice.<br>
+It is called by using <code>service SERVICENAME ACTION</code>, where every script is free to define its own actions, but the standard ones are <code>start</code>,<code>stop</code>,<code>restart</code>,<code>status</code>.</p>
+<h3>Why <code>status</code> matters</h3>
+<p>Using <code>status</code> is the best way of checking whether a service is alive.<br>
+It could be a sysadmin checking for issues, Nagios making sure the service is OK, or a configuration management tool checking whether it should start the service.<br>
+Just for fun, here is how Chef uses it. I quote from the holy repo of <a href="https://github.com/chef/chef">Chef</a>, file <code>lib/chef/provider/service/simple.rb</code>, verse 130:</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">shell_out</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">default_init_command</span><span class="si">}</span><span class="s2"> status&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exitstatus</span> <span class="o">==</span> <span class="mi">0</span>
+  <span class="vi">@current_resource</span><span class="o">.</span><span class="n">running</span> <span class="kp">true</span>
+  <span class="no">Chef</span><span class="o">::</span><span class="no">Log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@new_resource</span><span class="si">}</span><span class="s2"> is running&quot;</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>So as long as <code>service SERVICENAME status</code> exits successfully (exit code 0), Chef thinks the service is running.</p>
+<h3>Implementing <code>status</code></h3>
+<p>Since I'm using CentOS 6.5, my common service functions file (<code>/etc/init.d/functions</code>) is old, so it's not creating new pids (<code>--pidfile</code> only checks for an existing file, not creating a new one) and it can't rename the process (I've heard of a magical <code>--name</code> parameter, but can't find it in my file).<br>
+Because of that, I can't find the process after starting it, so I can't make sure it's still alive.
+After digging around in the HBase code, I found out that HBase keeps PID files.<br>
+<code>bin/hbase-daemon.sh</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="o">(</span>start<span class="o">)</span>
+  mkdir -p <span class="s2">&quot;</span><span class="nv">$HBASE_PID_DIR</span><span class="s2">&quot;</span>
+  <span class="k">if</span> <span class="o">[</span> -f <span class="nv">$pid</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="k">if</span> <span class="nb">kill</span> -0 <span class="sb">`</span>cat <span class="nv">$pid</span><span class="sb">`</span> &gt; /dev/null <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span> <span class="k">then</span>
+    <span class="nb">echo</span> <span class="nv">$command</span> running as process <span class="sb">`</span>cat <span class="nv">$pid</span><span class="sb">`</span>.  Stop it first.
+    <span class="nb">exit</span> <span class="m">1</span>
+  <span class="k">fi</span>
+<span class="k">fi</span>
+</code></pre></div>
+
+<p>All I needed was to use this pidfile in my init script. I accomplished this by replicating the pidfile-building logic in my init script.<br>
+It looks something like:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">HBASE_PID_DIR</span><span class="o">=</span>/var/run/
+<span class="nv">HBASE_IDENT_STRING</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOSTNAME</span><span class="s2">&quot;</span>
+<span class="nv">command</span><span class="o">=</span>thrift
+<span class="nv">pid</span><span class="o">=</span><span class="nv">$HBASE_PID_DIR</span>/hbase-<span class="nv">$HBASE_IDENT_STRING</span>-<span class="nv">$command</span>.pid
+</code></pre></div>
+
+<p>Now I can implement the status check like so:</p>
+<div class="highlight"><pre><span></span><code>status<span class="o">)</span>
+  status -p <span class="nv">$pid</span> java
+  <span class="nv">RETVAL</span><span class="o">=</span><span class="nv">$?</span>
+<span class="p">;;</span>
+</code></pre></div>
+
+<p>Note that the process name is <code>java</code>. This is imperfect because the thrift process might die and another java process might take its place, but I don't find it too much of a risk for now. I might modify it later.</p>
+<h3>The Result</h3>
+<p><a href="https://gist.github.com/BackSlasher/7510adb69c73dbee7894">The full file</a> is stored as a gist, but be warned - it's a Chef template!<br>
+You can probably manually fill it out though.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

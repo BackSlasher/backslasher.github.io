@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Timing Execution By Output Lines - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/timing-execution-by-output-lines.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Programming,Perl,Scripts,Linux,One-Liner,Bash" />
+        <meta name="description" content="The Story Today I got annoyed that some puppet agent runs took me over 90 seconds to complete, even though they actually did nothing (no change was needed). I wanted to see which part of the run took the longest, so I tried this: sudo puppet agent --test --debug Unfortunately …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Timing Execution By Output Lines"/>
+        <meta property="og:url" content="https://blog.backslasher.net/timing-execution-by-output-lines.html"/>
+        <meta property="og:description" content="The Story Today I got annoyed that some puppet agent runs took me over 90 seconds to complete, even though they actually did nothing (no change was needed). I wanted to see which part of the run took the longest, so I tried this: sudo puppet agent --test --debug Unfortunately …"/>
+        <meta property="article:published_time" content="2014-06-05" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Programming" />
+            <meta property="article:tag" content="Perl" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="One-Liner" />
+            <meta property="article:tag" content="Bash" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/timing-execution-by-output-lines.html"
+                       rel="bookmark"
+                       title="Permalink to Timing Execution By Output Lines">
+                        Timing Execution By Output Lines
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-06-05T12:12:00+02:00"> Thu 05 June 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+        /
+	<a href="https://blog.backslasher.net/tag/perl.html">Perl</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+        /
+	<a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h3>The Story</h3>
+<p>Today I got annoyed that some puppet agent runs took me over 90 seconds
+to complete, even though they actually did nothing (no change was
+needed).<br>
+I wanted to see which part of the run took the longest, so I tried this:</p>
+<div class="highlight"><pre><span></span><code>sudo puppet agent --test --debug
+</code></pre></div>
+
+<p>Unfortunately, I don't have the ability to follow the terminal for 90
+seconds with full attention, so the only thing I recognized was small
+bursts of text:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/timing-execution-by-output-lines/can-you-follow.png"><br>
+<em>Can you follow?</em>  </p>
+<p>I wished puppet's output would have timestamps, but there's no such
+feature.<br>
+Luckily, I have scripting!<br>
+I wanted the solution to be a one-liner (and not a file to be executed)
+to keep it portable (as in not having to copy the file to every server).
+I considered using awk, python or bash loops, but ended up using perl
+because... it gave me the best functionality to code ratio :)   </p>
+<p><img alt="" src="https://blog.backslasher.net/images/timing-execution-by-output-lines/much-better.png"></p>
+<h3>The Script</h3>
+<p>I use this code to simulate a real application:   </p>
+<div class="highlight"><pre><span></span><code><span class="o">(</span>sleep <span class="m">2</span><span class="p">;</span><span class="nb">echo</span> <span class="s1">&#39;a&#39;</span><span class="p">;</span>sleep <span class="m">2</span><span class="p">;</span><span class="nb">echo</span> <span class="s1">&#39;err&#39;</span> <span class="m">1</span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="p">;</span><span class="nb">echo</span> <span class="s1">&#39;b&#39;</span><span class="p">;</span><span class="nb">echo</span> <span class="s1">&#39;c&#39;</span><span class="o">)</span>
+</code></pre></div>
+
+<p><img alt="" src="https://blog.backslasher.net/images/timing-execution-by-output-lines/timing-1.png"></p>
+<p>My one-liner will prepend to each line the seconds passed since the
+script's start. That way, if you see a large number gap between two
+lines, you can probably tell what's wasting your time.   </p>
+<div class="highlight"><pre><span></span><code>YOURCODEHERE <span class="p">|</span> perl -e <span class="s1">&#39;$b=time();while (&lt;stdin&gt;) {print ((time()-$b),&quot; $_&quot;)};&#39;</span>
+</code></pre></div>
+
+<p><img alt="" src="https://blog.backslasher.net/images/timing-execution-by-output-lines/timing-2.png"></p>
+<h4>Possible Tweaks</h4>
+<ul>
+<li>
+<p>Consider using <code>|&amp;</code> instead of <code>|</code> to pipeline errors (<code>STDERR</code>) too -
+  sometime they're more informative than the standard output, like this:   </p>
+<div class="highlight"><pre><span></span><code>YOURCODEHERE <span class="p">|&amp;</span> perl -e <span class="s1">&#39;$b=time();while (&lt;stdin&gt;) {print ((time()-$b),&quot; $_&quot;)};&#39;</span>
+</code></pre></div>
+
+<p><img alt="" src="https://blog.backslasher.net/images/timing-execution-by-output-lines/timing-3.png"></p>
+</li>
+<li>
+<p>I really wanted the time measured from the script's start, and not the
+computer local time. If you'd rather have that, try something like:   </p>
+<div class="highlight"><pre><span></span><code>YOURCODEHERE <span class="p">|</span> perl -e <span class="s1">&#39;while (&lt;stdin&gt;) {print ((scalar localtime()),&quot; $_&quot;)};&#39;</span>
+</code></pre></div>
+
+<p><img alt="" src="https://blog.backslasher.net/images/timing-execution-by-output-lines/timing-4.png"></p>
+</li>
+</ul>
+<p>By the way, puppet's run took so long due to some SQL queries being run
+as part of the <code>puppetdb</code> class.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

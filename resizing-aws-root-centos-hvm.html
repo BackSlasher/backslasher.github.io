@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Resizing AWS root EBS in CentOS HVM - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/resizing-aws-root-centos-hvm.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Linux,AWS,Virtualization,Mysteries Solved,Ruby,Perl,Scripts,Storage" />
+        <meta name="description" content="Update 04.07.15 This method doesn&#39;t work anymore because of some weird AWS restriction, which says you can&#39;t connect the root device of a marketplace AMI (like the CentOS one) to another VM, lest you discover its secrets. I developed a better method which involves either rebooting or creating …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Resizing AWS root EBS in CentOS HVM"/>
+        <meta property="og:url" content="https://blog.backslasher.net/resizing-aws-root-centos-hvm.html"/>
+        <meta property="og:description" content="Update 04.07.15 This method doesn&#39;t work anymore because of some weird AWS restriction, which says you can&#39;t connect the root device of a marketplace AMI (like the CentOS one) to another VM, lest you discover its secrets. I developed a better method which involves either rebooting or creating …"/>
+        <meta property="article:published_time" content="2015-02-01" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="AWS" />
+            <meta property="article:tag" content="Virtualization" />
+            <meta property="article:tag" content="Mysteries Solved" />
+            <meta property="article:tag" content="Ruby" />
+            <meta property="article:tag" content="Perl" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Storage" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/resizing-aws-root-centos-hvm.html"
+                       rel="bookmark"
+                       title="Permalink to Resizing AWS root EBS in CentOS HVM">
+                        Resizing AWS root EBS in CentOS HVM
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-02-01T12:00:00+01:00"> Sun 01 February 2015</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/aws.html">AWS</a>
+        /
+	<a href="https://blog.backslasher.net/tag/virtualization.html">Virtualization</a>
+        /
+	<a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+        /
+	<a href="https://blog.backslasher.net/tag/perl.html">Perl</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/storage.html">Storage</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h3>Update 04.07.15</h3>
+<p>This method doesn't work anymore because of some weird AWS restriction, which says you can't connect the root device of a marketplace AMI (like the CentOS one) to another VM, lest you discover its secrets.<br>
+I developed a better method which involves either rebooting or creating a custom AMI. <a href="https://blog.backslasher.net/growroot-centos.html">Give it a try!</a></p>
+<h3>The Story</h3>
+<p>Today I started using HVM instances in AWS, because r3 instances (memory optimized) are only available on HVM (<a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/virtualization_types.html">the difference</a>).
+Because the CentOS image my company uses isn't available as HVM, I switched to <a href="https://aws.amazon.com/marketplace/pp/B00NQAYLWO">this</a> image, which had an annoying side effect.</p>
+<h3>The Problem</h3>
+<p>After launching an instance, I always extend the root volume, which starts at a measly 8GB. Linux runs fine on 8GB, but our devs depend on some maneuvering space.<br>
+The EBS volume itself is extended when launching the instance. However, one must also extend the partitions/filesystems inside the volume.<br>
+<strong>Our previous image</strong> provided a root EBS that contained the filesystem directly, like this:</p>
+<div class="highlight"><pre><span></span><code>$ lsblk
+NAME    MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+...
+xvde    202:64   0  100G  0 disk  /
+...
+</code></pre></div>
+
+<p>Here we only have to extend the filesystem, which can be done using something like:</p>
+<div class="highlight"><pre><span></span><code>resize2fs <span class="k">$(</span>mount <span class="p">|</span> perl -ne <span class="s1">&#39;print $1,&quot;\n&quot; if /^(\S+) on \/ /&#39;</span><span class="k">)</span>
+</code></pre></div>
+
+<p><strong>On the HVM image</strong>, however, the EBS was partitioned (using MBR) and had a single partition, which contained the filesystem, like this:</p>
+<div class="highlight"><pre><span></span><code>$ lsblk
+NAME    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+...
+xvda    202:0    0  100G  0 disk
+└─xvda1 202:1    0  100G  0 part /
+...
+</code></pre></div>
+
+<p>This means that we must extend the partition before extending the filesystem, which proved to be a difficult task.<br>
+The standard procedure is deleting the partition and recreating with the same settings, however:</p>
+<ol>
+<li>Since we're extending a partition which contains the root filesystem, we can't unmount it.</li>
+<li>When changing a partition that contains a filesystem that is mounted, the kernel refuses to re-read the filesystem, meaning you can't make sure everything works until you reboot</li>
+<li>If you're rebooting with a broken partition/filesystem configuration, the VM won't boot. Since AWS offers no direct method of interfacing with the VM directly, one can't easily troubleshoot the VM.</li>
+</ol>
+<p>Because of this, I spent 6 hours and 6 servers on trying to extend the partition.</p>
+<h3>The Solution</h3>
+<p>As AWS say in <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_expand_partition.html">their article</a>, the best solution I found is using a helper VM.</p>
+<ol>
+<li>Prepare a helper VM running Linux, with <code>parted</code> installed.</li>
+<li>Stop both the instance you wish to extend and the helper.</li>
+<li>Note the instance id of both instances and the volume ID of the root EBS.
+    We'll assume we're talking about <code>i-victim</code>,<code>i-helper</code>,<code>v-victim</code></li>
+<li>Note <code>i-victim</code>'s root device configuration. We'll assume it's <code>/dev/sda1</code><br>
+<img alt="" src="https://blog.backslasher.net/images/resizing-aws-root-centos-hvm/sol1.png"></li>
+<li>Detach <code>v-victim</code> from <code>i-victim</code> and attach it to <code>i-helper</code>. The device letter doesn't matter, you should be able to recognize it on the OS. We'll assume it's <code>/dev/xvdf</code>.<br>
+<img alt="" src="https://blog.backslasher.net/images/resizing-aws-root-centos-hvm/detach.png"></li>
+<li>
+<p>Start <code>i-helper</code>, connect to it via SSH, and commence surgery</p>
+<ol>
+<li>
+<p>Use <code>parted /dev/xvdf p</code> to view the current partition makeup, and save it in case something bad happens.</p>
+<div class="highlight"><pre><span></span><code>Model: Xen Virtual Block Device (xvd)
+Disk /dev/xvdf: 322GB
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+
+Number  Start   End    Size   Type     File system  Flags
+ 1      1049kB  8GB    8GB    primary  ext4         boot
+</code></pre></div>
+
+<p>Note the difference between the drive size (<code>322GB</code>) and the partition size (<code>8GB</code>)</p>
+</li>
+<li>
+<p>Like in the article, delete the partition and create a new one, with the same start and type. Put <code>100%</code> as the end, and run <code>set 1 boot on</code> to enable the boot flag on the new partition .<br>
+   Example code:</p>
+<div class="highlight"><pre><span></span><code>$ sudo parted /dev/xvdf rm 1
+$ sudo parted /dev/xvdf mkpart primary 1049kB 100%
+$ sudo parted /dev/xvdf set 1 boot on
+</code></pre></div>
+
+<p><strong>Note:</strong> The start (<code>1049kB</code>) should be based on the start of the original partition.<br>
+The new partition should be recognized by the kernel, and the filesystem itself can be treated.</p>
+</li>
+<li>
+<p>Execute <code>e2fsck -f /dev/xvdf1 &amp;&amp; resize2fs /dev/xvdf1</code> to fsck and extend the filesystem</p>
+</li>
+<li>You can mount-test the partition on the server, just to make sure everything is OK, using something like <code>mkdir /tmp/bla &amp;&amp; mount /dev/xvdf1 /tmp/bla</code></li>
+</ol>
+</li>
+<li>
+<p>Stop <code>i-helper</code></p>
+</li>
+<li>Detach <code>v-victim</code> from <code>i-helper</code></li>
+<li>Attach <code>v-victim</code> to <code>i-victim</code>, using the binding from step 4.<br>
+<img alt="" src="https://blog.backslasher.net/images/resizing-aws-root-centos-hvm/attach.png"></li>
+<li>Start <code>i-victim</code> and pray.</li>
+</ol>
+<p>Everything should work out OK</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

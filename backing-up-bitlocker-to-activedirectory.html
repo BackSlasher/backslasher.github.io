@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Backing up BitLocker to ActiveDirectory - My Additions - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/backing-up-bitlocker-to-activedirectory.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Security,BitLocker,Scripts,Windows,FileSystem,PowerShell,Ramblings,Active Directory" />
+        <meta name="description" content="The Story If you thought about deploying BitLocker in your enterprise, you probably came across the recovery issue - if you lose the encrypting smart card, corrupt the key file, forget the password or the TPM breaks down - how can you access the data? For small organizations, manual recovery can be …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Backing up BitLocker to ActiveDirectory - My Additions"/>
+        <meta property="og:url" content="https://blog.backslasher.net/backing-up-bitlocker-to-activedirectory.html"/>
+        <meta property="og:description" content="The Story If you thought about deploying BitLocker in your enterprise, you probably came across the recovery issue - if you lose the encrypting smart card, corrupt the key file, forget the password or the TPM breaks down - how can you access the data? For small organizations, manual recovery can be …"/>
+        <meta property="article:published_time" content="2013-11-25" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="Security" />
+            <meta property="article:tag" content="BitLocker" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Windows" />
+            <meta property="article:tag" content="FileSystem" />
+            <meta property="article:tag" content="PowerShell" />
+            <meta property="article:tag" content="Ramblings" />
+            <meta property="article:tag" content="Active Directory" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/backing-up-bitlocker-to-activedirectory.html"
+                       rel="bookmark"
+                       title="Permalink to Backing up BitLocker to ActiveDirectory - My Additions">
+                        Backing up BitLocker to ActiveDirectory - My Additions
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2013-11-25T20:14:00+01:00"> Mon 25 November 2013</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/security.html">Security</a>
+        /
+	<a href="https://blog.backslasher.net/tag/bitlocker.html">BitLocker</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+        /
+	<a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+        /
+	<a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+        /
+	<a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h3>The Story</h3>
+<p>If you thought about deploying BitLocker in your enterprise, you probably came across the recovery issue - if you lose the encrypting smart card, corrupt the key file, forget the password or the TPM breaks down - how can you access the data?<br>
+For small organizations, manual recovery can be enough - when bitlocker is enabled through the UI (or via cli with <code>RecoveryPasswordProtector</code>), bitlocker keeps one password numeric, like <code>123456-123456-123456-123456-123456-123456-123456-123456</code>, and urges you to save this password externally, so you can use it in
+emergencies.  </p>
+<p>For large organizations, documenting these keys (and making sure they're kept safe) is difficult.<br>
+Because such organizations are probably good with keeping their primary store of confidential data (the Active Directory) safe, it makes sense to keep the BitLocker recovery passwords there. It's also available out-of-the-box.  </p>
+<p>There is a <a href="http://technet.microsoft.com/en-us/library/cc766015%28v=ws.10%29.aspx">TechNet article</a> about this, but I think my steps are better:  </p>
+<h3>The Solution</h3>
+<h4>1. Extend the AD schema</h4>
+<p>Only needed if you don't have 2008+ DCs, because their schema includes the required objects  </p>
+<h4>2. Set AD permissions</h4>
+<p>Recovery passwords are saved as objects inside the computer objects, so you have to give the computers permissions to create such objects.<br>
+I think that in 2008+ domains they're already present, but it you might want to add them anyway, to make sure  </p>
+<h4>3. Set GP to replicate to AD</h4>
+<p>The GP location is <code>Computer Configuration&gt;Administrative Templates&gt;Windows Components&gt;BitLocker Drive Encryption</code><br>
+<strong>For NT6</strong> (Server 2008 / Vista), the setting is global and called "Store BitLocker recovery information in Active Directory Domain Services":</p>
+<p><img alt="" src="https://blog.backslasher.net/images/backing-up-bitlocker-to-activedirectory/BitLockerGP1.png"></p>
+<p><strong>For newer versions</strong>, there are different settings for OS drives ("C:"), fixed data drives (additional HDs) and removable data drives (e.g. Disk-On-Keys), each under the relevant folder and called "Choose how BitLocker-protected XXX drives can be recovered":</p>
+<p><img alt="" src="https://blog.backslasher.net/images/backing-up-bitlocker-to-activedirectory/BitLockerGP2.png"></p>
+<p>Both GPs have settings in common:<br>
+<strong>Passwords or Packages?</strong> Each drive is actually encrypted with a long key which in turn is encrypted by the password. This negates the security vulnerabilities of encrypting large amounts of data with human-memorable passwords. As long as the drive is healthy, the password suffices to read the data because the key can be decrypted. But if the drive is damaged and the part containing the key can't be read, the password is useless.<br>
+Storing the entire key package in AD allows reading data even from a key-damaged drive.<br>
+On the other hand, storing only the password is safer (since the password can be easily changed without re-encrypting the disk, if the AD is compromised).<br>
+<strong>No Encryption Before Backup Completion:</strong> AD backup is among the first things that happen during a drive encryption (right after password and key package generation). Both GPs have a checkbox to stop the encryption process if the backup fails, saving the sysadmin (you!) from one day finding an encrypted drive with no valid AD-backed key.  </p>
+<h4>4. Trigger Backup</h4>
+<p>Backups to AD only happen when BitLocker passwords are modified (so if some drive was encrypted before you completed the previous steps, the container won't be backed up). To trigger backups manually, use <code>manage-bde</code>, as explained <a href="http://blogs.technet.com/b/askcore/archive/2010/04/06/how-to-backup-recovery-information-in-ad-after-bitlocker-is-turned-on-in-windows-7.aspx">here</a>.<br>
+If you're on Windows 8 and want a simple script to backup whatever key you have, here:  </p>
+<div class="highlight"><pre><span></span><code><span class="nv">$drive</span> <span class="p">=</span> <span class="nb">Get-BitLockerVolume</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">KeyProtector</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">KeyProtectorType</span> <span class="o">-eq</span> <span class="s1">&#39;RecoveryPassword&#39;</span><span class="p">}}</span> <span class="p">|</span> <span class="nb">select </span><span class="o">-f</span> <span class="n">1</span>
+<span class="nv">$key</span> <span class="p">=</span> <span class="nv">$drive</span> <span class="p">|</span> <span class="nb">select </span><span class="n">-exp</span> <span class="n">KeyProtector</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">KeyProtectorType</span> <span class="o">-eq</span> <span class="s1">&#39;RecoveryPassword&#39;</span><span class="p">}</span> <span class="p">|</span> <span class="nb">select </span><span class="o">-f</span> <span class="n">1</span>
+<span class="nb">Backup-BitLockerKeyProtector</span> <span class="nv">$drive</span><span class="p">.</span><span class="n">MountPoint</span> <span class="nv">$key</span><span class="p">.</span><span class="n">KeyProtectorId</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Backing up drive $drive, key </span><span class="p">$(</span><span class="nv">$key</span><span class="p">.</span><span class="n">KeyProtectorId</span><span class="p">)</span><span class="s2">, password </span><span class="p">$(</span><span class="nv">$key</span><span class="p">.</span><span class="n">RecoveryPassword</span><span class="p">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<h4>5. Test Search:</h4>
+<p>Use the command "Find BitLocker recovery password" under <code>dsa.msc</code>:</p>
+<p><img alt="" src="https://blog.backslasher.net/images/backing-up-bitlocker-to-activedirectory/BitLockerAD1.gif"></p>
+<p>Then enter the first "box" from the recovery guid, and make sure the
+password is found:</p>
+<p><img alt="" src="https://blog.backslasher.net/images/backing-up-bitlocker-to-activedirectory/BitLockerAD2.png"></p>
+<p>Have fun!</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

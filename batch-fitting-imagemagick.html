@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Batch fitting pictures in ImageMagick - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/batch-fitting-imagemagick.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="ImageMagick,images,bash,scripts" />
+        <meta name="description" content="I recently bought a digital frame for some of my more elderly relatives. The frame&#39;s firmware was quite retarded, and I had 2 issues with it: 1. Pictures were always displayed in order This might be a &#34;not a bug but a feature&#34; type of situation, but still. I solved …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Batch fitting pictures in ImageMagick"/>
+        <meta property="og:url" content="https://blog.backslasher.net/batch-fitting-imagemagick.html"/>
+        <meta property="og:description" content="I recently bought a digital frame for some of my more elderly relatives. The frame&#39;s firmware was quite retarded, and I had 2 issues with it: 1. Pictures were always displayed in order This might be a &#34;not a bug but a feature&#34; type of situation, but still. I solved …"/>
+        <meta property="article:published_time" content="2015-04-09" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="ImageMagick" />
+            <meta property="article:tag" content="images" />
+            <meta property="article:tag" content="bash" />
+            <meta property="article:tag" content="scripts" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/batch-fitting-imagemagick.html"
+                       rel="bookmark"
+                       title="Permalink to Batch fitting pictures in ImageMagick">
+                        Batch fitting pictures in ImageMagick
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-04-09T12:00:00+02:00"> Thu 09 April 2015</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/imagemagick.html">ImageMagick</a>
+        /
+	<a href="https://blog.backslasher.net/tag/images.html">images</a>
+        /
+	<a href="https://blog.backslasher.net/tag/bash.html">bash</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">scripts</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>I recently bought a digital frame for some of my more elderly relatives.<br>
+The frame's firmware was quite retarded, and I had 2 issues with it:</p>
+<h3>1. Pictures were always displayed in order</h3>
+<p>This might be a "not a bug but a feature" type of situation, but still.<br>
+I solved this using bash's <code>$RANDOM</code>, which evaluates to a different random number every time:</p>
+<div class="highlight"><pre><span></span><code>rename <span class="s1">&#39;s/\.jpg$/.jpg/i&#39;</span> *.* <span class="c1"># Just makes it look nice</span>
+<span class="k">for</span> F in *.jpg<span class="p">;</span> <span class="k">do</span> mv <span class="s2">&quot;</span><span class="nv">$F</span><span class="s2">&quot;</span> <span class="si">${</span><span class="nv">RANDOM</span><span class="si">}</span>.jpg<span class="p">;</span> <span class="k">done</span>
+</code></pre></div>
+
+<p>I couldn't use <code>xargs</code> rather than the for loop, because I needed to evaluate the variable for every file</p>
+<h3>2. Pictures were stretched to the frame's proportions</h3>
+<p>Assuming I treated my relatives with the following apple pictures:<br>
+<img alt="" src="https://blog.backslasher.net/images/batch-fitting-imagemagick/old1.jpg">
+<img alt="" src="https://blog.backslasher.net/images/batch-fitting-imagemagick/old2.jpg">
+<img alt="" src="https://blog.backslasher.net/images/batch-fitting-imagemagick/old3.jpg"><br>
+The frame would show them like this:<br>
+<img alt="" src="https://blog.backslasher.net/images/batch-fitting-imagemagick/smear1.jpg">
+<img alt="" src="https://blog.backslasher.net/images/batch-fitting-imagemagick/smear2.jpg">
+<img alt="" src="https://blog.backslasher.net/images/batch-fitting-imagemagick/smear3.jpg">  </p>
+<p>Obviously, there was no setting in the software to stop doing that, so I had to modify the pictures themselves.
+I settled for resizing the pictures (without modifying the aspect ratio) to a certain resolution (the frame's screen's resolution), and padding it if it's not the right size (for instance, the picture is too short / too wide).<br>
+I modified the pictures to look like this:<br>
+<img alt="" src="https://blog.backslasher.net/images/batch-fitting-imagemagick/pan1.jpg">
+<img alt="" src="https://blog.backslasher.net/images/batch-fitting-imagemagick/pan2.jpg">
+<img alt="" src="https://blog.backslasher.net/images/batch-fitting-imagemagick/pan3.jpg">  </p>
+<p><strong>The script</strong> uses ImageMagick, which is apparently built for these things (I initially considered using gimp).</p>
+<div class="highlight"><pre><span></span><code><span class="nv">RES</span><span class="o">=</span>2048x1536
+<span class="nv">BG</span><span class="o">=</span>black
+ls *.jpg <span class="p">|</span> xargs -n1 mogrify -gravity center -background <span class="nv">$BG</span> -resize <span class="nv">$RES</span> -extent <span class="nv">$RES</span>
+</code></pre></div>
+
+<p>Note I'm using <code>mogrify</code>, which performes in-place updates of the file. To create a different modified file, use <code>convert</code> and specify a new filename at the end.<br>
+Note<sup>2</sup> <code>resize</code> does the actual image resizing (while keeping aspect ratio, unless <a href="http://www.imagemagick.org/Usage/resize/#resize">specified otherwise</a>), and <code>extent</code> fills in the missing sides with the background.</p>
+<h3>attribution</h3>
+<p>Delicious apples taken from:</p>
+<ul>
+<li><a href="http://blic-domain-images-pictures/apple-pictures/ripe-apple-on-branch.jpg.html">http://blic-domain-images-pictures/apple-pictures/ripe-apple-on-branch.jpg.html</a></li>
+<li><a href="http://pixabay.com/en/apples-fresh-green-red-health-455396/">http://pixabay.com/en/apples-fresh-green-red-health-455396/</a></li>
+<li><a href="http://apple--art.deviantart.com/">http://apple--art.deviantart.com/</a></li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

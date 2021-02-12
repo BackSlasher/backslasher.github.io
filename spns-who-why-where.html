@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>SPNs - Who? Why? Where? - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/spns-who-why-where.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Kerberos,SharePoint,Active Directory,Security" />
+        <meta name="description" content="I was making an introduction to a new teammate about SharePoint infrastructure, and one of the things I had to teach her about was SPNs. I was surprised to know almost no one at our place knew what SPNs are actually for. Until my PowerPoint presentation is ready, here is …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="SPNs - Who? Why? Where?"/>
+        <meta property="og:url" content="https://blog.backslasher.net/spns-who-why-where.html"/>
+        <meta property="og:description" content="I was making an introduction to a new teammate about SharePoint infrastructure, and one of the things I had to teach her about was SPNs. I was surprised to know almost no one at our place knew what SPNs are actually for. Until my PowerPoint presentation is ready, here is …"/>
+        <meta property="article:published_time" content="2010-10-02" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="Kerberos" />
+            <meta property="article:tag" content="SharePoint" />
+            <meta property="article:tag" content="Active Directory" />
+            <meta property="article:tag" content="Security" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/spns-who-why-where.html"
+                       rel="bookmark"
+                       title="Permalink to SPNs - Who? Why? Where?">
+                        SPNs - Who? Why? Where?
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2010-10-02T22:01:00+02:00"> Sat 02 October 2010</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+        /
+	<a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+        /
+	<a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+        /
+	<a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>I was making an introduction to a new teammate about SharePoint
+infrastructure, and one of the things I had to teach her about was SPNs.
+I was surprised to know almost no one at our place knew what SPNs are
+actually for. Until my PowerPoint presentation is ready, here is a
+(relatively) short explanation:<br>
+First of all, SPNs are part of how Kerberos authentication works, and is
+used to help encrypt the Client-Server ticket. This a <strong>very</strong> basic
+explanation of what's going on:  </p>
+<ol>
+<li>When the user logs in to an Active Directory domain, it recives a
+    TGT (ticket-granting ticket), allowing the client to request other
+    tickets. It's only capable of proving the client's identity to a DC.</li>
+<li>Whenever the client decides to authenticate to a service (for
+    example, a web site), the client requests its DC for a CS
+    (client-server) ticket, providing the TGT as proof of its identity.</li>
+<li>The DC replies with a CS ticket, <strong>encrypted so that only the
+    service can read it</strong>. This ticket proves to this specific service
+    that the ticket's holder is a specific client</li>
+<li>The client passes the CS ticket on (note it can't read it itself) to
+    the service.</li>
+<li>The service decrypts the CS ticket, and therefore validates that the
+    CS ticket-holder is in fact the user as claimed.</li>
+</ol>
+<p>The SPN comes in step 3 (if you haven't guessed), to help the DC decide
+how to encrypt the CS ticket. Understandably, the only thing that only
+the DC and the service know (the <strong>shared secret</strong>) is the service
+user's (the user running the service) password, or any hash derived from
+it. So the DC encrypts the CS ticket with a hash of the service user's
+password, and sends the ticket onwards.<br>
+Let's look at an example:<br>
+The user <code>Dom\Nitz</code> tries to connect to server <code>Dom\Server</code> in port
+<code>81</code>:  </p>
+<ol>
+<li>Nitz logs on to the domain and gets a TGT for <code>Dom\Nitz</code>.</li>
+<li>Nitz opens his Internet Explorer and connects to
+    <code>http://Server:81</code>.<br>
+   The IE and the IIS on the other side negotiate Kerberos
+    authentication.<br>
+   IE requests from the DC (through windows, of course) a CS ticket for
+    the <strong>service</strong> <code>http/Server:81</code> (notice the SPN shape)</li>
+<li>The DC creates the CS ticket and encrypts it with the service's
+    password.<br>
+<strong>Whose password should it use?</strong></li>
+</ol>
+<p>If no SPN is specified, the DC assumes the service user is the server's
+account, in our case <code>Dom\Server$,</code> and uses its password (yes,
+computer accounts have passwords). Let's see what happens if the DC is
+right:  </p>
+<ol>
+<li>The Client receives the CS ticket, and passes it on to the service
+    on port 81.</li>
+<li>The web server (running as <code>Dom\Server$</code>) decrypts the ticket and
+    validates the client's identity. Success!</li>
+</ol>
+<p>The problem starts when this assumption is wrong. For example, when the
+server is part of a SharePoint farm and port 81 is run from an appPool with
+user <code>Dom\Service</code>. Let's see what happens then:  </p>
+<ol>
+<li>The Client receives the CS ticket, and passes it on to the service
+    on port 81.</li>
+<li>The web server (running as <code>Dom\Service</code>) <strong>tries</strong> to decrypt the
+    ticket, and fails (since its password wasn't the one used to encrypt
+    it).<br>
+   Kerberos Authentication Error, type <code>KRB_AP_ERR_MODIFIED</code>. :-(</li>
+</ol>
+<p>The SPN, as you must have guessed, is a way to tell the DC something
+like "encrypt all CS tickets for <code>http/Server:81</code> using <code>Dom\Service</code>'s
+password". That way, CS tickets forwarded to this service will decrypt
+correctly. It's done by adding the <strong>Service Principle Name</strong> (or "the
+way the service is called"), composed of <code>Protocol/ServerName[:Port]</code>
+(only specify port for non-defaults, like HTTP ports other than 80) to
+the attribute on the service account in the Active Directory.</p>
+<h3>What do I do?</h3>
+<h4>The short answer</h4>
+<p>If you have a service not running as <code>SYSTEM</code>, but rather as a domain account, you have to use an SPN to allow kerberos authentication to it. Add the right SPN (such as <code>http/Server:81</code>) to the domain account
+running the service. That's it. No restart, no logoff, nothing.</p>
+<h4>Details</h4>
+<p>You can either use <code>adsiedit</code> (BE CAREFUL!) to write to <code>ServicePrincipalName</code> of the right domain account, or use <code>SetSpn {SPN} {Domain\\Account}</code></p>
+<h4>Protips</h4>
+<ul>
+<li>Always register short (NETBIOS) server name (<code>Server</code>) and long (DNS) server name (<code>Server.Domain.Com</code>), to avoid glitches in authentication mechanizes and human errors.  </li>
+<li>Consider cleanups of decommissioned services (see <code>SetSpn</code> on server 2008+) to avoid duplicate SPNs (same SPN entry, two or more different users). Duplicate SPNs are bad, because the DC doesn't know who's password to use to encrypt the CS
+ticket.</li>
+<li>If you're having Kerberos authentication issues, try
+<a href="http://technet.microsoft.com/en-us/library/cc728430%28WS.10%29.aspx">troubleshooting</a> before giving up and falling back to NTLM for good. Kerberos isn't that
+complex to set up! (Only to troubleshoot...).</li>
+</ul>
+<h4>Pitfalls:</h4>
+<ul>
+<li>Service account is:  <ul>
+<li>Locked out</li>
+<li>Has different password than in AD (did you change the password?)</li>
+<li>Lost <code>User Right Assignments</code> on the server (faulty Group Policy)</li>
+</ul>
+</li>
+<li>User account is:<ul>
+<li>Locked out</li>
+<li>Has different password than in AD ("Windows needs your current credentials" is usually that)</li>
+</ul>
+</li>
+<li>Machines are:<ul>
+<li>With a firewall blocking necessary AD ports (to their respective DCs)</li>
+<li>With a time difference greater than the Kerb tolerance policy (usually 5
+mins)</li>
+<li>AD membership is messed up (use <code>NETDOM VERIFY</code>)</li>
+</ul>
+</li>
+<li>Kerberos almost certainly won't work for<ul>
+<li>Computers set in different domains without trusts (ask the AD admins)</li>
+<li>Computers outside a domain (duh)</li>
+<li>Services addressed using IP (i.e. <code>http://127.0.0.1/</code>)</li>
+</ul>
+</li>
+</ul>
+<h3>Summary</h3>
+<p>Kerberos is a great auth mechanism
+for windows-based services, and especially SharePoint (very little farm
+config needed). SPNs are required if a non-SYSTEM user is used, or a
+multi-FE farm is deployed (and you choose Kerberos).<br>
+It's easy to deploy Kerberos auth (after making all possible mistakes), just make sure you're coupled with an AD guy to avoid stupid issues (like replication / incorrect account selection), and most importantly, DON'T PANIC!<br>
+I hope this post will save at least one person a night of frustration, learning how to deploy SPNs the hard way.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Troubleshooting StatsD - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/troubleshooting-statsd.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Troubleshooting,Networking,Linux,StatsD" />
+        <meta name="description" content="About StatsD StatsD is a tool developed by Etsy and Flickr (complicated story). Its main use is providing a middleman for Graphite, which is a real-time graphing tool, mainly used for performance metrics. Thanks to StatsD, I can use TCP sockets between servers (guaranteeing packet delivery), while processes generating the …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Troubleshooting StatsD"/>
+        <meta property="og:url" content="https://blog.backslasher.net/troubleshooting-statsd.html"/>
+        <meta property="og:description" content="About StatsD StatsD is a tool developed by Etsy and Flickr (complicated story). Its main use is providing a middleman for Graphite, which is a real-time graphing tool, mainly used for performance metrics. Thanks to StatsD, I can use TCP sockets between servers (guaranteeing packet delivery), while processes generating the …"/>
+        <meta property="article:published_time" content="2015-01-07" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Troubleshooting" />
+            <meta property="article:tag" content="Networking" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="StatsD" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/troubleshooting-statsd.html"
+                       rel="bookmark"
+                       title="Permalink to Troubleshooting StatsD">
+                        Troubleshooting StatsD
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-01-07T12:00:00+01:00"> Wed 07 January 2015</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/troubleshooting.html">Troubleshooting</a>
+        /
+	<a href="https://blog.backslasher.net/tag/networking.html">Networking</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/statsd.html">StatsD</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h3>About StatsD</h3>
+<p><a href="https://github.com/etsy/statsd/">StatsD</a> is a tool developed by Etsy and Flickr (complicated story).<br>
+Its main use is providing a middleman for <a href="http://graphite.wikidot.com/">Graphite</a>, which is a real-time graphing tool, mainly used for performance metrics.<br>
+Thanks to StatsD, I can use TCP sockets between servers (guaranteeing packet delivery), while processes generating the data-points are using a localhost UDP socket (minimal overhead without losing packets), freeing them to do some real work.<br>
+Sometimes, things don't work.</p>
+<h3>Basic Troubleshooting</h3>
+<p>I don't claim to be an expert on StatsD, but I didn't find a good post about troubleshooting, so I thought I'll list some of my methods.
+I assume the problem we're investigating is the most common and elusive of all: <strong>Data sent to StatsD isn't showing up on Graphite</strong></p>
+<h4>Send some Spam</h4>
+<p>Try sending some data to both StatsD and Graphite and see what sticks:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">GRAPHITE_SERVER</span><span class="o">=</span>
+<span class="nv">GRAPHITE_CARBON_PORT</span><span class="o">=</span>
+<span class="nv">GRAPHITE_WEBUI_PORT</span><span class="o">=</span>
+<span class="nv">STATSD_SERVER</span><span class="o">=</span>
+<span class="nv">STATSD_PORT</span><span class="o">=</span>
+<span class="nv">TEST_STRING</span><span class="o">=</span>test.back.slash
+
+<span class="c1"># Send to Graphite</span>
+<span class="nb">echo</span> <span class="s2">&quot;test.back.slash 4 `date +%s`&quot;</span> <span class="p">|</span> nc -C <span class="si">${</span><span class="nv">GRAPHITE_SERVER</span><span class="si">}</span> <span class="si">${</span><span class="nv">GRAPHITE_CARBON_PORT</span><span class="si">}</span>
+
+<span class="c1"># Test</span>
+curl <span class="s2">&quot;http://</span><span class="si">${</span><span class="nv">GRAPHITE_SERVER</span><span class="si">}</span><span class="s2">:</span><span class="si">${</span><span class="nv">GRAPHITE_WEBUI_PORT</span><span class="si">}</span><span class="s2">/render/?target=</span><span class="si">${</span><span class="nv">TEST_STRING</span><span class="si">}</span><span class="s2">&amp;from=-60sec&amp;format=json&quot;</span>
+
+<span class="c1"># Send to StatsD</span>
+<span class="nb">echo</span> <span class="s1">&#39;test.back.slash:1|c&#39;</span> <span class="p">|</span> nc -C -w1 -u <span class="si">${</span><span class="nv">STATSD_SERVER</span><span class="si">}</span> <span class="si">${</span><span class="nv">STATSD_PORT</span><span class="si">}</span>
+
+<span class="c1"># Test</span>
+curl <span class="s2">&quot;http://</span><span class="si">${</span><span class="nv">GRAPHITE_SERVER</span><span class="si">}</span><span class="s2">:</span><span class="si">${</span><span class="nv">GRAPHITE_WEBUI_PORT</span><span class="si">}</span><span class="s2">/render/?target=stats.gauges.</span><span class="si">${</span><span class="nv">TEST_STRING</span><span class="si">}</span><span class="s2">&amp;from=-60sec&amp;format=json&quot;</span>
+</code></pre></div>
+
+<h4>Redirect to Console</h4>
+<p>First, modify your StatsD configuration file to add the console backend (something like  <code>backends: ["./backends/graphite", "./backends/console"]</code>).<br>
+Then start StatsD (like <code>node /usr/local/statsd/stats.js /your/config.js</code>), and watch the output. Check if your data is there.</p>
+<h4>Debug</h4>
+<p>Modify the StatsD configuration file to contain <code>debug: true</code>, and see if you get some interesting output in <code>stderr</code>.</p>
+<h4>Dump</h4>
+<p>This might seem like a last-ditch effort, but you can always use <code>tcpdump</code> to record interesting traffic.<br>
+I use something like:</p>
+<div class="highlight"><pre><span></span><code>sudo tcpdump -i any -w statsd-ts.dump <span class="s2">&quot;(port </span><span class="nv">$GRAPHITE_CARBON_PORT</span><span class="s2">) or (port </span><span class="nv">$STATSD_PORT</span><span class="s2">)&quot;</span>
+</code></pre></div>
+
+<p>Using this dump you can try and see if something's fishy.<br>
+Since both StatsD and Graphite use packets that contain readable text, I use this combo to parse all textual data in ruby.<br>
+It's not perfect, but it works.</p>
+<div class="highlight"><pre><span></span><code><span class="sb">`tshark -r </span><span class="si">#{</span><span class="n">filename</span><span class="si">}</span><span class="sb"> -T fields -e data.data`</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">m</span><span class="o">|</span><span class="n">m</span><span class="o">.</span><span class="n">hex</span><span class="o">.</span><span class="n">chr</span><span class="p">}</span><span class="o">.</span><span class="n">join</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">[</span><span class="mi">1</span><span class="o">..-</span><span class="mi">2</span><span class="o">].</span><span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">x</span><span class="o">|</span><span class="n">arr</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">);{</span><span class="s1">&#39;stat&#39;</span><span class="o">=&gt;</span><span class="n">arr</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span><span class="s1">&#39;val&#39;</span><span class="o">=&gt;</span><span class="n">arr</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span><span class="s1">&#39;time&#39;</span><span class="o">=&gt;</span><span class="n">arr</span><span class="o">[</span><span class="mi">2</span><span class="o">].</span><span class="n">to_i</span><span class="p">}}</span>
+</code></pre></div>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

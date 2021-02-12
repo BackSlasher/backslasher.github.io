@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Python Library for Deluge Torrent Maintenance - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/python-library-for-deluge-torrent-maintenance.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Programming,Scripts,Raspberry Pi,raspberrySeed,Ramblings,Python,Deluge" />
+        <meta name="description" content="Update: I added this project as my first GitHub repo I have an ongoing project which I nickname my raspberrySeed, which is a Rasbperry Pi running Deluge. Works 24/7, takes very little power, minimal heat, no noise, works as a fine seedbox. However, I recently encountered strange situtations in …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Python Library for Deluge Torrent Maintenance"/>
+        <meta property="og:url" content="https://blog.backslasher.net/python-library-for-deluge-torrent-maintenance.html"/>
+        <meta property="og:description" content="Update: I added this project as my first GitHub repo I have an ongoing project which I nickname my raspberrySeed, which is a Rasbperry Pi running Deluge. Works 24/7, takes very little power, minimal heat, no noise, works as a fine seedbox. However, I recently encountered strange situtations in …"/>
+        <meta property="article:published_time" content="2014-04-14" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Programming" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Raspberry Pi" />
+            <meta property="article:tag" content="raspberrySeed" />
+            <meta property="article:tag" content="Ramblings" />
+            <meta property="article:tag" content="Python" />
+            <meta property="article:tag" content="Deluge" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/python-library-for-deluge-torrent-maintenance.html"
+                       rel="bookmark"
+                       title="Permalink to Python Library for Deluge Torrent Maintenance">
+                        Python Library for Deluge Torrent Maintenance
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-04-14T13:05:00+02:00"> Mon 14 April 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/raspberry-pi.html">Raspberry Pi</a>
+        /
+	<a href="https://blog.backslasher.net/tag/raspberryseed.html">raspberrySeed</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+        /
+	<a href="https://blog.backslasher.net/tag/python.html">Python</a>
+        /
+	<a href="https://blog.backslasher.net/tag/deluge.html">Deluge</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><strong>Update:</strong> I added <a href="https://github.com/BackSlasher/deluge_framework">this project</a> as my first
+GitHub repo  </p>
+<p>I have an ongoing project which I nickname my raspberrySeed, which is a
+Rasbperry Pi running Deluge. Works 24/7, takes very little power,
+minimal heat, no noise, works as a fine seedbox.<br>
+However, I recently encountered strange situtations in which the remote
+Deluge UI (on my PC) would get stuck and eventually cause the Deluge
+daemon (on the rPi) to crash.<br>
+After some checking, I realized showing the UI is too demanding, at
+least with the amount of torrents I'm seeding. Time to weed out some
+torrents, but how will I do it without a working UI?<br>
+The original <code>deluge-console</code> didn't work for two reasons:  </p>
+<ul>
+<li>Manipulation of massive amounts of torrents is a nightmare - I'll be
+    surprised if someone can manage more than 20 torrents at a time with
+    this interface.<br>
+<img alt="" src="https://blog.backslasher.net/images/python-library-for-deluge-torrent-maintenance/deluge-console-full.png"></li>
+<li>Even the console was too much - apparently it's sophisticated enough
+    to subscribe for updates from the Deluge daemon and many other
+    things, overloading my poor rPi.</li>
+</ul>
+<p>Eventually, I found <a href="http://forum.deluge-torrent.org/viewtopic.php?f=9&amp;t=37157">this post</a>, where someone wrote a python script that deletes old torrents.<br>
+Instead of creating my own (because the <a href="http://deluge-torrent.org/docs/1.2/core/rpc.html">Deluge
+RPC</a> Python API is
+event based and basically annoying), I rewrote that script to give a me
+a Python library (or module, not sure).<br>
+The calling script should only contain the "business logic" - what to do with
+every torrent. The real action (deletion, for instance) is performed by
+the library.<br>
+First, some already working use cases. All cases assume Deluge library
+files (included with Deluge), the library is in "deluge_framework.py"
+and a local-running daemon (remote instances are obviously fine, and
+parameters are detailed in the library itself).  </p>
+<h4>Searching for some torrents</h4>
+<p>Print using the library all torrents containing "linux":  </p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/python</span>
+<span class="kn">from</span> <span class="nn">deluge_framework</span> <span class="kn">import</span> <span class="n">filter_torrents</span>
+<span class="k">def</span> <span class="nf">torrentAction</span><span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span><span class="n">torrent_info</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;linux&#39;</span> <span class="ow">in</span> <span class="n">torrent_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]:</span> <span class="k">return</span> <span class="s1">&#39;l&#39;</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+<span class="n">filter_torrents</span><span class="p">({},[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span><span class="n">torrentAction</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>[+] Connection was successful!
+[i] ?????????SECRET????????????????????????? [kali-linux-1.0.5-amd64]: Listing (doing nothing)
+[+] Finished
+[i] Client disconnected.
+</code></pre></div>
+
+<h4>Printing progress and state for all torrents</h4>
+<p>Print (using pyton's <code>print</code>) every torrent's id, status and progress:  </p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/python</span>
+<span class="kn">from</span> <span class="nn">deluge_framework</span> <span class="kn">import</span> <span class="n">filter_torrents</span>
+<span class="k">def</span> <span class="nf">torrentAction</span><span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span><span class="n">torrent_info</span><span class="p">):</span>
+    <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span><span class="n">torrent_info</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">],</span><span class="n">torrent_info</span><span class="p">[</span><span class="s1">&#39;progress&#39;</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+<span class="n">filter_torrents</span><span class="p">({},[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="s1">&#39;state&#39;</span><span class="p">,</span><span class="s1">&#39;progress&#39;</span><span class="p">],</span><span class="n">torrentAction</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>[+] Connection was successful!
+?????????SECRET?????????????????????????: Queued 100.0
+?????????SECRET?????????????????????????: Queued 100.0
+?????????SECRET?????????????????????????: Seeding 100.0
+?????????SECRET?????????????????????????: Queued 100.0
+?????????SECRET?????????????????????????: Queued 100.0
+?????????SECRET?????????????????????????: Seeding 100.0
+?????????SECRET?????????????????????????: Queued 100.0
+?????????SECRET?????????????????????????: Queued 100.0
+?????????SECRET?????????????????????????: Queued 100.0
+[+] Finished
+[i] Client disconnected.
+</code></pre></div>
+
+<h4>Summing the size of all torrents</h4>
+<p>Collect the total size of each torrent and print the sum (in GB):  </p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/python</span>
+<span class="kn">from</span> <span class="nn">deluge_framework</span> <span class="kn">import</span> <span class="n">filter_torrents</span>
+<span class="nb">sum</span><span class="o">=</span><span class="mi">0</span>
+<span class="k">def</span> <span class="nf">torrentAction</span><span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span><span class="n">torrent_info</span><span class="p">):</span>
+    <span class="k">global</span> <span class="nb">sum</span>
+    <span class="nb">sum</span><span class="o">+=</span><span class="n">torrent_info</span><span class="p">[</span><span class="s1">&#39;total_done&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+<span class="n">filter_torrents</span><span class="p">({},[</span><span class="s1">&#39;total_done&#39;</span><span class="p">],</span><span class="n">torrentAction</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;total: </span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">sum</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>[+] Connection was successful!
+[+] Finished
+[i] Client disconnected.
+total: 198
+</code></pre></div>
+
+<h4>Removing all done torrents</h4>
+<p>Delete (without deleting data) all completed torrents:  </p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/python</span>
+<span class="kn">from</span> <span class="nn">deluge_framework</span> <span class="kn">import</span> <span class="n">filter_torrents</span>
+<span class="k">def</span> <span class="nf">torrentAction</span><span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span><span class="n">torrent_info</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">torrent_info</span><span class="p">[</span><span class="s1">&#39;progress&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">100</span><span class="p">:</span> <span class="k">return</span> <span class="s1">&#39;d&#39;</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+<span class="n">filter_torrents</span><span class="p">({},[</span><span class="s1">&#39;progress&#39;</span><span class="p">],</span><span class="n">torrentAction</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>[+] Connection was successful!
+[+] ?????????SECRET????????????????????????? [SOME TORRENT NAME]: Deleted without data
+[+] ?????????SECRET????????????????????????? [SOME TORRENT NAME]: Deleted without data
+[+] ?????????SECRET????????????????????????? [SOME TORRENT NAME]: Deleted without data
+[+] Finished
+[i] Client disconnected.
+</code></pre></div>
+
+<h3>The Actual Code</h3>
+<p>If you can think of another good use for it, please tell me in the
+comments!   </p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/python</span>
+
+<span class="c1">###############</span>
+<span class="c1"># By: Nitzan (http://BackSlasher.net)</span>
+<span class="c1"># The interesting code is at the bottom</span>
+<span class="c1"># call filter_torrents from your code like this:</span>
+<span class="c1">## from deluge_framework import filter_torrents</span>
+<span class="c1">## filter_torrents(connection_data,torrent_info_wanted,action,interactive)</span>
+<span class="c1"># see bottom of script for details</span>
+
+<span class="kn">from</span> <span class="nn">deluge.log</span> <span class="kn">import</span> <span class="n">LOG</span> <span class="k">as</span> <span class="n">log</span>
+<span class="kn">from</span> <span class="nn">deluge.ui.client</span> <span class="kn">import</span> <span class="n">client</span>
+<span class="kn">import</span> <span class="nn">deluge.component</span> <span class="k">as</span> <span class="nn">component</span>
+<span class="kn">from</span> <span class="nn">twisted.internet</span> <span class="kn">import</span> <span class="n">reactor</span><span class="p">,</span> <span class="n">defer</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">def</span> <span class="nf">printSuccess</span><span class="p">(</span><span class="n">dresult</span><span class="p">,</span> <span class="n">is_success</span><span class="p">,</span> <span class="n">smsg</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">is_interactive</span>
+    <span class="k">if</span> <span class="n">is_interactive</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_success</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;[+]&quot;</span><span class="p">,</span> <span class="n">smsg</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s2">&quot;[i]&quot;</span><span class="p">,</span> <span class="n">smsg</span>
+
+<span class="k">def</span> <span class="nf">printError</span><span class="p">(</span><span class="n">emsg</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">is_interactive</span>
+    <span class="k">if</span> <span class="n">is_interactive</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s2">&quot;[e]&quot;</span><span class="p">,</span> <span class="n">emsg</span>
+
+<span class="k">def</span> <span class="nf">endSession</span><span class="p">(</span><span class="n">esresult</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">esresult</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="n">esresult</span>
+        <span class="n">reactor</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+        <span class="n">printSuccess</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Client disconnected.&quot;</span><span class="p">)</span>
+        <span class="n">reactor</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">printReport</span><span class="p">(</span><span class="n">rresult</span><span class="p">):</span>
+
+    <span class="n">printSuccess</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Finished&quot;</span><span class="p">)</span>
+    <span class="n">endSession</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">on_torrents_status</span><span class="p">(</span><span class="n">torrents</span><span class="p">):</span>
+    <span class="n">tlist</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">for</span> <span class="n">torrent_id</span><span class="p">,</span><span class="n">torrent_info</span> <span class="ow">in</span> <span class="n">torrents</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">torrentAction</span><span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span><span class="n">torrent_info</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="s1">&#39;d&#39;</span><span class="p">:</span>
+                <span class="n">successmsg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]: Deleted without data&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span> <span class="n">torrent_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+                <span class="n">errormsg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]: Error deleting without data&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span> <span class="n">torrent_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+                <span class="n">tlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">remove_torrent</span><span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">addCallbacks</span><span class="p">(</span><span class="n">printSuccess</span><span class="p">,</span> <span class="n">printError</span><span class="p">,</span> <span class="n">callbackArgs</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">successmsg</span><span class="p">),</span> <span class="n">errbackArgs</span> <span class="o">=</span> <span class="p">(</span><span class="n">errormsg</span><span class="p">)))</span>
+            <span class="k">elif</span> <span class="n">res</span> <span class="o">==</span> <span class="s1">&#39;D&#39;</span><span class="p">:</span>
+                <span class="n">successmsg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]: Deleted WITH DATA&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span> <span class="n">torrent_info</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+                <span class="n">errormsg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]: Error deleting WITH DATA&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span> <span class="n">torrent_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+                <span class="n">tlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">remove_torrent</span><span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">addCallbacks</span><span class="p">(</span><span class="n">printSuccess</span><span class="p">,</span> <span class="n">printError</span><span class="p">,</span> <span class="n">callbackArgs</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">successmsg</span><span class="p">),</span> <span class="n">errbackArgs</span> <span class="o">=</span> <span class="p">(</span><span class="n">errormsg</span><span class="p">)))</span>
+            <span class="k">elif</span> <span class="n">res</span> <span class="o">==</span> <span class="s1">&#39;l&#39;</span><span class="p">:</span>
+                <span class="n">printSuccess</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]: Listing (doing nothing)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span> <span class="n">torrent_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="n">res</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">printError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]: Unknown function response &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span> <span class="n">torrent_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span><span class="n">res</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">inst</span><span class="p">:</span>
+            <span class="n">printError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]: Exception </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">torrent_id</span><span class="p">,</span> <span class="n">torrent_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">inst</span><span class="p">))</span>
+    <span class="n">defer</span><span class="o">.</span><span class="n">DeferredList</span><span class="p">(</span><span class="n">tlist</span><span class="p">)</span><span class="o">.</span><span class="n">addCallback</span><span class="p">(</span><span class="n">printReport</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">on_session_state</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">get_torrents_status</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">},</span> <span class="n">torrent_info_wanted</span><span class="p">)</span><span class="o">.</span><span class="n">addCallback</span><span class="p">(</span><span class="n">on_torrents_status</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">on_connect_success</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+    <span class="n">printSuccess</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Connection was successful!&quot;</span><span class="p">)</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">get_session_state</span><span class="p">()</span><span class="o">.</span><span class="n">addCallback</span><span class="p">(</span><span class="n">on_session_state</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">filter_torrents</span><span class="p">(</span><span class="n">connection_data</span><span class="o">=</span><span class="p">{},</span><span class="n">info_wanted</span><span class="o">=</span><span class="p">[],</span><span class="n">action</span><span class="o">=</span><span class="p">(</span><span class="k">lambda</span> <span class="n">tid</span><span class="p">,</span><span class="n">tinfo</span><span class="p">:</span> <span class="s1">&#39;l&#39;</span><span class="p">),</span><span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Get all torrents and filter them</span>
+<span class="sd">    Arguments:</span>
+<span class="sd">    connection_data -- How to connect to the deluged daemon. Specify a dictionary of host, port(integer), username, password</span>
+<span class="sd">    info_wanted -- A list of fields to be retrived for each torrent. You&#39;ll get it as a populated dictionary when action is called</span>
+<span class="sd">    action -- function called for each torrent. Will get two variables - the torrent id and a populated dictionary of the torrent data. Should return a string indicating what to do with the torrent. Possible values:</span>
+<span class="sd">        &#39;&#39;:  Do nothing</span>
+<span class="sd">        &#39;d&#39;: Delete torrent (without deleting data)</span>
+<span class="sd">        &#39;D&#39;: Delete torrent WITH data</span>
+<span class="sd">        &#39;l&#39;: List torrent (display id and name)</span>
+<span class="sd">        (Anything else): Causes an error.</span>
+<span class="sd">        More things to come!</span>
+<span class="sd">    interactive -- whether to write information / errors to output. Send False for cron jobs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ensure &#39;name&#39; is in torrent_info_wanted</span>
+    <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">info_wanted</span><span class="p">:</span> <span class="n">info_wanted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+    <span class="c1"># set parameters</span>
+    <span class="k">global</span> <span class="n">cliconnect</span>
+    <span class="n">cliconnect</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">connection_data</span><span class="p">)</span>
+    <span class="k">global</span> <span class="n">torrent_info_wanted</span>
+    <span class="n">torrent_info_wanted</span> <span class="o">=</span> <span class="n">info_wanted</span>
+    <span class="k">global</span> <span class="n">torrentAction</span>
+    <span class="n">torrentAction</span> <span class="o">=</span> <span class="n">action</span>
+    <span class="k">global</span> <span class="n">is_interactive</span>
+    <span class="n">is_interactive</span> <span class="o">=</span> <span class="n">interactive</span>
+    <span class="c1"># start the show</span>
+    <span class="n">cliconnect</span><span class="o">.</span><span class="n">addCallbacks</span><span class="p">(</span><span class="n">on_connect_success</span><span class="p">,</span> <span class="n">endSession</span><span class="p">,</span> <span class="n">errbackArgs</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Connection failed: check settings and try again.&quot;</span><span class="p">))</span>
+    <span class="n">reactor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

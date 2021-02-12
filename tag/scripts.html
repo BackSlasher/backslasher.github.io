@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Scripts - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+    <meta name="author" content="Nitz" />
+    <meta name="keywords" content="Scripts" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="BackSlasher"/>
+        <meta property="og:url" content="https://blog.backslasher.net"/>
+        <meta property="og:description" content="BackSlasher"/>
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+            <article>
+                <h2><a href="https://blog.backslasher.net/sgn-extractor.html">Extracting SGN files used by the Israeli Court System</a></h2>
+                <div class="summary"><h1>The Story</h1>
+<p>One of my friends has some dealings with the Israeli courts.<br>
+The noteworthy (and annoying) part of their digital documents is that these documents are using a novel format instead of some industry standard.<br>
+Files arriving by email have the SGN suffix, and the email includes the following …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/sgn-extractor.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/xslt-add-child.html">Adding a child element in XSLT</a></h2>
+                <div class="summary"><p>I recently had to edit a big XML file, and add a child elemnt to every element within.
+To simplify matters, say I had something like this:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;rooty</span> <span class="na">xmlns:ppl=</span><span class="s">&quot;some_identifier&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;ppl:person&gt;</span>
+    <span class="nt">&lt;age&gt;</span>42<span class="nt">&lt;/age&gt;</span>
+    <span class="nt">&lt;name&gt;</span>bob<span class="nt">&lt;/name&gt;</span>
+  <span class="nt">&lt;/ppl:person&gt;</span>
+  <span class="nt">&lt;ppl:person&gt;</span>
+    <span class="nt">&lt;age …</span></code></pre></div>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/xslt-add-child.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/networkx-populate.html">Populating a NetworkX graph with a scanner</a></h2>
+                <div class="summary"><p>I had a graph living outside Pythonland (a commit tree with dependencies) and wanted to do graphy things to it. To do that, I first had to put the data into a NetworkX graph.
+I wrote this code bit to discover a graph-like structure and put into a NetworkX (or …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/networkx-populate.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/deluge-show-magnet.html">Getting Magent Links from Deluge</a></h2>
+                <div class="summary"><p>My latest weekend-hack is a plugin that shows the magnet link for a torrent entry</p>
+<h2>Why</h2>
+<p>I had something torrented a long time ago, and a friend asked me for the torrent.<br>
+However, I haven't kept the original <code>.torrent</code> file, she was tech-oriented enough so I can give her the …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/deluge-show-magnet.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/bs-prettify.html">Prettify HTML pages with BeautifulSoup</a></h2>
+                <div class="summary"><h1>The story</h1>
+<p>Today I wrote some HTML page by hand (<a href="http://backslasher.net">my new homepage</a>).<br>
+I then used this script to make the HTML code nicer:</p>
+<h1>The script</h1>
+<p>This requires the BeautifulSoup module for python</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="k">def</span> <span class="nf">bs_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r …</span></code></pre></div>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/bs-prettify.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/windows-awake-ps.html">Keeping Windows Awake (with PowerShell)</a></h2>
+                <div class="summary"><h2>The story</h2>
+<p>I got a new game on Steam and got set to downloading it.<br>
+For some reason, Steam and Windows have decided that it's better to save some electricity and put my computer to sleep, rather than finish my game.<br>
+Today I discovered that instead of playing my game …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/windows-awake-ps.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/chef-share.html">Chef "Share This" script</a></h2>
+                <div class="summary"><p>I wrote this little script to upload the current cookbook to the Chef Supermarket.<br>
+It should be run from within the cookbook's directory.</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+knife cookbook site share -o ../ <span class="k">$(</span>basename <span class="k">$(</span>realpath .<span class="k">))</span> -c ~/.chef/knife-supermarket.rb
+</code></pre></div>
+
+<p>Where my supermarket config is as simple as:</p>
+<div class="highlight"><pre><span></span><code><span class="n">node_name</span> <span class="s1">&#39;SUPERMARKET_USERNAME&#39;</span>
+<span class="n">client_key</span> <span class="s1">&#39;CLIENTKEY_LOCATION&#39;</span>
+</code></pre></div>
+
+<h3>Interesting points …</h3>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/chef-share.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/pip-dry-run.html">Dry Run for Python Pip</a></h2>
+                <div class="summary"><p>As I wrote <a href="https://blog.backslasher.net/backslasher-python.html">some time ago</a>, I started my own <a href="https://github.com/BackSlasher/chef-backslasher-python">python cookbook</a> for Chef because I didn't like the direction the "default" one was going.<br>
+I recently added a new feature that I wanted to talk about. I called it <code>smart_install</code> in the cookbook, but it's actually a "dry-run" mode …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/pip-dry-run.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/shell-filter.html">Filtering in Shell</a></h2>
+                <div class="summary"><p>Today I told someone that a feature I'm missing in Bash is filtering.<br>
+Then I thought about how much I miss it, so I went ahead and "implemented" it.</p>
+<h3>Filtering in other lanaugaes</h3>
+<p>Basically, I'm referring to taking a collection/stream of items, running some code on every one, and …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/shell-filter.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/cookbook-versioning.html">Cookbook Versioning Script</a></h2>
+                <div class="summary"><h2>The Problem</h2>
+<p>I've always disliked releasing cookbook versions manually. The process requires a lot of bureaucratic steps which are easy to forget and require no thought at all.<br>
+Before I had this script, I sometimes avoided modifying the cookbook's version when I only applied "a little fix", losing the ability …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/cookbook-versioning.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        <ul class="pagination">
+                <li class="prev disabled"><a href="#">&laquo;</a></li>
+                    <li class="active"><a
+                            href="https://blog.backslasher.net/tag/scripts.html">1</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/tag/scripts2.html">2</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/tag/scripts3.html">3</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/tag/scripts4.html">4</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/tag/scripts5.html">5</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/tag/scripts6.html">6</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/tag/scripts7.html">7</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/tag/scripts8.html">8</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/tag/scripts9.html">9</a></li>
+                <li class="next"><a
+                        href="https://blog.backslasher.net/tag/scripts2.html">&raquo;</a></li>
+        </ul>
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

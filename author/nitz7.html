@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Articles by Nitz - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+        <meta name="author" content="Nitz" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="BackSlasher"/>
+        <meta property="og:url" content="https://blog.backslasher.net"/>
+        <meta property="og:description" content="BackSlasher"/>
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+            <article>
+                <h2><a href="https://blog.backslasher.net/accessing-a-specific-server-in-an-http-cluster.html">Accessing a specific server in an HTTP cluster</a></h2>
+                <div class="summary"><h2>The Problem</h2>
+<h3>Part1 - Fault tolerence</h3>
+<p>A common configuration of web servers is setting up multiple servers to serve the same content, with a load-balancing method redirecting / forwarding clients to a specific server.<br>
+For instance, let's say I'm using servers <code>server</code> and <code>otherserver</code> to serve the site <code>cluster-name</code>.<br>
+The cheapest (as …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/accessing-a-specific-server-in-an-http-cluster.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/linux-and-ssds-should-you-trim.html">Linux and SSDs - Should You TRIM?</a></h2>
+                <div class="summary"><p><strong>Note</strong>: Although my experience is with Debian, I think this post helps anyone using some modern Linux distribution.  </p>
+<h3>What is TRIM?</h3>
+<p>As a Windows sysadmin, I didn't really consider the cons of running on top of <a href="http://en.wikipedia.org/wiki/Solid_state_drives">Solid-State Drives</a>, or SSDs. These drives are based on <a href="http://en.wikipedia.org/wiki/Flash_memory">flash memory</a> (similar to a Disk-On-Key), rather than metallic plates.<br/>
+A big difference between magnetic hard drives and SSDs is block reuse.</p>
+
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/linux-and-ssds-should-you-trim.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/my-pinning-guidelines.html">My Pinning Guidelines</a></h2>
+                <div class="summary"><p>In my <a href="https://blog.backslasher.net/why-pinning.html">previous post</a> about
+pinning I talked about the reasons to configure apt pinning.<br>
+This post details my logic about what and how to pin.</p>
+<h3>Pinning technicalities</h3>
+<h4>How pinning is done</h4>
+<p>The best way to pin stuff is to add files in <code>/etc/apt/preferences.d/</code><br>
+Those files are …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/my-pinning-guidelines.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/why-pinning.html">Why Pinning</a></h2>
+                <div class="summary"><p>There are plenty of guides about apt pinning, but no one really explains
+the motivation to do so. It took me some time to understand that, so I
+thought I'd write it down.  </p>
+<h3>The Issue</h3>
+<p>The mainstream method of downloading and installing packages from a
+repository is via APT <a href="http://en.wikipedia.org/wiki/Advanced_Packaging_Tool">(Advanced …</a></p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/why-pinning.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/adding-repositories-for-inspection.html">Adding Repositories for Inspection</a></h2>
+                <div class="summary"><p>Sometime I want to inspect software repositories. However, I don't want my machine to actually install anything from it.<br>
+To do so, I made a small bash function that both adds the repository and pins it to priority -1, telling apt to never install anything from it
+(unless manually told …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/adding-repositories-for-inspection.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/setting-up-gargoyle-as-time-server.html">Setting up Gargoyle as a Time Server</a></h2>
+                <div class="summary"><p><span style="font-size: x-large;">The Story</span> <br>
+For reasons unknown to me, Debian's NTP daemon only works on udp port
+123, even when operating as a client.<br>
+This is a problem because my network configuration does not allow
+incoming packets on this port, thus preventing my raspberrySeed
+(raspberry pi running Debian, deluge, flexget) from syncing …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/setting-up-gargoyle-as-time-server.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/timing-execution-by-output-lines.html">Timing Execution By Output Lines</a></h2>
+                <div class="summary"><h3>The Story</h3>
+<p>Today I got annoyed that some puppet agent runs took me over 90 seconds
+to complete, even though they actually did nothing (no change was
+needed).<br>
+I wanted to see which part of the run took the longest, so I tried this:</p>
+<div class="highlight"><pre><span></span><code>sudo puppet agent --test --debug
+</code></pre></div>
+
+<p>Unfortunately …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/timing-execution-by-output-lines.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/hijacking-processs-io-streams-using-gdb.html">Hijacking a process's i/o streams using gdb</a></h2>
+                <div class="summary"><h3>The Story</h3>
+<p>I recently had a very annoying problem - some daemon failed, but ran
+fine when told to run at foreground (not daemonize). Running at
+foreground is the easiest way to debug processes, because that way you
+get their input / output / error streams in your terminal.<br>
+Said daemon had no …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/hijacking-processs-io-streams-using-gdb.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/testing-local-facebook-applications-with-abe.html">Testing Local Facebook Applications with ABE</a></h2>
+                <div class="summary"><p>I'm using Firefox with <a href="http://noscript.net/">NoScript</a>, which is the
+AdBlock of scripts - allowing you to selectively block scripts according
+to various rules (e.g. block all scripts from analytics.google.com), and
+additionally helps protecting you from XSS (<a href="http://en.wikipedia.org/wiki/Cross-site_scripting">cross site
+scripting</a>).<br>
+One of the components in NoScript is ABE (<a href="http://noscript.net/abe/">Application Boundaries …</a></p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/testing-local-facebook-applications-with-abe.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/fixing-ugly-hebrew-on-ubuntu-firefox.html">Fixing Ugly Hebrew on Ubuntu + Firefox</a></h2>
+                <div class="summary"><p>The default viewing experience, when visiting some Hebrew sites when
+using Firefox on Ubuntu, is quite unsightly.<br/>
+If we check <a href="http://ynet.co.il/">Ynet.co.il</a>, a news site, we'll see
+this biblical font being used:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/fixing-ugly-hebrew-on-ubuntu-firefox/ff-hebrew-ugly.png"/></p>
+
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/fixing-ugly-hebrew-on-ubuntu-firefox.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        <ul class="pagination">
+                <li class="prev"><a href="https://blog.backslasher.net/author/nitz6.html">&laquo;</a>
+                </li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz.html">1</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz2.html">2</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz3.html">3</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz4.html">4</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz5.html">5</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz6.html">6</a></li>
+                    <li class="active"><a
+                            href="https://blog.backslasher.net/author/nitz7.html">7</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz8.html">8</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz9.html">9</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz10.html">10</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz11.html">11</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz12.html">12</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz13.html">13</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz14.html">14</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz15.html">15</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz16.html">16</a></li>
+                <li class="next"><a
+                        href="https://blog.backslasher.net/author/nitz8.html">&raquo;</a></li>
+        </ul>
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

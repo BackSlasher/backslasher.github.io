@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Why Pinning - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/why-pinning.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Security,Linux,Debian,Apt" />
+        <meta name="description" content="There are plenty of guides about apt pinning, but no one really explains the motivation to do so. It took me some time to understand that, so I thought I&#39;d write it down. The Issue The mainstream method of downloading and installing packages from a repository is via APT (Advanced …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Why Pinning"/>
+        <meta property="og:url" content="https://blog.backslasher.net/why-pinning.html"/>
+        <meta property="og:description" content="There are plenty of guides about apt pinning, but no one really explains the motivation to do so. It took me some time to understand that, so I thought I&#39;d write it down. The Issue The mainstream method of downloading and installing packages from a repository is via APT (Advanced …"/>
+        <meta property="article:published_time" content="2014-06-14" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Security" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="Debian" />
+            <meta property="article:tag" content="Apt" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/why-pinning.html"
+                       rel="bookmark"
+                       title="Permalink to Why Pinning">
+                        Why Pinning
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-06-14T09:05:00+02:00"> Sat 14 June 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/security.html">Security</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/debian.html">Debian</a>
+        /
+	<a href="https://blog.backslasher.net/tag/apt.html">Apt</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>There are plenty of guides about apt pinning, but no one really explains
+the motivation to do so. It took me some time to understand that, so I
+thought I'd write it down.  </p>
+<h3>The Issue</h3>
+<p>The mainstream method of downloading and installing packages from a
+repository is via APT <a href="http://en.wikipedia.org/wiki/Advanced_Packaging_Tool">(Advanced Packaging
+Tool)</a>. When using
+apt, the administrator usually says which package he wants installed,
+but apt needs a bit more information:<br>
+<strong>Which source?</strong><br>
+The same package may be available from multiple sources. For example, my
+development server is set up to have 3 repositories, all containing some
+version of python:  </p>
+<ul>
+<li>The Debian <code>stable</code> repository, guaranteeing compatibility with other
+    packages</li>
+<li>The Debian <code>backports</code> repository, including more features but still
+    pretty stable</li>
+<li>The Debian <code>unstable</code> repository, offering many new features but
+    risking weird behaviour and undiscovered bugs </li>
+</ul>
+<p>Unless told manually which repository to install from, apt has to choose
+one by itself. <br>
+<strong>Which version?</strong><br>
+When maintaining a server farm, it's important to remember two things:  </p>
+<ul>
+<li>The software packages should be updated regularly, to protect the
+    server from bugs and security vulnerabilities that were discovered
+    (and fixed in newer versions).</li>
+<li>Some upgrades shouldn't be allowed, because they modify the
+    software's behaviour in an unacceptable way. For instance, upgrading
+    mongodb to version 2.4 changes the JavaScript engine to
+    multithreading, possibly messing up some scripts. The administrator
+    can't afford having some servers with the new versions and some not,
+    so when installing a new server the administrator doesn't want the
+    new package.</li>
+</ul>
+<p>In short, apt should choose a version that is new, but not too new.  </p>
+<h3>The Solution - Priorities</h3>
+<p>To solve this issue, apt assigns each package option
+(<code>name</code>+<code>version</code>+<code>source</code>) a priority number. When installing a package, the
+command usually looks something like:   </p>
+<div class="highlight"><pre><span></span><code>sudo apt-get install puppet
+</code></pre></div>
+
+<p>Apt-get then collects all of the possible options, sorts them by
+descending priority (highest priority to lowest) and then by descending
+version. It chooses the top option and installs that. The administrator
+can manipulate the options' priorities, causing apt to prefer the
+"right" version. <br>
+For example, I pinned my puppet agent package to a specific version.<br>
+When executing:   </p>
+<div class="highlight"><pre><span></span><code>apt-cache policy puppet
+</code></pre></div>
+
+<p>We can see the pinning:<br>
+<img alt="" src="https://blog.backslasher.net/images/why-pinning/puppet-pinned.png"></p>
+<h3>Defaults</h3>
+<p>For Debian / Ubuntu, all of the sources have the same priority - 500.
+Usually, apt only encounters one option available of every package, so
+there is no collision. When installing / upgrading packages, apt chooses
+the latest version released by the official repository - the best
+package to install.  </p>
+<h3>Dangers of Pinning</h3>
+<p>Pinning causes apt to change its default behaviour, so if you're doing
+it - you better have a reason. Incorrect pinning can cause:  </p>
+<ul>
+<li>Not upgrading old packages, meaning you're exposed to security,
+    performance and reliability issues</li>
+<li>Upgrading to unstable versions, meaning you're exposed to (you
+    guessed it) security, performance and reliability issues</li>
+<li>Installing nonfunctional packages - some sources may upload packages
+    that are incorrectly built, or contain wrong metadata, causing them
+    to misbehave and even break other packages</li>
+</ul>
+<p>See my <a href="https://blog.backslasher.net/my-pinning-guidelines.html">other
+post</a> about pinning for guidelines about what to pin and how.  </p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

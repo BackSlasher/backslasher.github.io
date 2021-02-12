@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Articles by Nitz - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+        <meta name="author" content="Nitz" />
+
+    <!-- Open Graph tags -->
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="BackSlasher"/>
+        <meta property="og:url" content="https://blog.backslasher.net"/>
+        <meta property="og:description" content="BackSlasher"/>
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+            <article>
+                <h2><a href="https://blog.backslasher.net/checking-for-conflicting-oids.html">Checking for conflicting oIDs</a></h2>
+                <div class="summary"><p>I got word that this script was useful for some other IT team, so it's definitely blog-worthy!  </p>
+<h3>The Story</h3>
+<p>I've inherited some AD forests with their schema extended by in-house software, using oIDs belonging to an MS pool, meaning that those numbers might be used by future schema extensions by …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/checking-for-conflicting-oids.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/vanishing-permissions-on-ad-objects.html">Vanishing permissions on AD objects</a></h2>
+                <div class="summary"><p>I recently managed to solve a problem that bugged me for a ~ year -
+permissions on a specific group on AD would vanish, and the change won't
+show up on the security logs of any DC (as audit success).  </p>
+<h4>The Story</h4>
+<p>We've made groups for our helpdesk teams, and
+gave them …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/vanishing-permissions-on-ad-objects.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/stsadm-new-spsite-is-slow.html">Stsadm / new SPSite is slow</a></h2>
+                <div class="summary"><p><strong>Update:</strong> Get the script <a href="https://blog.backslasher.net/disabling-generate-publisher-evidence.html">here</a>  </p>
+<h3>The Story</h3>
+<p>A couple of days ago, developer extraordinaire <a href="http://blogs.microsoft.co.il/blogs/itaysk/">Itay
+Shakury</a> was doing
+performance tuning on one of our SharePoint applications, and came to me with
+a problem - creating a new SPSite object took about 30 secs. The
+stranger part was that <strong>only the first …</strong></p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/stsadm-new-spsite-is-slow.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/windowsidentitygetcurrent-and-changing-usernames.html">WindowsIdentity.GetCurrent and changing usernames</a></h2>
+                <div class="summary"><p>We've recently encountered an interesting problem:<br>
+One of our applications had a service using .net remoting with
+impersonation turned on.<br>
+Inside this service we had some code using
+<a href="http://msdn.microsoft.com/en-us/library/sfs49sw0%28v=vs.110%29.aspx">WindowsIdentity.GetCurrent()</a>
+to find the user in AD and check some of its properties.<br>
+Our issue was thus:  </p>
+<ol>
+<li>User <code>X</code> logs in …</li></ol>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/windowsidentitygetcurrent-and-changing-usernames.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/few-seconds-about-psbase.html">A few seconds about psbase</a></h2>
+                <div class="summary"><p>I really like Powershell's dynamic type system, which allows you to, among other things, view XML nodes really easily. For example, to view the connectionStrings stored in your machine.config, all you have to do is something like:  </p>
+<div class="highlight"><pre><span></span><code><span class="p">(</span><span class="no">[xml]</span><span class="p">(</span><span class="nb">gc </span><span class="s1">&#39;C:\windows\Microsoft.NET\Framework\v2.0.50727\CONFIG\machine …</span></code></pre></div>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/few-seconds-about-psbase.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/spns-who-why-where.html">SPNs - Who? Why? Where?</a></h2>
+                <div class="summary"><p>I was making an introduction to a new teammate about SharePoint
+infrastructure, and one of the things I had to teach her about was SPNs.
+I was surprised to know almost no one at our place knew what SPNs are
+actually for. Until my PowerPoint presentation is ready, here is …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/spns-who-why-where.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/2008-clusters-cant-change-password.html">2008 Clusters can't change password</a></h2>
+                <div class="summary"><p>Last week MS's PFE Moti Bani and me solved a problem that bugged me for ~ a year - since the day we've started deploying 2008 clusters in our production environment:<br>
+<strong>2008+ Clusters can't update their CNO and VCO accounts' passwords.</strong><br>
+The error, as shown in the cluster administrator, was:  </p>
+<div class="highlight"><pre><span></span><code>Cluster network …</code></pre></div>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/2008-clusters-cant-change-password.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/auto-sorting-computers-in-wsus.html">Auto-Sorting Computers in WSUS</a></h2>
+                <div class="summary"><p>When I installed my first WSUS server, I liked the idea of auto-assigning computers into different WSUS groups according to domains using the group policy's settings.<br>
+However, it's a bummer to find out that you can only assign every computer to <strong>one</strong> group using GP (and not being able to …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/auto-sorting-computers-in-wsus.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/get-bigdirectories.html">Get-BigDirectories</a></h2>
+                <div class="summary"><p><strong>Note</strong>: This script is better than just <code>ls -rec | measure</code>, because measure measures only one field, and when iterating over many files and directories, every iteration counts.</p>
+<p>Whenever our roaming profiles folder gets too big, we have to prune the
+profiles that are both old and heavy. Using windows explorer …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/get-bigdirectories.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+            <article>
+                <h2><a href="https://blog.backslasher.net/querying-sql-servers.html">Querying SQL Servers</a></h2>
+                <div class="summary"><p>Before I had a chance to study Microsoft's SQL Server Management Studio
+(SSMS)'s Powershell SnapIn, I needed to grab some data from an SQL DB. I
+ended up creating 3 nifty functions for that very thing, and I still use
+them today, because I find SQL's SnapIn very slow …</p>
+                    <a class="btn btn-default btn-xs" href="https://blog.backslasher.net/querying-sql-servers.html">more ...</a>
+                </div>
+            </article>
+            <hr/>
+
+        <ul class="pagination">
+                <li class="prev"><a href="https://blog.backslasher.net/author/nitz14.html">&laquo;</a>
+                </li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz.html">1</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz2.html">2</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz3.html">3</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz4.html">4</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz5.html">5</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz6.html">6</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz7.html">7</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz8.html">8</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz9.html">9</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz10.html">10</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz11.html">11</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz12.html">12</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz13.html">13</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz14.html">14</a></li>
+                    <li class="active"><a
+                            href="https://blog.backslasher.net/author/nitz15.html">15</a></li>
+                    <li class=""><a
+                            href="https://blog.backslasher.net/author/nitz16.html">16</a></li>
+                <li class="next"><a
+                        href="https://blog.backslasher.net/author/nitz16.html">&raquo;</a></li>
+        </ul>
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

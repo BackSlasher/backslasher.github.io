@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Setting Up Samba on Raspberry Pi - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/setting-up-samba-on-raspberry-pi.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Samba,Security,Linux,SMB,Raspberry Pi,raspberrySeed" />
+        <meta name="description" content="After setting up my rPi TorrentBox, I wanted to let my family access the downloaded files. Since they use Windows (and I don&#39;t want to bother their systems with NFS), I wanted to install Samba on the rPi and create a read-only share (and a weak user for them to …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Setting Up Samba on Raspberry Pi"/>
+        <meta property="og:url" content="https://blog.backslasher.net/setting-up-samba-on-raspberry-pi.html"/>
+        <meta property="og:description" content="After setting up my rPi TorrentBox, I wanted to let my family access the downloaded files. Since they use Windows (and I don&#39;t want to bother their systems with NFS), I wanted to install Samba on the rPi and create a read-only share (and a weak user for them to …"/>
+        <meta property="article:published_time" content="2014-01-13" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Samba" />
+            <meta property="article:tag" content="Security" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="SMB" />
+            <meta property="article:tag" content="Raspberry Pi" />
+            <meta property="article:tag" content="raspberrySeed" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/setting-up-samba-on-raspberry-pi.html"
+                       rel="bookmark"
+                       title="Permalink to Setting Up Samba on Raspberry Pi">
+                        Setting Up Samba on Raspberry Pi
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-01-13T13:12:00+01:00"> Mon 13 January 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/samba.html">Samba</a>
+        /
+	<a href="https://blog.backslasher.net/tag/security.html">Security</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/smb.html">SMB</a>
+        /
+	<a href="https://blog.backslasher.net/tag/raspberry-pi.html">Raspberry Pi</a>
+        /
+	<a href="https://blog.backslasher.net/tag/raspberryseed.html">raspberrySeed</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>After setting up my rPi TorrentBox, I wanted to let my family access the
+downloaded files.<br>
+Since they use Windows (and I don't want to bother their systems with
+NFS), I wanted to install Samba on the rPi and create a read-only share
+(and a weak user for them to access the share with).<br>
+I found a lot of guides for setting up Samba, but every one was missing
+something, so I documented my own procedure:  </p>
+<h3>1. Plan Configuration</h3>
+<p>Answer these questions before you start:  </p>
+<ul>
+<li>Shares:<ul>
+<li>Are you going to use authentication or guest access? (hint:
+    authentication is better)</li>
+<li>Is the share read-only?</li>
+<li>What is the share name? (best to keep it in lower-case)</li>
+<li>What is the physical path the share is pointing to? Is it always
+    mounted or on a removable drive?</li>
+</ul>
+</li>
+<li>Users / authentication:<ul>
+<li>Do you need to change the workgroup's name?</li>
+<li>Do you need to disable password encryption (VERY old clients)?</li>
+<li>How many different remote-access users will be required? How are
+    they called? </li>
+<li>Do some users already exist as UNIX users?</li>
+</ul>
+</li>
+</ul>
+<p>It's much easier working with a clear understanding of the desired
+configuration.  </p>
+<h3>2. Prepare Access User</h3>
+<p>Create the linux user you want to use (in my case "theothers"). You can
+use this command:  </p>
+<div class="highlight"><pre><span></span><code>adduser --shell /bin/false --no-create-home
+</code></pre></div>
+
+<p><strong>Note that:</strong>  </p>
+<ul>
+<li>Shell is set to <code>/bin/false</code> to help prevent the user from actually
+    logging in</li>
+<li>No home directory is created, because the user isn't supposed to
+    login anyway</li>
+</ul>
+<h3>3. Prepare Permissions</h3>
+<p>Make sure the access user can't do too much damage, because it might be
+abused. I limited its permissions to read (since I don't want my family
+messing about the directory anyway).<br>
+I won't go into the POSIX permissions model, but the best way to test
+the user's permissions is to impersonate that user using   </p>
+<div class="highlight"><pre><span></span><code>sudo su -s /bin/bash theothers
+</code></pre></div>
+
+<p>Note that the terminal prompt changes to show the impersonated user,
+like "theothers@bestrpi". Try and test everything:  </p>
+<ul>
+<li><code>touch</code>: Creating files</li>
+<li><code>mkdir</code>: Creating directories</li>
+<li><code>ls</code>: Listing directories</li>
+<li><code>tail</code>: Reading files</li>
+</ul>
+<p>Use <code>exit</code> when finished to return to your own user  </p>
+<h3>4. Install Samba</h3>
+<p>As always, you should update &amp; upgrade before:  </p>
+<div class="highlight"><pre><span></span><code>sudo apt-get update <span class="p">;</span> sudo apt-get upgrade
+</code></pre></div>
+
+<p>The installation couldn't be simpler:  </p>
+<div class="highlight"><pre><span></span><code>sudo apt-get install samba
+</code></pre></div>
+
+<h3>5. Create User Mapping</h3>
+<p>Assuming you're using the default authentication method (you should!),
+any user accessing Samba should be imported to the Samba user database.<br>
+Use this command to add the user. I'm not sure about password
+synchronization, so I just gave it the same password as the "real"
+user.  </p>
+<div class="highlight"><pre><span></span><code>sudo pdbedit -a -u theothers
+</code></pre></div>
+
+<h3>6. Edit Configuration File</h3>
+<p>This is the hardest part. I'd back up the configuration file to
+somewhere safe and start fresh.<br>
+Refer to <a href="http://www.samba.org/samba/docs/using_samba/ch06.html">this site</a> and <a href="http://www.samba.org/samba/docs/man/manpages/smb.conf.5.html">this one</a> for
+how the configuration file should look like.<br>
+After modifying the configuration, restart the Samba service to apply:  </p>
+<div class="highlight"><pre><span></span><code>sudo service samba restart
+</code></pre></div>
+
+<p>You can test your shares from gnome, using "connect to server" and using
+the "smb" initial  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/setting-up-samba-on-raspberry-pi/ConnectToServer.png"></p>
+<h3>7. Apply to Clients</h3>
+<p>Make sure everything works. I find it best to restart all involved
+machines and testing again, to make sure all settings are persistent.<br>
+When accessing the shares from Windows, I find it best to use network
+drives. Check "reconnect at sign-in" to make the drive "permanent" and
+check "Connect using different credentials".  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/setting-up-samba-on-raspberry-pi/NetworkDrive.png"></p>
+<p>(photo from <a href="http://techynotes.net/question-how-do-i-map-a-network-drive-in-windows-8/">techynotes</a>)</p>
+<p>Use the workgroup from the Samba configuration as a domain, e..g
+<code>WORKGROUP\theothers</code>.  </p>
+<p>Enjoy your Samba server!</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

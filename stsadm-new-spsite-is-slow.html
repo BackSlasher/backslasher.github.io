@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Stsadm / new SPSite is slow - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/stsadm-new-spsite-is-slow.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Programming,PKI,Mysteries Solved,SharePoint,Scripts,PowerShell,Performance" />
+        <meta name="description" content="Update: Get the script here The Story A couple of days ago, developer extraordinaire Itay Shakury was doing performance tuning on one of our SharePoint applications, and came to me with a problem - creating a new SPSite object took about 30 secs. The stranger part was that only the first …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Stsadm / new SPSite is slow"/>
+        <meta property="og:url" content="https://blog.backslasher.net/stsadm-new-spsite-is-slow.html"/>
+        <meta property="og:description" content="Update: Get the script here The Story A couple of days ago, developer extraordinaire Itay Shakury was doing performance tuning on one of our SharePoint applications, and came to me with a problem - creating a new SPSite object took about 30 secs. The stranger part was that only the first …"/>
+        <meta property="article:published_time" content="2010-12-14" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="Programming" />
+            <meta property="article:tag" content="PKI" />
+            <meta property="article:tag" content="Mysteries Solved" />
+            <meta property="article:tag" content="SharePoint" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="PowerShell" />
+            <meta property="article:tag" content="Performance" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/stsadm-new-spsite-is-slow.html"
+                       rel="bookmark"
+                       title="Permalink to Stsadm / new SPSite is slow">
+                        Stsadm / new SPSite is slow
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2010-12-14T09:18:00+01:00"> Tue 14 December 2010</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+        /
+	<a href="https://blog.backslasher.net/tag/pki.html">PKI</a>
+        /
+	<a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+        /
+	<a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+        /
+	<a href="https://blog.backslasher.net/tag/performance.html">Performance</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><strong>Update:</strong> Get the script <a href="https://blog.backslasher.net/disabling-generate-publisher-evidence.html">here</a>  </p>
+<h3>The Story</h3>
+<p>A couple of days ago, developer extraordinaire <a href="http://blogs.microsoft.co.il/blogs/itaysk/">Itay
+Shakury</a> was doing
+performance tuning on one of our SharePoint applications, and came to me with
+a problem - creating a new SPSite object took about 30 secs. The
+stranger part was that <strong>only the first creation of SPSite in every
+appDomain is slow</strong>.<br>
+We've tried the usual things:  </p>
+<ul>
+<li>Using SQL Profiler to check for DB-delays. Nope, all queries were as
+    quick as a fox</li>
+<li>Perfmoning the servers to death, looking for CPU/memory/disk spikes.
+    No luck again</li>
+</ul>
+<p>By the way, we used this bit of code to check exactly how slow the
+SPSite creation is:  </p>
+<div class="highlight"><pre><span></span><code><span class="k">function</span> <span class="n">Log-Message</span><span class="p">(</span><span class="nv">$Message</span><span class="p">)</span> <span class="p">{</span><span class="no">[DateTime]</span><span class="p">::</span><span class="n">Now</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="s1">&#39;[hh:mm:ss.fff]&#39;</span><span class="p">)+</span><span class="s2">&quot; $Message&quot;</span><span class="p">}</span>
+<span class="nv">$Url</span> <span class="p">=</span> <span class="s1">&#39;http://SERVER/Url&#39;</span><span class="p">;</span>
+<span class="n">Log-Message</span> <span class="s1">&#39;Loading Assembly&#39;</span>
+<span class="no">[Reflection.Assembly]</span><span class="p">::</span><span class="n">LoadWithPartialName</span><span class="p">(</span><span class="s1">&#39;Microsoft.Sharepoint&#39;</span><span class="p">)</span> <span class="p">|</span> <span class="nb">Out-Null</span><span class="p">;</span>
+<span class="n">Log-Message</span> <span class="s1">&#39;Creating SPSite&#39;</span>
+<span class="nv">$Site</span> <span class="p">=</span> <span class="nb">new-object</span> <span class="n">Microsoft</span><span class="p">.</span><span class="n">Sharepoint</span><span class="p">.</span><span class="n">SPSite</span> <span class="nv">$Url</span>
+<span class="n">Log-Message</span> <span class="s1">&#39;Finished&#39;</span>
+</code></pre></div>
+
+<p>Now I did some thinkning. What happens only one time in an AppDomain? I
+thought of 3 things:  </p>
+<ul>
+<li><strong>Poorly written singletons</strong>. If that were the case, people all
+    around the world would be having problems, and not just us.</li>
+<li><strong>Connections to DBs</strong>. Using SQL Profiler we found out that the
+    connection to the ConfigDB only happens in the last of the 30
+    seconds, meaning the DB is not to blame...</li>
+<li><strong>Lazy loading</strong>. (Spoiler: This is it) For those of us who forgot
+    what it is, lazy loading is "don't look for / load dlls until the
+    first time they're actually needed". How can we check that<span
+    style="font-size: 125%;"><span class="Unicode">‽</span></span></li>
+</ul>
+<p>I suddenly remembered some problem I hadn't run into myself, but is
+famous in my team:<br>
+SQL Server Management Studio was slow to load (<a href="http://support.microsoft.com/?kbid=918644">KB918644</a>). It happened
+because the studio's assemblies (dlls) were digitally signed by MS using
+Authenticode, that uses some sort of SSL-like certificates, and the
+studio was trying to check MS's CRL (Certificate Revocation List) to
+make sure the digisignature isn't revoked. Because we work in a
+disconnected environment, it couldn't succeed.<br>
+I've decided to NetMon the sever, and sure enough, my script was
+DNS-querying for <code>crl.microsoft.com</code>, and obviously failing.<br>
+After solving this issue, as a bonus, my <code>Stsadm.exe</code> commands were WAY
+faster. Until now, it would take the process about 1 min to tell me I
+have the wrong input, and I would die a little bit inside.  </p>
+<h3>Possible Solutions</h3>
+<h4>1. Allow access to crl.microsoft.com</h4>
+<p>If you're lucky(?) enough to be working in a blocked, not disconnected
+environment, consider simply allowing traffic to the crl site through
+your proxy/firewall/whatever.  </p>
+<h4>2. Stop checking for CRLs</h4>
+<p>If you ouldn't care less if someone stole MS's certificate and created an evil
+<code>harepoint.dll</code> just kidding. We all fear that), you can tell Windows to
+stop checking for CRLs altogether.<br>
+<strong>The user-specific way:</strong><br>
+<strong>Note:</strong> This setting affects all software run by that user. You shouldn't use turn it off if this user on this server is used to process smartcard logons, for
+example.<br>
+Either turn off <code>Inetcpl.cpl &gt; Advanced &gt; Security &gt; Check for publisher's certificate revocation</code> Or set
+this regkey:</p>
+<div class="highlight"><pre><span></span><code><span class="na">HKCU\Software\Microsoft\Windows\CurrentVersion\WinTrust\Trust Providers\Software Publishing:State</span><span class="o">=</span><span class="s">00023e00</span>
+</code></pre></div>
+
+<p><strong>Another note:</strong> Iv'e seen people scripting something to change the settings for all keys under <code>HKEY_USERS</code>. While this <strong>seems</strong> ok, it will actually change settings for all new users (through <code>.DEFAULT</code>) and for all existing users <strong>with their registry hive currently loaded. Not all users have their hive
+loaded at every moment!</strong> If you're into automation, you're better off
+with using Group Policy Preferences (use user preferences, and
+server-name-based targeting).
+<strong>The machine / app specific way:</strong><br>
+Use the machine/app/web.config to disable generation of publisher evidence,
+the CRL-related process, thusly:</p>
+<div class="highlight"><pre><span></span><code><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+<span class="nt">&lt;configuration&gt;</span>
+      <span class="nt">&lt;runtime&gt;</span>
+              <span class="nt">&lt;generatePublisherEvidence</span> <span class="na">enabled=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+      <span class="nt">&lt;/runtime&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</code></pre></div>
+
+<p>(Of course you don't blank your .config files, only add this setting)
+<strong>Update (27/12):</strong> Apparently, on x64 machines, you should change <strong>both</strong>the x86 and the x64 .config files.<br>
+<strong>Update (28/1/14):</strong> I uploaded <a href="https://blog.backslasher.net/disabling-generate-publisher-evidence.html">the script</a> we used  </p>
+<h4>3. Fetch the CRLs yourself</h4>
+<p>If the CRLs stored in the server's certificate store are fresh enough,
+it <strong>shouldn't</strong> dial home for new ones.<br>
+Download these:</p>
+<ul>
+<li><a href="http://crl.microsoft.com/pki/crl/products/CodeSignPCA.crl">http://crl.microsoft.com/pki/crl/products/CodeSignPCA.crl</a></li>
+<li><a href="http://crl.microsoft.com/pki/crl/products/CodeSignPCA2.crl">http://crl.microsoft.com/pki/crl/products/CodeSignPCA2.crl</a></li>
+</ul>
+<p>Add to certificate store:  </p>
+<div class="highlight"><pre><span></span><code>certutil -addstore CA CodeSignPCA.crl   
+certutil -addstore CA CodeSignPCA2.crl
+</code></pre></div>
+
+<p>Could be distributed through Group Policy as well, but I didn't try it.  </p>
+<h4>4. Mess with the process</h4>
+<p>I don't like this option, but If you're feeling malicious, you can just use your
+<code>hosts</code> file to point <code>crl.microsoft.com</code> into one of your servers (e.g. <code>127.0.0.1</code>), causing windows to skip the 15-sec timeout issue and fail immediatly, when the server will refuse to hand him the CRLs.  </p>
+<h3>Credit</h3>
+<p>Kudos for <a href="http://dirkvandenberghe.com/2009/01/08/speed-up-sharepoint-spin-up-and-stsadm-execution-time-by-jeroen-ritmeijer.html">Dirk Van den Berghe</a> for handing out the methods for solving the issue.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

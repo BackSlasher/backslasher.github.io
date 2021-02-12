@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Raspberry Pi + Deluge = Segmentation Fault - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/raspberry-pi-deluge-segmentation-fault.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Mysteries Solved,Linux,BitTorrent,Raspberry Pi,raspberrySeed,Ramblings,Deluge" />
+        <meta name="description" content="Note: This is relevant to any ARM based device running Linux I&#39;m trying to use a Raspberry Pi as a torrentbox (an always-on BitTorrent client). If I ever finish this project, I&#39;ll defiantly post my build. Anyway, I had a really annoying problem - every once in a while, the Deluge …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Raspberry Pi + Deluge = Segmentation Fault"/>
+        <meta property="og:url" content="https://blog.backslasher.net/raspberry-pi-deluge-segmentation-fault.html"/>
+        <meta property="og:description" content="Note: This is relevant to any ARM based device running Linux I&#39;m trying to use a Raspberry Pi as a torrentbox (an always-on BitTorrent client). If I ever finish this project, I&#39;ll defiantly post my build. Anyway, I had a really annoying problem - every once in a while, the Deluge …"/>
+        <meta property="article:published_time" content="2014-01-09" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Mysteries Solved" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="BitTorrent" />
+            <meta property="article:tag" content="Raspberry Pi" />
+            <meta property="article:tag" content="raspberrySeed" />
+            <meta property="article:tag" content="Ramblings" />
+            <meta property="article:tag" content="Deluge" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/raspberry-pi-deluge-segmentation-fault.html"
+                       rel="bookmark"
+                       title="Permalink to Raspberry Pi + Deluge = Segmentation Fault">
+                        Raspberry Pi + Deluge = Segmentation Fault
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-01-09T15:43:00+01:00"> Thu 09 January 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/bittorrent.html">BitTorrent</a>
+        /
+	<a href="https://blog.backslasher.net/tag/raspberry-pi.html">Raspberry Pi</a>
+        /
+	<a href="https://blog.backslasher.net/tag/raspberryseed.html">raspberrySeed</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+        /
+	<a href="https://blog.backslasher.net/tag/deluge.html">Deluge</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><strong>Note:</strong> This is relevant to any ARM based device running Linux</p>
+<p>I'm trying to use a Raspberry Pi as a torrentbox (an always-on
+BitTorrent client).<br>
+If I ever finish this project, I'll defiantly post my build.<br>
+Anyway, I had a really annoying problem - every once in a while, the
+Deluge daemon would crash, printing only this message as a reason:  </p>
+<div class="highlight"><pre><span></span><code><span class="err">Segmentation Fault</span>
+</code></pre></div>
+
+<p>(Meaning that the program tried to access a part of the memory it's not
+allowed to.)  </p>
+<p>I made sure I'm running the latest version of deluge (as offered by the
+rPi debian repository), and attempted to troubleshoot. <br>
+I tried running deluge using debug logging, but found no consistent
+message pattern before the crash, probably meaning that the code causing
+the fault wasn't message-worthy or it meant to log its action after the
+line responsible for the crash. <br>
+Since then I've been ignoring it and simply restarting the daemon every
+now and then, but today it wouldn't stay running for 5 minutes, so I had
+to do something.<br>
+Even though I know very little about Linux troubleshooting, I've decided
+to try and use GDB (GNU Debugger) to try and understand the cause.<br>
+I used these commands to recreate the problem in gdb:  </p>
+<div class="highlight"><pre><span></span><code>$ gdb --args python /usr/bin/deluged -d -L info
+(gdb) handle SIGILL nostop
+(gdb) run
+</code></pre></div>
+
+<p>The <code>deluged</code> (deluge daemon) arguments are used to tell deluged to avoid
+"daemonising" (so to stay attached to console) and to log to screen
+information messages.<br>
+The <code>handle</code> line is because libcrypto is testing the CPU features on
+initialization, and creates (and handles) a fake "Illegal Instruction"
+error (<a href="http://www.raspberrypi.org/phpBB3/viewtopic.php?p=155085">link</a>).<br>
+<code>run</code> tells deluged to start executing, and then we wait for the
+inevitable crash.<br>
+The crash looked something like this:  </p>
+<div class="highlight"><pre><span></span><code>Program received signal SIGSEGV, Segmentation fault.
+[Switching to Thread 0xb5a5e470 (LWP 10169)]
+RC4 () at /usr/lib/arm-linux-gnueabihf/libcrypto.so.1.0.0
+</code></pre></div>
+
+<p>So the "guilty" code is libcrypto. Let's search for its owner:  </p>
+<div class="highlight"><pre><span></span><code>$ apt-cache search libcrypto
+libcrypto++-dev - General purpose cryptographic library - C++ development
+libcrypto++-doc - General purpose cryptographic library - documentation
+libcrypto++-utils - General purpose cryptographic library - utilities and data files
+libcrypto++9 - General purpose cryptographic library - shared library
+libcrypto++9-dbg - General purpose cryptographic library - debug symbols
+libcryptokit-ocaml - cryptographic algorithm library for OCaml - runtime
+libcryptokit-ocaml-dev - cryptographic algorithm library for OCaml - development
+libssl-dev - SSL development libraries, header files and documentation
+libssl-doc - SSL development documentation documentation
+libssl1.0.0 - SSL shared libraries
+libssl1.0.0-dbg - Symbol tables for libssl and libcrypto
+</code></pre></div>
+
+<p>As we can see, it's part of <code>libssl1.0.0</code>. Since these are also
+up-to-date, I don't want to touch them. After examining the backtrace in
+gdb:  </p>
+<div class="highlight"><pre><span></span><code>(gdb) thread apply all backtrace
+...
+Thread 3 (Thread 0xb5a5e470 (LWP 10169)):
+#0  0xb6568c7c in RC4 () from /usr/lib/arm-linux-gnueabihf/libcrypto.so.1.0.0
+#1  0xb67acee4 in libtorrent::bt_peer_connection::send_buffer(char const*, int, int) () from /usr/lib/libtorrent-rasterbar.so.6
+#2  0xb67ab3ec in libtorrent::bt_peer_connection::append_const_send_buffer(char const*, int) () from /usr/lib/libtorrent-rasterbar.so.6
+#3  0xb68b6b30 in ?? () from /usr/lib/libtorrent-rasterbar.so.6
+#4  0xb68b6b30 in ?? () from /usr/lib/libtorrent-rasterbar.so.6
+Backtrace stopped: previous frame identical to this frame (corrupt stack?)
+...
+</code></pre></div>
+
+<p>I can see it's being called by <code>libtorrent::bt_peer_connection</code>, so
+it's probably related to peer-to-peer encryption.<br>
+Disabling it wasn't trivial either - since I couldn't get deluged to run
+for more than one minute, I had to edit the configuration file
+manually.<br>
+After editing the file <code>~/.config/deluge/core.conf</code> and changing these
+settings (UI equivalent in brackets):</p>
+<ul>
+<li><code>enc_level</code> (<code>Network &gt; Encryption &gt; Level</code>) from <code>2</code> to <code>0</code> ("Handshake")  </li>
+<li><code>enc_prefer_rc4</code> (<code>Network &gt; Encryption &gt; Encrypt entire stream</code>) from <code>true</code> to <code>false</code></li>
+</ul>
+<p>Everything seems to be normal now. <del>I'm still not fully aware what are
+the friendly names of those settings.</del> Thanks Lucas for the setting names!  </p>
+<p>Of course this is only a workaround, but at least I can use Deluge
+again.</p>
+<p><img alt="" src="https://blog.backslasher.net/images/raspberry-pi-deluge-segmentation-fault/DelugedWorking.png"></p>
+<p>What an adventure!</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

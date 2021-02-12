@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Linux and SSDs - Should You TRIM? - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/linux-and-ssds-should-you-trim.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Mysteries Solved,Linux,FileSystem,Debian,Ramblings,Ubuntu,Performance" />
+        <meta name="description" content="Note: Although my experience is with Debian, I think this post helps anyone using some modern Linux distribution. What is TRIM? As a Windows sysadmin, I didn&#39;t really consider the cons of running on top of Solid-State Drives, or SSDs. These drives are based on flash memory (similar to a Disk-On-Key), rather than metallic plates. A big difference between magnetic hard drives and SSDs is block reuse." />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Linux and SSDs - Should You TRIM?"/>
+        <meta property="og:url" content="https://blog.backslasher.net/linux-and-ssds-should-you-trim.html"/>
+        <meta property="og:description" content="Note: Although my experience is with Debian, I think this post helps anyone using some modern Linux distribution. What is TRIM? As a Windows sysadmin, I didn&#39;t really consider the cons of running on top of Solid-State Drives, or SSDs. These drives are based on flash memory (similar to a Disk-On-Key), rather than metallic plates. A big difference between magnetic hard drives and SSDs is block reuse."/>
+        <meta property="article:published_time" content="2014-07-16" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Mysteries Solved" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="FileSystem" />
+            <meta property="article:tag" content="Debian" />
+            <meta property="article:tag" content="Ramblings" />
+            <meta property="article:tag" content="Ubuntu" />
+            <meta property="article:tag" content="Performance" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/linux-and-ssds-should-you-trim.html"
+                       rel="bookmark"
+                       title="Permalink to Linux and SSDs - Should You TRIM?">
+                        Linux and SSDs - Should You TRIM?
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-07-16T15:46:00+02:00"> Wed 16 July 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+        /
+	<a href="https://blog.backslasher.net/tag/debian.html">Debian</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ubuntu.html">Ubuntu</a>
+        /
+	<a href="https://blog.backslasher.net/tag/performance.html">Performance</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p><strong>Note</strong>: Although my experience is with Debian, I think this post helps anyone using some modern Linux distribution.  </p>
+<h3>What is TRIM?</h3>
+<p>As a Windows sysadmin, I didn't really consider the cons of running on top of <a href="http://en.wikipedia.org/wiki/Solid_state_drives">Solid-State Drives</a>, or SSDs. These drives are based on <a href="http://en.wikipedia.org/wiki/Flash_memory">flash memory</a> (similar to a Disk-On-Key), rather than metallic plates.<br>
+A big difference between magnetic hard drives and SSDs is block reuse.</p>
+
+
+<h4>The Problem</h4>
+<p>Every storage device is seen (with the driver's help) as a collection of sectors (or "blocks") by the operating system, which can read and write a fixed amount of data (512 bytes / 4KB) to every sector. File systems are different ways of using said sectors to store files, directories, metadata etc.<br>
+In magnetic hard drives, used and unused blocks take the same time to write to. Modern file systems exploit that fact in different ways. For example:</p>
+<ul>
+<li>Instead of deleting a file, they just "forget" about it, leaving the blocks in their used state (<a href="http://whereismydata.wordpress.com/2009/05/02/forensics-what-happens-when-files-are-deleted/">Example</a>)</li>
+<li><a href="http://en.wikipedia.org/wiki/Copy_on_write">Copy-On-Write</a> techniques allow file systems to "effortlessly" remember the previous content of files (for versioning, corruption protection etc.), by writing modified content on free blocks</li>
+</ul>
+<p>In SSDs, however, this is not the situation. I read a metaphor somewhere thats it's like building a house where a house is already present - you have to demolish the existing house, and only after that you can build your own.
+For that reason, used blocks take more time writing to, because the SSD has to erase the block first. The result - after many writes, the performance of SSDs degrades dramatically, even lower than traditional HDs.<br>
+<strong>Note</strong>: There is an additional issue called <a href="http://en.wikipedia.org/wiki/Write_amplification">Write amplification</a>, where you can only delete clusters of blocks, requiring the SSD to rearrange partially used blocks. In modern SSD drives, this is solved by the drive's own firmware/configuration as long as you keep the file system trimmed.</p>
+<h4>The Solution</h4>
+<p>The solution to that problem is a new OS-Device command called "<a href="http://en.wikipedia.org/wiki/TRIM">TRIM</a>", telling the drive "I don't need this block anymore. Erase it when you have the time". This is a new idea, because traditional HDs don't need that information.</p>
+<h3>Trimming and You</h3>
+<h4>Naming</h4>
+<p>You'll often see TRIM being called "discard". This is because the concept  has been generalised, and can apply to <a href="http://en.wikipedia.org/wiki/Thin_provisioning">thin-provisioned</a> LUNs as well.</p>
+<h4>Timing</h4>
+<p>The most obvious way to use TRIM is like Windows does - whenever blocks are no longer needed (e.g. a file was deleted), let the SSD know.<br>
+In Linux, this option has <strong>negative performance impact</strong>, because the Linux kernel <a href="http://en.opensuse.org/SDB:SSD_discard_%28trim%29_support#Kernel_support">currently handles one block at a time</a>. For instance, if I delete a file containing 500 blocks, instead of one IO operation (removing the pointer to the file from the directory listing), the kernel will issue 501 IO operations (remove the pointer, TRIM block 1, TRIM block 2...).<br>
+In the general use-case, this <a href="http://people.redhat.com/lczerner/discard/ext4_discard.html">ruins</a> the performance advantage of SSDs.<br>
+I think this is only a temporary setback, because Windows (supposedly) handles TRIM the correct way - using a range.</p>
+<p>If we take an example from Ubuntu, version 14.04 supports trimming but <a href="https://launchpad.net/ubuntu/+source/util-linux/2.20.1-5.1ubuntu14">uses a weekly scheduled execution</a> of <a href="http://man7.org/linux/man-pages/man8/fstrim.8.html">fstrim</a>. According to a quick Google search, this seems to be the preferred method, because you can execute it in a maintenance window, when I/O isn't peaking.</p>
+<h4>Support</h4>
+<p>Support for TRIM in Linux is partial.<br>
+Mainstream <strong>file systems</strong> (ext4, btrfs) support TRIM, either immediately (using "discard" mount option) or on demand ("fstrim").<br>
+Some <strong>containers</strong> (LVM, md) support passing TRIM commands from the contained file system and some don't. Some containers even issue "discard" requests by themselves if configured to, like LVM (with <code>issue_discards</code> enabled) when removing volumes. These individual discards are only relevant when making configuration changes (deleting a RAID array) frequently, or when using snapshots.</p>
+<h4>Testing</h4>
+<p>There are many posts on testing TRIM, like <a href="http://andyduffell.com/techblog/?p=852">this one</a>, but they only test whether trimming already works, and not if you need it. IMHO, the only proper method to know is benchmarking, manually trimming (using fstrim) and benchmarking again.</p>
+<p><strong>TL;DR:</strong> Yes, you should trim, and by cronning <code>fstrim</code>. It's worth it.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

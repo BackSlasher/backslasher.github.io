@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Reading Daylight Saving Time Data in Windows - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/reading-daylight-saving-time-data-in-windows.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="WMI,Calendar,Windows,W32tm,PowerShell,DST" />
+        <meta name="description" content="When it comes to DST complexity, Israel has it worst (I think). We have our DST definition changed on a yearly basis, and consequently we have to repeat the DST deployment cycle (install update, check for timezone data, test DST-sensitive resources like Outlook calendars...) twice a year. Even simple users …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Reading Daylight Saving Time Data in Windows"/>
+        <meta property="og:url" content="https://blog.backslasher.net/reading-daylight-saving-time-data-in-windows.html"/>
+        <meta property="og:description" content="When it comes to DST complexity, Israel has it worst (I think). We have our DST definition changed on a yearly basis, and consequently we have to repeat the DST deployment cycle (install update, check for timezone data, test DST-sensitive resources like Outlook calendars...) twice a year. Even simple users …"/>
+        <meta property="article:published_time" content="2013-09-04" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="WMI" />
+            <meta property="article:tag" content="Calendar" />
+            <meta property="article:tag" content="Windows" />
+            <meta property="article:tag" content="W32tm" />
+            <meta property="article:tag" content="PowerShell" />
+            <meta property="article:tag" content="DST" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/reading-daylight-saving-time-data-in-windows.html"
+                       rel="bookmark"
+                       title="Permalink to Reading Daylight Saving Time Data in Windows">
+                        Reading Daylight Saving Time Data in Windows
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2013-09-04T16:48:00+02:00"> Wed 04 September 2013</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/wmi.html">WMI</a>
+        /
+	<a href="https://blog.backslasher.net/tag/calendar.html">Calendar</a>
+        /
+	<a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+        /
+	<a href="https://blog.backslasher.net/tag/w32tm.html">W32tm</a>
+        /
+	<a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+        /
+	<a href="https://blog.backslasher.net/tag/dst.html">DST</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>When it comes to DST complexity, Israel has it worst (I think). We have
+our DST definition changed on a yearly basis, and consequently we have
+to repeat the DST deployment cycle (install update, check for timezone
+data, test DST-sensitive resources like Outlook calendars...) twice a
+year.<br>
+Even simple users are familiar with the UI reminder for DST (when it
+starts / ends) that appears about 2 weeks before the due date, and looks
+something like this:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/reading-daylight-saving-time-data-in-windows/dstUI.jpg"></p>
+<p>There are two alternatives that are easier to script and are not
+date-dependent, but they're harder to understand:  </p>
+<h4>CMD - <code>W32tm /tz</code></h4>
+<p>This command will give you the computer's timezone configuration,
+including the DST data - the bias, beginning and end of Standard/DST times:</p>
+<p><img alt="" src="https://blog.backslasher.net/images/reading-daylight-saving-time-data-in-windows/dstW32tm.png"></p>
+<h4>PowerShell - WMI</h4>
+<p>Using the class <code>win32_timezone</code> you can get the same data (and you can
+even access it remotely). Just select the relevant fields:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/reading-daylight-saving-time-data-in-windows/dstPowerShell.png"></p>
+<h3>Readability</h3>
+<p>The problem with those two methods is that the output is not trivially
+understood (unlike "DST ends on XXXX/XX/XX, the clock goes back 1 hour")
+After finding <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/aa394498%28v=vs.85%29.aspx">this page</a>
+explaining about the WMI class, I hope I can save you some effort:  </p>
+<table>
+<thead>
+<tr>
+<th>w32tm letter</th>
+<th>WMI field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M</td>
+<td>StandardMonth / DaylightMonth</td>
+<td>1-based-index (1=Jan,12=Dec) of the month in which the time is applied.</td>
+</tr>
+<tr>
+<td>DoW</td>
+<td>StandardDayOfWeek / DaylightDayOfWeek</td>
+<td>0-based-index (0=Sun,1=Mon,6=Sat) of the day-of-the-week in which the time is applied</td>
+</tr>
+<tr>
+<td>D</td>
+<td>StandardDay / DaylightDay</td>
+<td>The occurrence of the day-of-week in the month in which the time is applied.<br/><code>5</code> is the last instance.</td>
+</tr>
+</tbody>
+</table>
+<h4>Examples</h4>
+<p>If <code>M=10,D=2,W=0</code>, the time will be applied on the <strong>second</strong> <strong>Sunday</strong>  of <strong>October</strong>.<br>
+If <code>M=12,D=1,W=0</code> then time will be applied on the <strong>first</strong> <strong>Sunday</strong> of <strong>December.</strong><br>
+If <code>M=10,D=5,W=0</code> means the <strong>last</strong> <strong>Sunday</strong> of <strong>October</strong></p>
+<p>And there you have it.<br>
+FYI, the latest DST update is <a href="http://support.microsoft.com/kb/2863058">kb2863058</a></p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

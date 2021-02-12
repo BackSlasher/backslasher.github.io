@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Running Inline DSL in ChefSpec - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/chefspec-inline.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Chef,Testing,Ruby,Scripts,ChefSpec" />
+        <meta name="description" content="The Problem I have a pet Chef cookbook in charge of managing SELinux policies in Linux machines (Take a look). Until today I got along fine without testing, because the cookbook barely had any logic to be tested. The only test I had (contributed by someone) just made sure the …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Running Inline DSL in ChefSpec"/>
+        <meta property="og:url" content="https://blog.backslasher.net/chefspec-inline.html"/>
+        <meta property="og:description" content="The Problem I have a pet Chef cookbook in charge of managing SELinux policies in Linux machines (Take a look). Until today I got along fine without testing, because the cookbook barely had any logic to be tested. The only test I had (contributed by someone) just made sure the …"/>
+        <meta property="article:published_time" content="2015-10-17" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Chef" />
+            <meta property="article:tag" content="Testing" />
+            <meta property="article:tag" content="Ruby" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="ChefSpec" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/chefspec-inline.html"
+                       rel="bookmark"
+                       title="Permalink to Running Inline DSL in ChefSpec">
+                        Running Inline DSL in ChefSpec
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-10-17T00:00:00+02:00"> Sat 17 October 2015</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+        /
+	<a href="https://blog.backslasher.net/tag/testing.html">Testing</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/chefspec.html">ChefSpec</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>The Problem</h2>
+<p>I have a pet Chef cookbook in charge of managing SELinux policies in Linux machines (<a href="https://github.com/BackSlasher/chef-selinuxpolicy">Take a look</a>).<br>
+Until today I got along fine without testing, because the cookbook barely had any logic to be tested. The only test I had (contributed by someone) just made sure the cookbook isn't completely bonkers.<br>
+I started working on a pretty complex feature (detecting when ports are assigned using a range) and it required testing. I'm familiar with 2 interesting options for testing cookbooks:</p>
+<ol>
+<li><a href="https://docs.chef.io/kitchen.html">Kitchen</a>: Uses Vagrant to create VMs and runs your recipes on it. Can optionally run tests on the machine to ensure it's provisioned OK</li>
+<li><a href="https://github.com/sethvargo/chefspec">ChefSpec</a>: Creates an in-memory Chef client that compiles the resource collection (see <a href="https://docs.chef.io/chef_client.html#the-chef-client-title-run">this</a> for details about the Chef client run) and allows you to ensure that the resource collection looks as you expected.</li>
+</ol>
+<p>Running kitchen tests takes a while and requires a machine capable of virtualization (so it can't be run inside a VM), so I thought I'd try creating a ChefSpec test.<br>
+The recommended way of using ChefSpec is by supplying the runner with a list of recipes to run, like so:</p>
+<div class="highlight"><pre><span></span><code><span class="n">let</span><span class="p">(</span><span class="ss">:chef_run</span><span class="p">)</span> <span class="p">{</span> <span class="no">ChefSpec</span><span class="o">::</span><span class="no">SoloRunner</span><span class="o">.</span><span class="n">converge</span><span class="p">(</span><span class="s1">&#39;recipe::one&#39;</span><span class="p">,</span><span class="s1">&#39;other::recipe&#39;</span><span class="p">)</span> <span class="p">}</span>
+<span class="n">it</span> <span class="s1">&#39;does stuff&#39;</span> <span class="k">do</span>
+  <span class="n">expect</span><span class="p">(</span><span class="n">chef_run</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">install_package</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>However, when testing LWRPs this becomes annoying, as you have to create "test recipes" for your LWRPs. These either go inside a different cookbook (and complicate your repo and testing) or stay in your main cookbook (and should be marked to not be run by end users), and it looks bad.</p>
+<h2>The Solution</h2>
+<p>After a bit of hacking, I was able to monkey-patch the ChefSpec classes to accept Chef DSL instead, making the tests look a lot better.<br>
+The patch looks like this:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># This can go at the beginning of your spec file</span>
+<span class="k">module</span> <span class="nn">ChefSpec</span>
+  <span class="k">class</span> <span class="nc">SoloRunner</span>
+    <span class="k">def</span> <span class="nf">converge_dsl</span><span class="p">(</span><span class="o">*</span><span class="n">recipes</span><span class="p">,</span><span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="n">cookbook_name</span> <span class="o">=</span> <span class="s1">&#39;imaginary&#39;</span>
+      <span class="n">recipe_name</span> <span class="o">=</span> <span class="s1">&#39;temp&#39;</span>
+      <span class="n">converge</span><span class="p">(</span><span class="o">*</span><span class="n">recipes</span><span class="p">){</span>
+        <span class="n">recipe</span> <span class="o">=</span> <span class="no">Chef</span><span class="o">::</span><span class="no">Recipe</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">cookbook_name</span><span class="p">,</span> <span class="n">recipe_name</span><span class="p">,</span> <span class="vi">@run_context</span><span class="p">)</span>
+        <span class="n">recipe</span><span class="o">.</span><span class="n">instance_eval</span><span class="p">(</span><span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>The main difference between my method and the "normal" one (<code>converge</code>), is that mine executes the block it's given inside a new recipe called <code>imaginary::temp</code> (hardly a name that will be used by anyone). This allows you to do something like this:</p>
+<div class="highlight"><pre><span></span><code><span class="n">let</span> <span class="ss">:chef_run</span> <span class="k">do</span>
+  <span class="no">ChefSpec</span><span class="o">::</span><span class="no">SoloRunner</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">converge_dsl</span> <span class="k">do</span>
+    <span class="n">package</span> <span class="s1">&#39;foo&#39;</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+<span class="n">it</span> <span class="s1">&#39;does stuff&#39;</span> <span class="k">do</span>
+  <span class="n">expect</span><span class="p">(</span><span class="n">chef_run</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">install_package</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>While the difference looks minute, when testing LWRPs it looks a lot different.<br>
+Here is some code from my actual tests:</p>
+<h3>Without patch</h3>
+<div class="highlight"><pre><span></span><code><span class="n">describe</span> <span class="s1">&#39;single port&#39;</span> <span class="k">do</span>
+  <span class="n">let</span> <span class="ss">:chef_run</span> <span class="k">do</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="no">ChefSpec</span><span class="o">.</span><span class="n">SoloRunner</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">step_into</span><span class="p">:</span> <span class="o">[</span><span class="s1">&#39;selinux_policy_port&#39;</span><span class="o">]</span><span class="p">)</span>
+    <span class="no">Chef</span><span class="o">::</span><span class="no">Config</span><span class="o">[</span><span class="ss">:cookbook_path</span><span class="o">]</span> <span class="o">&lt;&lt;</span> <span class="s1">&#39;./test/cookbooks&#39;</span> <span class="c1"># Allow Chef to find test cookbook</span>
+    <span class="n">runner</span><span class="o">.</span><span class="n">converge</span><span class="p">(</span><span class="s1">&#39;selinux_policy_test::single_port&#39;</span><span class="p">)</span>
+  <span class="k">end</span>
+  <span class="n">it</span> <span class="s1">&#39;defines a single port&#39;</span> <span class="k">do</span>
+    <span class="c1">#... irelevant stuff</span>
+    <span class="n">expect</span><span class="p">(</span><span class="n">chef_run</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">run_execute</span><span class="p">(</span><span class="s1">&#39;selinux-port-1080-addormodify&#39;</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>What is in <code>single_port</code> recipe? Where is it?<br>
+Are we guranteed to run with the CWD set in the cookbook's directory?<br>
+You have to admit it looks weird.</p>
+<h3>With patch</h3>
+<div class="highlight"><pre><span></span><code><span class="n">describe</span> <span class="s1">&#39;single port&#39;</span> <span class="k">do</span>
+  <span class="n">let</span> <span class="ss">:chef_run</span> <span class="k">do</span>
+    <span class="n">runner</span> <span class="o">=</span> <span class="no">ChefSpec</span><span class="o">.</span><span class="n">SoloRunner</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">step_into</span><span class="p">:</span> <span class="o">[</span><span class="s1">&#39;selinux_policy_port&#39;</span><span class="o">]</span><span class="p">)</span>
+    <span class="n">runner</span><span class="o">.</span><span class="n">converge_dsl</span><span class="p">(</span><span class="s1">&#39;selinux_policy&#39;</span><span class="p">)</span> <span class="k">do</span> <span class="c1"># recipe menitoned to force cookbook load</span>
+      <span class="n">selinux_policy_port</span> <span class="mi">1080</span> <span class="k">do</span>
+        <span class="n">protocol</span> <span class="s1">&#39;tcp&#39;</span>
+        <span class="n">secontext</span> <span class="s1">&#39;http_port_d&#39;</span>
+      <span class="k">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+  <span class="n">it</span> <span class="s1">&#39;defines a single port&#39;</span> <span class="k">do</span>
+    <span class="c1">#... irelevant stuff</span>
+    <span class="n">expect</span><span class="p">(</span><span class="n">chef_run</span><span class="p">)</span><span class="o">.</span><span class="n">to</span> <span class="n">run_execute</span><span class="p">(</span><span class="s1">&#39;selinux-port-1080-addormodify&#39;</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>I think it looks a lot more elegant. The test is self-contained (except for "real" code used in the actual cookbook) and is easily understood (what it does and what it expects to happen).</p>
+<h2>And even so...</h2>
+<p><strong>Update 19.02.16:</strong> I am using this method successfully in my cookbooks, e.g. <a href="https://github.com/BackSlasher/chef-selinuxpolicy/blob/master/spec/boolean_spec.rb">selinux_policy</a></p>
+<p>Even though I think it's great, I'm currently not using it.<br>
+My reasons for it:</p>
+<ul>
+<li>I'm so new to testing cookbooks that I think I should currently stick to the accepted working methods.</li>
+<li>Keeping the test recipes in a separate test cookbook allows it to be shared between ChefSpec and the Chef Kitchen. I currently think it helps maintainability.</li>
+</ul>
+<p>I might decide to use this method eventually, and I still think it looks really neat, so it deserves a blog post.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

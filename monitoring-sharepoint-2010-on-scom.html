@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Monitoring SharePoint 2010 on SCOM - Minimal Permissions - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/monitoring-sharepoint-2010-on-scom.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="SharePoint,SCOM" />
+        <meta name="description" content="I&#39;ve recently started monitoring my new SharePoint 2010 farms on SCOM, and found the management pack&#39;s documentation to be rather lacking in setup instructions, and the required permissions for SCOM&#39;s account on the farm were rather shocking: Local admin on all SharePoint servers Local admin on all SQL servers dbowner …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Monitoring SharePoint 2010 on SCOM - Minimal Permissions"/>
+        <meta property="og:url" content="https://blog.backslasher.net/monitoring-sharepoint-2010-on-scom.html"/>
+        <meta property="og:description" content="I&#39;ve recently started monitoring my new SharePoint 2010 farms on SCOM, and found the management pack&#39;s documentation to be rather lacking in setup instructions, and the required permissions for SCOM&#39;s account on the farm were rather shocking: Local admin on all SharePoint servers Local admin on all SQL servers dbowner …"/>
+        <meta property="article:published_time" content="2011-07-18" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="SharePoint" />
+            <meta property="article:tag" content="SCOM" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/monitoring-sharepoint-2010-on-scom.html"
+                       rel="bookmark"
+                       title="Permalink to Monitoring SharePoint 2010 on SCOM - Minimal Permissions">
+                        Monitoring SharePoint 2010 on SCOM - Minimal Permissions
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2011-07-18T13:15:00+02:00"> Mon 18 July 2011</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scom.html">SCOM</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>I've recently started monitoring my new SharePoint 2010 farms on SCOM,
+and found the management pack's documentation to be rather lacking in
+setup instructions, and the required permissions for SCOM's account on
+the farm were rather shocking:  </p>
+<ul>
+<li>Local admin on all SharePoint servers</li>
+<li>Local admin on all SQL servers</li>
+<li>dbowner on all SharePoint's databases</li>
+<li>Membership in the Farm Administrators group</li>
+</ul>
+<p>After some experimenting, I managed to reduce the permissions to a
+normal level, and create my own (working!) workflow:<br>
+(treat FARM as a unique identifier for your farm)</p>
+<ol>
+<li>
+<p>Prepare a special AD account (one for every farm) for SCOM's monitoring,
+such as <code>SCOM-Sharepoint-FARM</code>.</p>
+</li>
+<li>
+<p>Grant that account:</p>
+<ol>
+<li>Membership in the <code>Farm Administrators</code> group on the SharePoint farm
+(via Central Administration)</li>
+<li><code>dbowner</code> on the farm's DBs (or <code>sysadmin</code> on the SQL server, if it only
+holds this farm's DBs anyway)</li>
+</ol>
+</li>
+<li>
+<p>Using SCOM's console, Create a Windows <code>Run-As account</code> (under
+   administration, be careful) named something like "SP FARM Monitoring"</p>
+</li>
+<li>
+<p>Edit the SharePoint MP's xml file thusly:</p>
+<ol>
+<li>If you installed the MP on the SCOM server (as you should), copy the
+"SharePointMP.Config" file from <code>C:\Program Files (x86)\System
+Center Management Packs\Microsoft SharePoint 2010 Products OpsMgr
+2007 MP en-us\</code> to <code>C:\Program Files\System Center
+Management Packs\</code>. It should stay there.</li>
+<li>Open the file in your favorite XML editor</li>
+<li>
+<p>Add an Association node like:  </p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;Association</span> <span class="na">Account=</span><span class="s">&quot;NAME&quot;</span> <span class="na">Type=</span><span class="s">&quot;Agent&quot;</span><span class="nt">&gt;&lt;/Association&gt;</span>
+</code></pre></div>
+
+<p>Where <code>NAME</code> is SCOM's Run-As account</p>
+</li>
+<li>
+<p>Inside the Association node, add a Machine node for every computer
+  inside the farm, like:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;Machine</span> <span class="na">Name=</span><span class="s">&quot;MACHINE&quot;</span> <span class="nt">/&gt;</span>
+</code></pre></div>
+
+</li>
+</ol>
+</li>
+<li>
+<p>Add every SharePoint server to SCOM's monitored servers (through
+   discovery wizard)</p>
+</li>
+<li>
+<p>Execute the task <code>Configure SharePoint Management Pack</code> (in
+   <code>Monitoring &gt; SharePoint 2010 Products &gt; Administration</code>).
+   Change the task credentials to an account with farm administrator privileges (like
+yours), otherwise the task will execute with SCOM's default action
+account, which might not have enough permissions.</p>
+</li>
+<li>
+<p>Wait for about an hour, and check out the Diagram View!</p>
+</li>
+</ol>
+<p>If your servers won't appear, check the <code>unidentified machines</code> view,
+the Agent's health, and the server's event log.  </p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

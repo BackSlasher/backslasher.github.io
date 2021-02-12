@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Filtering Windows Event Log using XPath - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/filtering-windows-event-log-using-xpath.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Security,Scripts,Windows,PowerShell,Ramblings,Event Log" />
+        <meta name="description" content="When I want to search for events in Windows Event Log, I can usually make do with searching / filtering through the Event Viewer. For instance, to see all 4624 events (successful logon), I can fill the UI filter dialog like this: Event Logs: Security Event IDs: 4624 But sometimes I …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Filtering Windows Event Log using XPath"/>
+        <meta property="og:url" content="https://blog.backslasher.net/filtering-windows-event-log-using-xpath.html"/>
+        <meta property="og:description" content="When I want to search for events in Windows Event Log, I can usually make do with searching / filtering through the Event Viewer. For instance, to see all 4624 events (successful logon), I can fill the UI filter dialog like this: Event Logs: Security Event IDs: 4624 But sometimes I …"/>
+        <meta property="article:published_time" content="2013-05-19" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="Security" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Windows" />
+            <meta property="article:tag" content="PowerShell" />
+            <meta property="article:tag" content="Ramblings" />
+            <meta property="article:tag" content="Event Log" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/filtering-windows-event-log-using-xpath.html"
+                       rel="bookmark"
+                       title="Permalink to Filtering Windows Event Log using XPath">
+                        Filtering Windows Event Log using XPath
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2013-05-19T15:24:00+02:00"> Sun 19 May 2013</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/security.html">Security</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+        /
+	<a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+        /
+	<a href="https://blog.backslasher.net/tag/event-log.html">Event Log</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>When I want to search for events in Windows Event Log, I can usually make do with searching / filtering through the Event Viewer. For instance, to see all 4624 events (successful logon), I can fill the UI filter dialog like this:   </p>
+<ul>
+<li><strong>Event Logs:</strong> Security</li>
+<li><strong>Event IDs:</strong> 4624</li>
+</ul>
+<p><img alt="" src="https://blog.backslasher.net/images/filtering-windows-event-log-using-xpath/EventFilterUI.png"></p>
+<p>But sometimes I need higher granularity. That's when XPath comes in.  </p>
+<h3>What is XPath</h3>
+<p>Xpath is a method for selecting specific XML nodes from an XML document.<br>
+Given a list of books in XML, one can select the third book, the book with the most pages or the book with the author "David" with a single, human-readable XPath statement.  </p>
+<h3>Usage in Windows Event Log</h3>
+<p>Since Windows NT6 (Vista / Server 2008), events are saved in XML format.<br>
+If we'll take a look in event 16384:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/filtering-windows-event-log-using-xpath/16384Text.png"></p>
+<p>The general message (<code>Successfully scheduled Software Protection service for re-start at {0}. Reason: {1}.</code>) is saved in an external resource file, but the specifics (the replacement strings) are saved in the event.<br>
+They can be viewed in a friendly view (<code>Details/Friendly</code>) or in their raw XML form (<code>Details/XML</code>):  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/filtering-windows-event-log-using-xpath/16384Friendly.png"></p>
+<p><img alt="" src="https://blog.backslasher.net/images/filtering-windows-event-log-using-xpath/16384Xml.png"></p>
+<p>Also available are the general event details (computer name, event ID,
+time generated), under the "System" Node:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/filtering-windows-event-log-using-xpath/16384SystemXml.png"></p>
+<p>Not only can you filter events using XPath on the event's XML node, this is how the UI is actually filtering.<br>
+If we make up some sort of filter:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/filtering-windows-event-log-using-xpath/SomeFilterUI.png"></p>
+<p>And switch to the <code>XML</code> view:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/filtering-windows-event-log-using-xpath/SomeFilterXml.png"></p>
+<p>we can see our selections reflected in the XPath statement contained in the <code>Select</code> element.<br>
+Note <code>(EventID=4624)</code> for filtering by event ID, for example.</p>
+<h3>Using XPath Filtering</h3>
+<p>To filter events using XPath, you need:</p>
+<ul>
+<li>Basic XPath skills</li>
+<li>A sample event to examine its structure</li>
+<li>A way to filter</li>
+</ul>
+<h4>Basic XPath skills</h4>
+<ul>
+<li>You can learn basic queries on the w3c site: <a href="https://www.w3schools.com/xml/xpath_syntax.asp">https://www.w3schools.com/xml/xpath_syntax.asp</a>  </li>
+<li>More about XPath: <a href="http://www.whoishostingthis.com/resources/xpath/">http://www.whoishostingthis.com/resources/xpath/</a></li>
+<li>Windows Event Log XPath filtering uses a subset of XPath 1.0 with some serious limitations, which can be found here: <a href="http://msdn.microsoft.com/en-us/library/dd996910(VS.85).aspx#limitations">http://msdn.microsoft.com/en-us/library/dd996910(VS.85).aspx#limitations</a>  </li>
+<li>You can always use the UI to build a filter, then switch to the XML view and see how it's represented in XPath.  </li>
+</ul>
+<h4>A sample event</h4>
+<p>When searching for specific fields within a certain event (e.g. 4624 where <code>Process ID</code> is <code>0x2b0</code>), it's always good to find a sample event, switch to <code>Details</code> and see how it's built. In my example, I can see the
+field I need is <code>EventData/ProcessId</code>:  </p>
+<p><img alt="" src="https://blog.backslasher.net/images/filtering-windows-event-log-using-xpath/4624ProcessID.png"></p>
+<p>And I can deduce that the XPath expression I need should be something
+like:</p>
+<div class="highlight"><pre><span></span><code>Event[
+ System[
+  EventID=4624
+ ] and
+ EventData[
+  Data[@Name=&quot;ProcessId&quot;]=&quot;0x2b0&quot;
+ ]
+]
+</code></pre></div>
+
+<h4>A Way to Filter</h4>
+<p>After you got the XPath query, you need to choose the right tool to run the query on.<br>
+You can use:  </p>
+<ul>
+<li>UI (<code>EventVwr</code>)<br>
+    To use your XPath query in EventVwr, choose one of these two options, switch to the <code>XML</code> card, enable <code>Edit query manually</code> and... edit the query.<ul>
+<li>Filter<br>
+   Use the <code>Filter current log</code> button to get a one-time filter. Useful when you don't need to save the query for later</li>
+<li>Custom View<br>
+  Create a new custom view if you intend to reuse the query. Note that it's saved on the computer running the event viewer, not on the computer being queried.</li>
+</ul>
+</li>
+<li>
+<p>Cmd</p>
+<ul>
+<li>
+<p><code>Wevtutil</code><br>
+This tool is useful when managing event logs in general, but it also can be used to query for events. The usage is:</p>
+<div class="highlight"><pre><span></span><code>wevtutil qe LogName /q:<span class="s2">&quot;XpathQuery&quot;</span>
+</code></pre></div>
+
+<p>For more info, run:</p>
+<div class="highlight"><pre><span></span><code>wevtutil qe /?
+</code></pre></div>
+
+</li>
+</ul>
+</li>
+<li>
+<p>PowerShell  </p>
+<ul>
+<li>
+<p><code>Get-WinEvent</code><br>
+This Cmdlet has 3 options for filtering. Choose one:</p>
+<ul>
+<li><code>FilterXml</code> - Accepts a full XML (as seen in the event viewer UI)</li>
+<li><code>FilterXPath</code> - Accepts just the XPath query</li>
+<li><code>FilterHashtable</code> - Accepts a hashtable of field IDs and values. I
+find it kind of confusing and buggy, so I avoid it.</li>
+</ul>
+<p>For example, to view the top 5 events matching our query (ID 4624
+    and "Process ID" is "0x2b0") on computer "comp", you can try:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">Get-WinEvent</span> <span class="n">-ComputerName</span> <span class="s1">&#39;Comp&#39;</span> <span class="n">-LogName</span> <span class="s1">&#39;Security&#39;</span> <span class="n">-FilterXPath</span> <span class="s1">&#39;Event[System[EventID=4624] and EventData[Data[@Name=&quot;ProcessId&quot;]=&quot;0x2b0&quot;]]&#39;</span> <span class="n">-MaxEvents</span> <span class="n">5</span>
+</code></pre></div>
+
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Pointers</strong></p>
+<ul>
+<li>You can't specify both Channel ("Event Logs") and Provider ("Event
+    Sources"). In any case, if you have the provider, the channel is
+    redundant.</li>
+<li>Specifying the Channel in the XPath query (like <code>Event[System[Channel="Security"]]</code>) doesn't seem to work. The UI also avoids it in its generated queries.</li>
+<li>When querying for events using PowerShell, you might get empty messages. The useful event details are still there! For example, you can use <code>ToXml()</code> on the event objects to get the XML format.</li>
+<li>General event properties (like <code>TimeGenerated</code> and <code>Level</code>) can be quite different than how they look in the UI. Check the friendly/XML view or the UI-generated XPath Query.</li>
+<li>
+<p>The event-specific properties are contained in "Data" elements. To search for named properties, use something like:</p>
+<div class="highlight"><pre><span></span><code>Event[EventData[Data[@Name=&quot;PropertyName&quot;]=&quot;RequiredValue&quot;]]
+</code></pre></div>
+
+<p>To search for that value in any property (kind of like searching for
+the value in the entire message), use:</p>
+<div class="highlight"><pre><span></span><code>Event[EventData[Data=&quot;RequiredValue&quot;]]
+</code></pre></div>
+
+</li>
+<li>
+<p>To search for two fields, use something like:</p>
+<div class="highlight"><pre><span></span><code>Event[ EventData[  Data[@Name=&quot;PropA&quot;]=&quot;ValueA&quot; and  Data[@Name=&quot;PropB&quot;]=&quot;ValueB&quot; ]]
+</code></pre></div>
+
+</li>
+</ul>
+<h3>To Sum Up</h3>
+<p>It may look harder than normal filtering at first, but the resulting
+queries can be much more granular and effective than UI-based filtering.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

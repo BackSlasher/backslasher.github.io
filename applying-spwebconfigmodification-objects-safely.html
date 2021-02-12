@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Applying SPWebConfigModification objects safely - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/applying-spwebconfigmodification-objects-safely.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="ASP.net,SharePoint,Scripts,Web.Config,PowerShell" />
+        <meta name="description" content="My SharePoint team and I wanted to move to SPWebConfigModification rather that just modifying the web.config file manually, but I was always worried that applying faulty modifications will ruin my file. Why? How SPWebConfigModification objects work Some code requires you to modify the SharePoint web application&#39;s web.config file …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Applying SPWebConfigModification objects safely"/>
+        <meta property="og:url" content="https://blog.backslasher.net/applying-spwebconfigmodification-objects-safely.html"/>
+        <meta property="og:description" content="My SharePoint team and I wanted to move to SPWebConfigModification rather that just modifying the web.config file manually, but I was always worried that applying faulty modifications will ruin my file. Why? How SPWebConfigModification objects work Some code requires you to modify the SharePoint web application&#39;s web.config file …"/>
+        <meta property="article:published_time" content="2012-10-04" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="ASP.net" />
+            <meta property="article:tag" content="SharePoint" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Web.Config" />
+            <meta property="article:tag" content="PowerShell" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/applying-spwebconfigmodification-objects-safely.html"
+                       rel="bookmark"
+                       title="Permalink to Applying SPWebConfigModification objects safely">
+                        Applying SPWebConfigModification objects safely
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2012-10-04T15:38:00+02:00"> Thu 04 October 2012</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/aspnet.html">ASP.net</a>
+        /
+	<a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/webconfig.html">Web.Config</a>
+        /
+	<a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>My SharePoint team and I wanted to move to <a href="http://msdn.microsoft.com/en-us/library/microsoft.sharepoint.administration.spwebconfigmodification.aspx">SPWebConfigModification</a> rather that just modifying the web.config file manually, but I was always worried that applying faulty modifications will ruin my file.<br>
+Why?</p>
+<h3>How SPWebConfigModification objects work</h3>
+<p>Some code requires you to modify the SharePoint web application's <code>web.config</code> file.<br>
+SharePoint handles some modifications automatically, such as <code>SafeControl</code> entries for controls deployed via WSPs. But you might want to add an SQL connection string, or some custom HTTP modules (axd files).<br>
+You can obviously change the web.config files manually, but:  </p>
+<ul>
+<li>It's easy to lose track of your modifications</li>
+<li>Every new server's config has to be updated manually</li>
+<li>You could get inconsistent config files between your servers</li>
+</ul>
+<p>Microsoft's solution - <code>SPWebConfigModification</code>! These objects are stored
+inside the SPWebApplication, and every one of them represents a single
+modification to its parent's web.config file. It has four important
+properties:  </p>
+<ul>
+<li><strong>Type</strong>:<br>
+    What type of modification is defined. It can be:<ul>
+<li><strong>EnsureChildNode</strong>: Adds an element as a child to the specified parent, e.g. <code>&lt;parent&gt;&lt;bla blu="bli"&gt;&lt;/parent&gt;</code></li>
+<li><strong>EnsureAttribute</strong>: Adds an attribute to the parent (e.g. <code>&lt;parent blu="bli"&gt;</code>). The attribute can already exist, in which case its value is modified</li>
+<li><strong>EnsureSection</strong>: Adds a section as a child to the specified parent. A "section" is an empty element, and removing the <code>SPWebConfigModification</code> won't remove the element, so I don't use it.</li>
+</ul>
+</li>
+<li><strong>Path</strong>:<br>
+  An XPath expression pointing the modification's parent.<br>
+  Used only when removing the modification</li>
+<li><strong>Name</strong>:<br>
+  The name of the modification.<br>
+  If the type is <code>EnsureChildNode</code>, it's an XPath executed on the parent and used to locate the node when it needs to be removed.<br>
+  If the type is <code>EnsureAttribute</code>, it's simply the attribute's name.</li>
+<li><strong>Value</strong>:<br>
+  The actual modification. If it's an <code>EnsureChildNode</code>, it's the entire node (<code>&lt;item attribute="value"&gt;&lt;stuff&gt;&lt;/item&gt;</code>)<br>
+  If its type is <code>EnsureAttribute</code>, it's simply the attribute's value</li>
+</ul>
+<p>There are many complaints about <code>SPWebConfigModifications</code> that can be easily found by googling (binging?) "SPWebConfigModifications", but my biggest problem with it was that it was simply unsafe to use - SharePoint offers no validation for these objects.<br>
+You may find yourself with modifications that weren't applied due to a missing parent, or modifications that won't be deleted from the web.config because the name isn't written correctly (the XPath returns nothing, or the wrong node), and without SharePoint admitting that the modifications failed to execute.<br>
+After some research, I built this script.<br>
+Using this script will help make sure your SPWebConfigModifications won't break, either now or during their removal. You can even use a blank CSV to validate your current modifications!  </p>
+<h3>The inner workings</h3>
+<p><code>Apply-WebConfigModifications</code> applies web.config modifications (duh) from
+a csv file thusly:</p>
+<ol>
+<li>Finds all relevant SPWebApplications</li>
+<li>For every one, loads a CSV file containing all of the web modifications
+required on the web application</li>
+<li>Fetches all existing web modifications from the web application</li>
+<li>Creates an action list, classifying each modification as either <code>add</code>,
+<code>delete</code> or <code>unchanged</code> (instead of updating it deletes and adds the
+modification again, probably safer)</li>
+<li>
+<p>Loads the local web.config, and simulates the web modification process,
+making sure for each modification:</p>
+<ol>
+<li>If the modification should be added, that no element matching the path/name XPath already exists, and that after adding the element, a single element matching the XPath exists.</li>
+<li>If it should be deleted / unchanged, that a single element matching the path/name exists.</li>
+</ol>
+<p>It also actually performs those actions (without saving the file, obviously), and makes sure that there are no clashing modifications (for example, that an element that's about to be removed isn't used by a new element).</p>
+</li>
+<li>
+<p>The user gets a report of every modification and its errors, and if the
+user approves, the web modifications are actually updated in the
+SharePoint farm (removals first, additions later)</p>
+</li>
+<li>A mutex (added to the SPFarm's property bag) is used to make sure that
+only one script runs at a time.</li>
+</ol>
+<h3>Additional features:</h3>
+<ul>
+<li>Interactive mode - can be disabled when executing using a scheduled
+    task or another non-interactive way, which then applies the
+    modifications if there are no errors, and aborts if there are</li>
+<li>Force, which applies the modifications even if there are errors</li>
+</ul>
+<h3>Parameters:</h3>
+<ul>
+<li><code>WebAppUrls</code>: An array of urls, names or port numbers (e.g. '80')
+    that need their WebConfigModifications updated. Each webapp will
+    need to have a matching file in the source directory called
+    WebWEBAPPNAME.csv</li>
+<li><code>SourceDir</code>: The directory containing the CSV files</li>
+<li><code>Interactive</code>: Ask the user whether to continue if there are simulation errors (or
+    automatically abort instead)</li>
+<li><code>testInternaly</code>: Simulate changes to the web.config before
+    actually applying the modifications</li>
+<li><code>whatIf</code>: Don't actually apply the modifications</li>
+<li><code>Force</code>: Ignore simulation errors and apply anyway</li>
+<li><code>ShowUnchanged</code>: Report unchanged values to the console (rather than just
+    the changed ones)</li>
+<li><code>UseMutex</code>: Use the mutex system</li>
+<li><code>MutexPhrase</code>: The PropertyBag key used for the mutex</li>
+<li><code>ModificationString</code>: The owner of the new SPWebConfigModification
+    objects</li>
+</ul>
+<h3>Migrating to SPWebConfigModifications</h3>
+<p>Moving to WebConfigModifications is complicated for whoever is
+responsible to maintain the web.config, and nerve-stretching for the
+sysadmin. You have to make sure that:</p>
+<ul>
+<li>All modifications are tested in pre-production environments, in
+    order to avoid last-moment changes in the file</li>
+<li>No one should be allowed to modify the web.config manually, or via
+    means other than SPWebConfigModifications - even other programs or
+    via the IIS console. Inconsistency can ruin the modifications, as
+    they might be applied differently to different servers around your
+    farm. You can try finding the modification that the software is
+    supposed to do, and adding it in the csv.</li>
+<li>Each modification file is applied to a different web application -
+    create multiple CSVs if needed</li>
+</ul>
+<h3>The Script</h3>
+<div class="highlight"><pre><span></span><code><span class="k">param</span><span class="p">(</span>
+<span class="no">[string[]]</span><span class="nv">$WebAppUrls</span><span class="p">=@(</span><span class="s1">&#39;80&#39;</span><span class="p">),</span>
+<span class="p">[</span><span class="k">Parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+<span class="no">[string]</span><span class="nv">$SourceDir</span> <span class="p">=</span> <span class="s1">&#39;C:\temp\Config\&#39;</span><span class="p">,</span>
+<span class="no">[bool]</span><span class="nv">$Interactive</span><span class="p">=</span><span class="nv">$true</span><span class="p">,</span>
+<span class="c">#Tests</span>
+<span class="no">[bool]</span><span class="nv">$testInternaly</span><span class="p">=</span><span class="nv">$true</span><span class="p">,</span>
+<span class="no">[Switch]</span><span class="nv">$whatIf</span><span class="p">=</span><span class="nv">$false</span><span class="p">,</span>
+<span class="no">[Switch]</span><span class="nv">$Force</span><span class="p">=</span><span class="nv">$false</span><span class="p">,</span>
+<span class="no">[bool]</span><span class="nv">$ShowUnchanged</span><span class="p">=</span><span class="nv">$true</span><span class="p">,</span>
+<span class="c">#Mutex</span>
+<span class="no">[bool]</span><span class="nv">$UseMutex</span><span class="p">=</span><span class="nv">$true</span><span class="p">,</span>
+<span class="no">[string]</span><span class="nv">$MutexPhrase</span><span class="p">=</span><span class="s1">&#39;OBAWebConfigModifications&#39;</span><span class="p">,</span>
+<span class="c">#Modification</span>
+<span class="no">[string]</span><span class="nv">$ModificationString</span><span class="p">=</span><span class="s1">&#39;OBA&#39;</span>
+<span class="p">)</span>
+<span class="k">if</span><span class="p">(!(</span><span class="nb">gsnp </span><span class="p">|?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">name</span> <span class="o">-match</span> <span class="s1">&#39;sharepoint&#39;</span><span class="p">}))</span> <span class="p">{</span><span class="nb">asnp </span><span class="p">*</span><span class="n">sharepoint</span><span class="p">*}</span>
+<span class="c">#$ErrorActionPreference = &#39;stop&#39;</span>
+
+<span class="k">function</span> <span class="nb">Wait-ConfigTimerJob</span><span class="p">(</span><span class="no">[string]</span><span class="nv">$webAppUrl</span><span class="p">,</span><span class="no">[string]</span><span class="nv">$Action</span><span class="p">){</span>
+<span class="nv">$stop</span> <span class="p">=</span> <span class="nb">new-object</span> <span class="n">diagnostics</span><span class="p">.</span><span class="n">stopwatch</span>
+    <span class="nv">$stop</span><span class="p">.</span><span class="n">Start</span><span class="p">()</span>
+    <span class="k">while</span><span class="p">(</span><span class="nb">Get-SPTimerjob</span> <span class="n">job-webconfig-modification</span><span class="p">){</span>
+        <span class="nv">$waitTime</span> <span class="p">=</span> <span class="nv">$stop</span><span class="p">.</span><span class="n">Elapsed</span><span class="p">.</span><span class="n">ToString</span><span class="p">()</span> <span class="o">-replace</span> <span class="s1">&#39;\.\d+$&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span>
+        <span class="nb">Write-Progress</span> <span class="s2">&quot;Applying Modifications - $webAppUrl - $Action&quot;</span> <span class="s2">&quot;Waiting for modification to finish for $waitTime&quot;</span> <span class="n">-PercentComplete</span> <span class="p">(</span><span class="nv">$sec</span> <span class="p">%</span> <span class="n">100</span><span class="p">)</span>
+        <span class="nb">Start-Sleep</span> <span class="n">-sec</span> <span class="n">1</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nb">Get-NodeParent</span><span class="p">(</span><span class="nv">$doc</span><span class="p">,</span><span class="nv">$node</span><span class="p">,</span><span class="nv">$errorAction</span><span class="p">){</span>
+<span class="nv">$parents</span> <span class="p">=</span> <span class="p">@(</span><span class="nv">$doc</span><span class="p">.</span><span class="n">SelectNodes</span><span class="p">(</span><span class="nv">$node</span><span class="p">.</span><span class="n">Path</span><span class="p">));</span>
+<span class="k">if</span><span class="p">(</span><span class="nv">$parents</span><span class="p">.</span><span class="n">Count</span> <span class="o">-eq</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span><span class="nb">Write-Error</span> <span class="s1">&#39;No matching parent found&#39;</span> <span class="n">-ErrorAction</span><span class="err">:</span><span class="nv">$errorAction</span><span class="p">}</span>
+<span class="k">elseif</span><span class="p">(</span><span class="nv">$parents</span><span class="p">.</span><span class="n">Count</span> <span class="o">-gt</span> <span class="n">1</span><span class="p">)</span> <span class="p">{</span><span class="nb">Write-Error</span> <span class="s1">&#39;Too many parents found&#39;</span> <span class="n">-ErrorAction</span><span class="err">:</span><span class="nv">$errorAction</span><span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span><span class="nv">$parents</span><span class="p">[</span><span class="n">0</span><span class="p">]}</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nb">Compare-Node</span><span class="p">(</span><span class="nv">$n1</span><span class="p">,</span><span class="nv">$n2</span><span class="p">){</span>
+<span class="p">((</span><span class="nv">$n1</span><span class="p">.</span><span class="n">Path</span> <span class="o">-ceq</span> <span class="nv">$n2</span><span class="p">.</span><span class="n">Path</span><span class="p">)</span> <span class="o">-and</span>
+<span class="p">(</span><span class="nv">$n1</span><span class="p">.</span><span class="n">Name</span> <span class="o">-ceq</span> <span class="nv">$n2</span><span class="p">.</span><span class="n">Name</span><span class="p">)</span> <span class="o">-and</span>
+<span class="p">(</span><span class="nv">$n1</span><span class="p">.</span><span class="n">Value</span> <span class="o">-ceq</span> <span class="nv">$n2</span><span class="p">.</span><span class="n">Value</span><span class="p">)</span> <span class="o">-and</span>
+<span class="p">(</span><span class="nv">$n1</span><span class="p">.</span><span class="n">Type</span><span class="p">.</span><span class="n">toString</span><span class="p">()</span> <span class="o">-ceq</span> <span class="nv">$n2</span><span class="p">.</span><span class="n">Type</span><span class="p">.</span><span class="n">toString</span><span class="p">()))</span>
+<span class="p">}</span>
+
+<span class="k">if</span><span class="p">(</span><span class="nv">$UseMutex</span> <span class="o">-and</span> <span class="p">!(</span><span class="nv">$whatIf</span><span class="p">)){</span>
+    <span class="c"># Check mutex</span>
+    <span class="k">if</span><span class="p">((</span><span class="nb">Get-SPFarm</span><span class="p">).</span><span class="n">Properties</span><span class="p">.</span><span class="n">ContainsKey</span><span class="p">(</span><span class="nv">$MutexPhrase</span><span class="p">))</span> <span class="p">{</span>
+        <span class="c"># Extract mutex</span>
+        <span class="nv">$currentMutex</span> <span class="p">=</span> <span class="nb">ConvertFrom-CSV</span> <span class="p">((</span><span class="nb">Get-SPFarm</span><span class="p">).</span><span class="n">Properties</span><span class="p">[</span><span class="nv">$MutexPhrase</span><span class="p">])</span>
+        <span class="nb">Write-Warning</span> <span class="nv">$currentMutex</span> <span class="n">-WarningAction</span> <span class="s1">&#39;Inquire&#39;</span>
+    <span class="p">}</span>
+
+    <span class="c"># Apply mutex</span>
+    <span class="nv">$myMutex</span> <span class="p">=</span> <span class="s1">&#39;a&#39;</span> <span class="p">|</span> <span class="nb">select </span><span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;pID&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="nv">$pID</span><span class="p">}},</span>
+                            <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;UserName&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="nv">$env:Username</span><span class="p">}},</span>
+                            <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;Server&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="nv">$env:ComputerName</span><span class="p">}},</span>
+                            <span class="p">@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;StartTime&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="no">[datetime]</span><span class="p">::</span><span class="n">Now</span><span class="p">.</span><span class="n">ToString</span><span class="p">(</span><span class="s1">&#39;hh:mm:ss&#39;</span><span class="p">)}}</span>
+    <span class="p">(</span><span class="nb">Get-SPFarm</span><span class="p">).</span><span class="n">Properties</span><span class="p">[</span><span class="nv">$MutexPhrase</span><span class="p">]</span> <span class="p">=</span> <span class="p">(</span><span class="nb">ConvertTo-Csv</span> <span class="nv">$myMutex</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c">##START</span>
+<span class="k">foreach</span><span class="p">(</span><span class="nv">$webAppUrl</span> <span class="k">in</span> <span class="nv">$webAppUrls</span><span class="p">){</span>
+<span class="k">try</span><span class="p">{</span>
+    <span class="c"># Load config</span>
+    <span class="k">if</span><span class="p">(</span><span class="nv">$webAppUrl</span> <span class="o">-match</span> <span class="s1">&#39;^\d+$&#39;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nv">$candidates</span> <span class="p">=</span> <span class="p">@(</span><span class="nb">Get-SPWebApplication</span> <span class="p">|</span> <span class="p">?{(</span><span class="no">[uri]</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">url</span><span class="p">)).</span><span class="n">port</span> <span class="o">-eq</span> <span class="nv">$webAppUrl</span><span class="p">})</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$candidates</span><span class="p">.</span><span class="n">count</span> <span class="o">-eq</span> <span class="n">1</span><span class="p">)</span> <span class="p">{</span><span class="nv">$webApp</span> <span class="p">=</span> <span class="nv">$candidates</span><span class="p">[</span><span class="n">0</span><span class="p">]}</span>
+        <span class="k">elseif</span><span class="p">(</span><span class="nv">$candidates</span><span class="p">.</span><span class="n">count</span> <span class="o">-eq</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span><span class="k">continue</span><span class="p">;</span> <span class="cm">&lt;#Skip this port#&gt;</span><span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span><span class="nb">write-error</span> <span class="s1">&#39;No single matching WebApp found&#39;</span> <span class="n">-ErrorAction</span> <span class="s1">&#39;stop&#39;</span><span class="p">}</span>
+    <span class="p">}</span><span class="k">else</span> <span class="p">{</span><span class="nv">$webApp</span> <span class="p">=</span> <span class="nb">Get-SPWebApplication</span> <span class="nv">$webAppUrl</span><span class="p">}</span>
+    <span class="nv">$configPath</span> <span class="p">=</span> <span class="nb">join-path</span> <span class="p">(</span><span class="nv">$webApp</span><span class="p">.</span><span class="n">IisSettings</span><span class="no">[[Microsoft.SharePoint.Administration.SPUrlZone]</span><span class="s1">&#39;Default&#39;</span><span class="p">].</span><span class="n">Path</span><span class="p">)</span> <span class="s1">&#39;web.config&#39;</span>
+    <span class="nv">$config</span> <span class="p">=</span> <span class="no">[xml]</span><span class="p">(</span><span class="no">[IO.File]</span><span class="p">::</span><span class="n">ReadAllText</span><span class="p">(</span><span class="nv">$configPath</span><span class="p">))</span>
+
+    <span class="c"># Find modificationsFile</span>
+    <span class="nv">$modificationsFile</span> <span class="p">=</span> <span class="nb">join-path</span> <span class="nv">$SourceDir</span> <span class="p">(</span><span class="s1">&#39;Web&#39;</span><span class="p">+</span><span class="nv">$webAppUrl</span><span class="p">+</span><span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(!(</span><span class="nb">Test-Path</span> <span class="nv">$modificationsFile</span><span class="p">))</span> <span class="p">{</span><span class="nb">write-error</span> <span class="s2">&quot;Excpected file &#39;$modificationsFile&#39; not found for $webAppUrl&quot;</span> <span class="n">-ErrorAction</span> <span class="s1">&#39;stop&#39;</span><span class="p">}</span>
+
+    <span class="c"># Load modifications from file</span>
+    <span class="nv">$newModifications</span> <span class="p">=</span> <span class="p">@(</span><span class="nb">Import-Csv</span> <span class="nv">$modificationsFile</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">Path</span><span class="p">})</span>
+
+    <span class="c"># Load current modifications</span>
+    <span class="nv">$currentModifications</span> <span class="p">=</span> <span class="nv">$webApp</span><span class="p">.</span><span class="n">WebConfigModifications</span>
+
+    <span class="c"># Create action list</span>
+        <span class="c"># Remove entries found in currentModifications but not in newModifications</span>
+        <span class="nv">$actionList</span> <span class="p">=</span> <span class="p">@();</span>
+        <span class="nv">$currentModifications</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$cur</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">;</span> <span class="p">!(</span><span class="nv">$newModifications</span> <span class="p">|</span> <span class="p">?{</span><span class="nb">Compare-node</span> <span class="nv">$cur</span> <span class="nv">$_</span><span class="p">})}</span> <span class="p">|</span> <span class="p">%{</span>
+        <span class="c">#$objNew = new-object object;</span>
+        <span class="nv">$objNew</span> <span class="p">=</span> <span class="nv">$_</span> <span class="p">|</span> <span class="nb">select </span><span class="n">Path</span><span class="p">,</span><span class="n">Name</span><span class="p">,</span><span class="n">Type</span><span class="p">,</span><span class="n">Value</span><span class="p">,@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;WebApp&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="nv">$webAppUrl</span><span class="p">}}</span>
+        <span class="nv">$objNew</span> <span class="p">|</span> <span class="nb">Add-Member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;Action&#39;</span> <span class="s1">&#39;Remove&#39;</span>
+        <span class="nv">$objNew</span> <span class="p">|</span> <span class="nb">Add-Member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;Err&#39;</span> <span class="s1">&#39;&#39;</span>
+        <span class="nv">$actionList</span><span class="p">+=</span><span class="nv">$objNew</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c"># Add entries found in newModifications but not in currentModifications</span>
+        <span class="k">if</span><span class="p">(</span><span class="nv">$newModifications</span><span class="p">.</span><span class="n">count</span><span class="p">){</span>   
+            <span class="nv">$newModifications</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$new</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">;</span> <span class="p">!(</span><span class="nv">$currentModifications</span> <span class="p">|</span> <span class="p">?{</span><span class="nb">Compare-node</span> <span class="nv">$new</span> <span class="nv">$_</span><span class="p">})}</span> <span class="p">|</span> <span class="p">%{</span>
+            <span class="c">#$objNew = new-object object;</span>
+            <span class="nv">$objNew</span> <span class="p">=</span> <span class="nv">$_</span> <span class="p">|</span> <span class="nb">select </span><span class="n">Path</span><span class="p">,</span><span class="n">Name</span><span class="p">,</span><span class="n">Type</span><span class="p">,</span><span class="n">Value</span><span class="p">,@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;WebApp&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="nv">$webAppUrl</span><span class="p">}}</span>
+            <span class="nv">$objNew</span> <span class="p">|</span> <span class="nb">Add-Member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;Action&#39;</span> <span class="s1">&#39;Add&#39;</span>
+            <span class="nv">$objNew</span> <span class="p">|</span> <span class="nb">Add-Member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;Err&#39;</span> <span class="s1">&#39;&#39;</span>
+            <span class="nv">$actionList</span><span class="p">+=</span><span class="nv">$objNew</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c"># Mark entries found in both</span>
+        <span class="nv">$currentModifications</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$cur</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">;</span> <span class="p">(</span><span class="nv">$newModifications</span> <span class="p">|</span> <span class="p">?{</span><span class="nb">Compare-node</span> <span class="nv">$cur</span> <span class="nv">$_</span><span class="p">})}</span> <span class="p">|</span> <span class="p">%{</span>
+            <span class="nv">$objNew</span> <span class="p">=</span> <span class="nv">$_</span> <span class="p">|</span> <span class="nb">select </span><span class="n">Path</span><span class="p">,</span><span class="n">Name</span><span class="p">,</span><span class="n">Type</span><span class="p">,</span><span class="n">Value</span><span class="p">,@{</span><span class="n">Name</span><span class="p">=</span><span class="s1">&#39;WebApp&#39;</span><span class="p">;</span><span class="n">Expression</span><span class="p">={</span><span class="nv">$webAppUrl</span><span class="p">}}</span>
+            <span class="nv">$objNew</span> <span class="p">|</span> <span class="nb">Add-Member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;Action&#39;</span> <span class="s1">&#39;Unchanged&#39;</span>
+            <span class="nv">$objNew</span> <span class="p">|</span> <span class="nb">Add-Member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;Err&#39;</span> <span class="s1">&#39;&#39;</span>
+            <span class="nv">$actionList</span><span class="p">+=</span><span class="nv">$objNew</span>
+        <span class="p">}</span>
+    <span class="c"># Simulate actions on $config</span>
+    <span class="k">if</span><span class="p">(</span><span class="nv">$testInternaly</span><span class="p">){</span>
+        <span class="c"># Remove nodes</span>
+        <span class="nv">$actionList</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">Action</span> <span class="o">-eq</span> <span class="s1">&#39;Remove&#39;</span><span class="p">}</span> <span class="p">|</span> <span class="p">%{</span>
+            <span class="nv">$action</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">;</span>
+            <span class="k">try</span><span class="p">{</span>
+                <span class="nv">$parent</span> <span class="p">=</span> <span class="nb">Get-NodeParent</span> <span class="nv">$config</span> <span class="nv">$_</span>
+                <span class="k">if</span><span class="p">(</span><span class="nv">$parent</span> <span class="o">-eq</span> <span class="nv">$null</span><span class="p">)</span> <span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Parent not found&#39;</span><span class="p">}</span>
+                <span class="k">else</span><span class="p">{</span>
+                    <span class="k">if</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="nb">type </span><span class="o">-eq</span> <span class="s1">&#39;EnsureAttribute&#39;</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="nv">$item</span> <span class="p">=</span> <span class="nv">$parent</span><span class="p">.</span><span class="n">Attributes</span><span class="p">.</span><span class="n">GetNamedItem</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="k">if</span><span class="p">(</span><span class="nv">$item</span><span class="p">)</span> <span class="p">{</span><span class="cm">&lt;#Fake remove, because has no effect#&gt;</span><span class="p">}</span>
+                        <span class="k">else</span> <span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Attribute not found&#39;</span><span class="p">}</span>
+                    <span class="p">}</span>
+                    <span class="k">elseif</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="nb">type </span><span class="o">-eq</span> <span class="s1">&#39;EnsureChildNode&#39;</span><span class="p">){</span>
+                        <span class="nv">$items</span> <span class="p">=</span> <span class="p">@(</span><span class="nv">$parent</span><span class="p">.</span><span class="n">SelectNodes</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">name</span><span class="p">));</span>
+                        <span class="k">if</span><span class="p">(</span><span class="nv">$items</span><span class="p">.</span><span class="n">count</span> <span class="o">-eq</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">=</span><span class="s1">&#39;Child node not found&#39;</span><span class="p">}</span>
+                        <span class="k">elseif</span><span class="p">(</span><span class="nv">$items</span><span class="p">.</span><span class="n">count</span> <span class="o">-gt</span> <span class="n">1</span><span class="p">){</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Too many matching child nodes found&#39;</span><span class="p">}</span>
+                        <span class="k">else</span> <span class="p">{</span>
+                            <span class="nv">$item</span> <span class="p">=</span> <span class="nv">$items</span><span class="p">[</span><span class="n">0</span><span class="p">];</span>
+                            <span class="c"># Remove item</span>
+                            <span class="nv">$parent</span><span class="p">.</span><span class="n">RemoveChild</span><span class="p">(</span><span class="nv">$item</span><span class="p">)</span> <span class="p">|</span> <span class="nb">out-null</span><span class="p">;</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                    <span class="k">else</span><span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Invalid type&#39;</span><span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">catch</span><span class="p">{</span><span class="nv">$action</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="nv">$_</span><span class="p">}</span>
+            <span class="k">if</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">)</span> <span class="p">{</span><span class="nb">Write-Error</span> <span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c"># Add nodes</span>
+        <span class="nv">$actionList</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">Action</span> <span class="o">-eq</span> <span class="s1">&#39;Add&#39;</span><span class="p">}</span> <span class="p">|</span> <span class="p">%{</span>
+            <span class="nv">$action</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">;</span>
+            <span class="k">try</span><span class="p">{</span>
+                <span class="nv">$parent</span> <span class="p">=</span> <span class="nb">Get-NodeParent</span> <span class="nv">$config</span> <span class="nv">$_</span><span class="p">;</span>
+                <span class="k">if</span><span class="p">(</span><span class="nv">$parent</span> <span class="o">-eq</span> <span class="nv">$null</span><span class="p">)</span> <span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Parent not found&#39;</span><span class="p">}</span>
+                <span class="k">else</span><span class="p">{</span>
+                    <span class="k">if</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="nb">type </span><span class="o">-eq</span> <span class="s1">&#39;EnsureAttribute&#39;</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="c"># Adding has no effect</span>
+                    <span class="p">}</span>
+                    <span class="k">elseif</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="nb">type </span><span class="o">-eq</span> <span class="s1">&#39;EnsureChildNode&#39;</span><span class="p">){</span>
+                        <span class="nv">$items</span> <span class="p">=</span> <span class="p">@(</span><span class="nv">$parent</span><span class="p">.</span><span class="n">SelectNodes</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">name</span><span class="p">));</span>
+                        <span class="k">if</span><span class="p">(</span><span class="nv">$items</span><span class="p">.</span><span class="n">count</span> <span class="o">-eq</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="nv">$parent</span><span class="p">.</span><span class="n">innerXml</span><span class="p">+=</span><span class="nv">$_</span><span class="p">.</span><span class="n">Value</span>
+                            <span class="c"># Make sure now node exists!</span>
+                            <span class="k">if</span><span class="p">(!</span><span class="nv">$parent</span><span class="p">.</span><span class="n">SelectNodes</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">name</span><span class="p">).</span><span class="n">count</span><span class="p">)</span> <span class="p">{</span>
+                                <span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Node was added, but was not found by name.&#39;</span>
+                            <span class="p">}</span>
+                        <span class="p">}</span>
+                        <span class="k">else</span><span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Matching child node already exists&#39;</span><span class="p">}</span>
+                    <span class="p">}</span>
+                    <span class="k">else</span><span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Invalid type&#39;</span><span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">catch</span><span class="p">{</span><span class="nv">$action</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="nv">$_</span><span class="p">}</span>
+            <span class="k">if</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">)</span> <span class="p">{</span><span class="nb">Write-Error</span> <span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c"># Verify existing nodes</span>
+        <span class="nv">$actionList</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">Action</span> <span class="o">-eq</span> <span class="s1">&#39;Unchanged&#39;</span><span class="p">}</span> <span class="p">|</span> <span class="p">%{</span>
+            <span class="nv">$action</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">;</span>
+            <span class="k">try</span><span class="p">{</span>
+                <span class="nv">$parent</span> <span class="p">=</span> <span class="nb">Get-NodeParent</span> <span class="nv">$config</span> <span class="nv">$_</span><span class="p">;</span>
+                <span class="k">if</span><span class="p">(</span><span class="nv">$parent</span> <span class="o">-eq</span> <span class="nv">$null</span><span class="p">)</span> <span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Parent not found&#39;</span><span class="p">}</span>
+                <span class="k">else</span><span class="p">{</span>
+                    <span class="k">if</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="nb">type </span><span class="o">-eq</span> <span class="s1">&#39;EnsureAttribute&#39;</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="c"># Make sure attribute still exists</span>
+                        <span class="k">if</span><span class="p">(</span><span class="nv">$parent</span><span class="p">.</span><span class="n">Attributes</span><span class="p">.</span><span class="n">GetNamedItem</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">name</span><span class="p">)</span> <span class="o">-eq</span> <span class="nv">$null</span><span class="p">){</span>
+                            <span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Attribute is missing&#39;</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                    <span class="k">elseif</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="nb">type </span><span class="o">-eq</span> <span class="s1">&#39;EnsureChildNode&#39;</span><span class="p">){</span>
+                        <span class="nv">$items</span> <span class="p">=</span> <span class="p">@(</span><span class="nv">$parent</span><span class="p">.</span><span class="n">SelectNodes</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">name</span><span class="p">));</span>
+                        <span class="k">if</span><span class="p">(</span><span class="nv">$items</span><span class="p">.</span><span class="n">count</span> <span class="o">-eq</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Name not found&#39;</span>
+                        <span class="p">}</span>
+                        <span class="k">elseif</span><span class="p">(</span><span class="nv">$items</span><span class="p">.</span><span class="n">count</span> <span class="o">-eq</span> <span class="n">1</span><span class="p">){</span>
+                            <span class="c"># Do nothing, success finding node</span>
+                        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                            <span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Duplicate names detected&#39;</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                    <span class="k">else</span><span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="s1">&#39;Invalid type&#39;</span><span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">catch</span><span class="p">{</span><span class="nv">$action</span><span class="p">.</span><span class="n">err</span><span class="p">+=</span><span class="nv">$_</span><span class="p">}</span>
+            <span class="k">if</span><span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">)</span> <span class="p">{</span><span class="nb">Write-Error</span> <span class="nv">$_</span><span class="p">.</span><span class="n">err</span><span class="p">}</span>
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+    <span class="c"># Review results</span>
+    <span class="nv">$actionList</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$ShowUnchanged</span> <span class="o">-or</span> <span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Action</span> <span class="o">-ne</span> <span class="s1">&#39;Unchanged&#39;</span><span class="p">)}</span>
+    <span class="k">if</span><span class="p">(!</span><span class="nv">$ShowUnchanged</span><span class="p">){</span>
+        <span class="nv">$hiddenCount</span> <span class="p">=</span> <span class="nv">$actionList</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">Action</span> <span class="o">-eq</span> <span class="s1">&#39;Unchanged&#39;</span><span class="p">}</span> <span class="p">|</span> <span class="nb">measure </span><span class="p">|</span> <span class="nb">select </span><span class="n">-exp</span> <span class="n">count</span>
+        <span class="k">if</span><span class="p">(</span><span class="nv">$hiddenCount</span> <span class="o">-gt</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span><span class="nb">Write-Warning</span> <span class="p">(</span><span class="s2">&quot;There are $hiddenCount unchanged values hidden&quot;</span><span class="p">)</span> <span class="n">-WarningAction</span> <span class="s1">&#39;Continue&#39;</span><span class="p">;}</span>
+    <span class="p">}</span>
+
+    <span class="nv">$errorCount</span> <span class="p">=</span> <span class="p">(@(</span><span class="nv">$ActionList</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">Err</span><span class="p">}).</span><span class="n">Count</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="nv">$Interactive</span><span class="p">){</span>
+        <span class="nb">Write-Warning</span> <span class="p">(</span><span class="s2">&quot;There are $errorCount errors during simulation. Proceed?&quot;</span><span class="p">)</span> <span class="n">-WarningAction</span> <span class="s1">&#39;Inquire&#39;</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="nv">$errorCount</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span><span class="p">(!</span><span class="nv">$Force</span><span class="p">){</span>
+                <span class="k">throw</span> <span class="s2">&quot;Found $errorCount errors. Aborting&quot;</span>
+            <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+                <span class="nb">Write-Warning</span> <span class="s2">&quot;Found $errorCount errors. Carrying on because FORCE is specified&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span><span class="k">else</span> <span class="p">{</span>
+            <span class="c"># Do nothing, modifications will be applied</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c"># Remove / Add SPWebConfigModifications</span>
+    <span class="k">if</span><span class="p">(</span><span class="nv">$whatIf</span><span class="p">){</span>
+        <span class="nb">Write-Host</span> <span class="s1">&#39;Whatif: applying changes&#39;</span>
+    <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+        <span class="c">#Remove nodes</span>
+        <span class="k">if</span><span class="p">(</span><span class="nv">$UseMutex</span><span class="p">){</span>
+            <span class="c"># Extract mutex</span>
+            <span class="nv">$currentMutex</span> <span class="p">=</span> <span class="nb">ConvertFrom-CSV</span> <span class="p">((</span><span class="nb">Get-SPFarm</span><span class="p">).</span><span class="n">Properties</span><span class="p">[</span><span class="nv">$MutexPhrase</span><span class="p">])</span>
+            <span class="k">if</span><span class="p">(</span><span class="nv">$myMutex</span><span class="p">.</span><span class="n">toString</span><span class="p">()</span> <span class="o">-ne</span> <span class="nv">$currentMutex</span><span class="p">.</span><span class="n">toString</span><span class="p">()){</span>
+                <span class="nb">Write-Warning</span> <span class="p">(</span><span class="s2">&quot;Wrong mutex is present :&quot;</span><span class="p">+</span><span class="nv">$currentMutex</span><span class="p">)</span> <span class="n">-WarningAction</span> <span class="s1">&#39;Inquire&#39;</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="nv">$actionList</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">Action</span> <span class="o">-eq</span> <span class="s1">&#39;Remove&#39;</span><span class="p">}</span> <span class="p">|</span> <span class="p">%{</span>
+            <span class="nv">$action</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">;</span>
+            <span class="c">#$removables = @($webApp.WebConfigModifications | ?{($_.Path -eq $Action.Path) -and ($_.Name -eq $Action.Name) -and ($_.Value -eq $Action.Value) -and ($_.Type.toString() -eq $Action.Type.toString())})</span>
+            <span class="nv">$removables</span> <span class="p">=</span> <span class="p">@(</span><span class="nv">$webApp</span><span class="p">.</span><span class="n">WebConfigModifications</span> <span class="p">|</span> <span class="p">?{</span><span class="nb">Compare-Node</span> <span class="nv">$_</span> <span class="nv">$Action</span><span class="p">})</span>
+            <span class="k">if</span><span class="p">(</span><span class="nv">$removables</span><span class="p">.</span><span class="n">count</span> <span class="o">-eq</span> <span class="n">0</span><span class="p">)</span> <span class="p">{</span><span class="nb">write-error</span> <span class="s1">&#39;Could not find matching WebConfigModification&#39;</span> <span class="n">-ErrorAction</span> <span class="s1">&#39;Inquire&#39;</span><span class="p">}</span>
+            <span class="k">else</span> <span class="p">{</span><span class="nv">$removables</span> <span class="p">|</span> <span class="p">%{</span><span class="nv">$webApp</span><span class="p">.</span><span class="n">WebConfigModifications</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="nv">$_</span><span class="p">)</span> <span class="p">|</span> <span class="nb">out-null</span><span class="p">}}</span>
+        <span class="p">}</span>
+
+        <span class="c">#Apply</span>
+        <span class="nv">$method</span> <span class="p">=</span> <span class="no">[microsoft.Sharepoint.Administration.SPServiceCollection]</span><span class="p">.</span><span class="n">getMethod</span><span class="p">(</span><span class="s1">&#39;GetValue&#39;</span><span class="p">,</span><span class="no">[string]</span><span class="p">).</span><span class="n">MakeGenericMethod</span><span class="p">(</span><span class="no">[Microsoft.Sharepoint.administration.SPWebService]</span><span class="p">)</span>
+        <span class="nv">$service</span> <span class="p">=</span> <span class="nv">$method</span><span class="p">.</span><span class="n">Invoke</span><span class="p">(</span><span class="nv">$webApp</span><span class="p">.</span><span class="n">Farm</span><span class="p">.</span><span class="n">Services</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="nv">$webapp</span><span class="p">.</span><span class="n">Update</span><span class="p">()</span>
+        <span class="nv">$service</span><span class="p">.</span><span class="n">ApplyWebConfigModifications</span><span class="p">()</span>
+
+        <span class="nb">Wait-ConfigTimerJob</span> <span class="nv">$webApp</span><span class="p">.</span><span class="n">url</span> <span class="s1">&#39;Removing&#39;</span>
+
+        <span class="nv">$actionList</span> <span class="p">|</span> <span class="p">?{</span><span class="nv">$_</span><span class="p">.</span><span class="n">Action</span> <span class="o">-eq</span> <span class="s1">&#39;Add&#39;</span><span class="p">}</span> <span class="p">|</span> <span class="p">%{</span>
+            <span class="nv">$modification</span> <span class="p">=</span> <span class="nb">new-object</span> <span class="s1">&#39;Microsoft.SharePoint.Administration.SPWebConfigModification&#39;</span><span class="p">;</span>
+            <span class="nv">$modification</span><span class="p">.</span><span class="n">Name</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Name</span>
+            <span class="nv">$modification</span><span class="p">.</span><span class="n">Path</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Path</span>
+            <span class="nv">$modification</span><span class="p">.</span><span class="n">Value</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Value</span>
+            <span class="nv">$modification</span><span class="p">.</span><span class="nb">Type </span><span class="p">=</span> <span class="nv">$_</span><span class="p">.</span><span class="nb">Type</span>
+            <span class="nv">$modification</span><span class="p">.</span><span class="n">Owner</span> <span class="p">=</span> <span class="nv">$ModificationString</span>
+            <span class="nv">$webApp</span><span class="p">.</span><span class="n">WebConfigModifications</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="nv">$modification</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c">#Apply</span>
+        <span class="nv">$method</span> <span class="p">=</span> <span class="no">[microsoft.Sharepoint.Administration.SPServiceCollection]</span><span class="p">.</span><span class="n">getMethod</span><span class="p">(</span><span class="s1">&#39;GetValue&#39;</span><span class="p">,</span><span class="no">[string]</span><span class="p">).</span><span class="n">MakeGenericMethod</span><span class="p">(</span><span class="no">[Microsoft.Sharepoint.administration.SPWebService]</span><span class="p">)</span>
+        <span class="nv">$service</span> <span class="p">=</span> <span class="nv">$method</span><span class="p">.</span><span class="n">Invoke</span><span class="p">(</span><span class="nv">$webApp</span><span class="p">.</span><span class="n">Farm</span><span class="p">.</span><span class="n">Services</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="nv">$webapp</span><span class="p">.</span><span class="n">Update</span><span class="p">()</span>
+        <span class="nv">$service</span><span class="p">.</span><span class="n">ApplyWebConfigModifications</span><span class="p">()</span>
+
+        <span class="nb">Wait-ConfigTimerJob</span> <span class="nv">$webApp</span><span class="p">.</span><span class="n">url</span> <span class="s1">&#39;Adding&#39;</span>
+    <span class="p">}</span>
+<span class="c">##END</span>
+<span class="p">}</span><span class="k">catch</span><span class="p">{</span><span class="nv">$_</span><span class="p">}}</span>
+
+<span class="k">if</span><span class="p">(</span><span class="nv">$UseMutex</span><span class="p">){</span>
+    <span class="p">(</span><span class="nb">Get-SPFarm</span><span class="p">).</span><span class="n">Properties</span><span class="p">.</span><span class="n">Remove</span><span class="p">(</span><span class="nv">$MutexPhrase</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Happy Scripting!</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

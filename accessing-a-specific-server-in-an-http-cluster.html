@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Accessing a specific server in an HTTP cluster - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/accessing-a-specific-server-in-an-http-cluster.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="HTTP,Web,Scripts,PowerShell,curl,linux" />
+        <meta name="description" content="The Problem Part1 - Fault tolerence A common configuration of web servers is setting up multiple servers to serve the same content, with a load-balancing method redirecting / forwarding clients to a specific server. For instance, let&#39;s say I&#39;m using servers server and otherserver to serve the site cluster-name. The cheapest (as …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Accessing a specific server in an HTTP cluster"/>
+        <meta property="og:url" content="https://blog.backslasher.net/accessing-a-specific-server-in-an-http-cluster.html"/>
+        <meta property="og:description" content="The Problem Part1 - Fault tolerence A common configuration of web servers is setting up multiple servers to serve the same content, with a load-balancing method redirecting / forwarding clients to a specific server. For instance, let&#39;s say I&#39;m using servers server and otherserver to serve the site cluster-name. The cheapest (as …"/>
+        <meta property="article:published_time" content="2014-09-10" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="HTTP" />
+            <meta property="article:tag" content="Web" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="PowerShell" />
+            <meta property="article:tag" content="curl" />
+            <meta property="article:tag" content="linux" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/accessing-a-specific-server-in-an-http-cluster.html"
+                       rel="bookmark"
+                       title="Permalink to Accessing a specific server in an HTTP cluster">
+                        Accessing a specific server in an HTTP cluster
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-09-10T14:00:00+02:00"> Wed 10 September 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+        /
+	<a href="https://blog.backslasher.net/tag/web.html">Web</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+        /
+	<a href="https://blog.backslasher.net/tag/curl.html">curl</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">linux</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>The Problem</h2>
+<h3>Part1 - Fault tolerence</h3>
+<p>A common configuration of web servers is setting up multiple servers to serve the same content, with a load-balancing method redirecting / forwarding clients to a specific server.<br>
+For instance, let's say I'm using servers <code>server</code> and <code>otherserver</code> to serve the site <code>cluster-name</code>.<br>
+The cheapest (as in "not requiring any additional software/hardware") way of doing it is creating the following DNS records:</p>
+<div class="highlight"><pre><span></span><code>cluster-name IN CNAME server
+cluster-name IN CNAME otherserver
+</code></pre></div>
+
+<p>Due to  <a href="http://en.wikipedia.org/wiki/Round-robin_DNS">round-robin DNS</a>, about 50% of the clients querying for <code>cluster-name</code> will get the record pointing to <code>server</code> first (and therefor access it), and the other ones will get <code>otherserver</code> first. As long as the <code>server</code> and <code>otherserver</code> are configured to reply to requests containing <code>Host:"cluster-nane"</code> with the right application, everything works fine.  </p>
+<h3>Part2 - Monitoring</h3>
+<p>A popular weay to monitor web applications is hitting a specific page and making sure it comes out OK (for example, fetching <code>/test</code> and making sure it's empty).<br>
+When you have just one server, this is easy to test. For example, one can use:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">SERVER</span><span class="o">=</span><span class="s1">&#39;http://site-adress&#39;</span>
+<span class="o">[</span> -z <span class="k">$(</span>curl -s <span class="s2">&quot;</span><span class="nv">$SERVER</span><span class="s2">/test&quot;</span><span class="k">)</span> <span class="o">]</span> <span class="o">||</span> <span class="nb">echo</span> <span class="s1">&#39;$SERVER is damaged&#39;</span>
+</code></pre></div>
+
+<p>However, when using a configuration with mutliple servers, you can't use the cluster name, because you'll get a random server, and as a responsible admin you want to test all of them individually.<br>
+When the servers redirect any hostname to this site, this is still relatively easy to script, like:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">SERVERS</span><span class="o">=(</span> <span class="s1">&#39;server&#39;</span> <span class="s1">&#39;otherserver&#39;</span> <span class="o">)</span>
+<span class="k">for</span> SERVER in <span class="s2">&quot;</span><span class="si">${</span><span class="nv">SERVERS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">do</span>
+    <span class="o">[</span> -z <span class="k">$(</span>curl -s <span class="s2">&quot;http://</span><span class="nv">$SERVER</span><span class="s2">/test&quot;</span><span class="k">)</span> <span class="o">]</span> <span class="o">||</span> <span class="nb">echo</span> <span class="s1">&#39;$SERVER is damaged&#39;</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<p>However, most sites are configured on <a href="http://en.wikipedia.org/wiki/Virtual_hosting">virtual hosting</a>, so they respond only to a specific hostname (mostly to allow serving several sites on the same port). When using the above script on such sites, it won't work (because the host name is wrong).</p>
+<h2>The Solution</h2>
+<p>Any proper solution should modify the client (the system running the monitoring script) and not the server, so I'm not talking about serving the site at another IP etc.</p>
+<h3>The primitive one</h3>
+<p>The most primitive way of accessing a specific server is by modifying the HOSTS file, adding a record like</p>
+<div class="highlight"><pre><span></span><code><span class="err">&lt;server ip&gt;    cluster-name</span>
+</code></pre></div>
+
+<p>However, modifying the HOSTS file requires root/admin privilleges, might affect other processes on the machine and feels messy.</p>
+<h3>The universal one</h3>
+<p>This method works with every tool I saw, because it's utilizing <a href="http://en.wikipedia.org/wiki/Proxy_server#Web_proxy_servers">HTTP/Web Proxy</a> support, which is pretty basic.<br>
+Normally, the client opens a socket to the hostname/port combination in the URL, writes the HTTP request and reads the response.<br>
+When using an HTTP proxy, the client opens a socket to the proxy hostname/port combination and reads the response. The proxy is in charge of contacting the actual host via the <code>Host</code> HTTP header.<br>
+By specifying the server as the proxy, we can keep the request "addressed" to <code>cluster-name</code> (by using the HTTP header <code>Host: "cluster-name"</code>), but actually access the server we want.<br>
+And now for some examples, assuming <code>server:port</code> is the actual server/port listening, and <code>http://cluster-name/site</code> is the target site.</p>
+<h4>Using cURL / wget</h4>
+<p>Both applications can use the environment variable <code>http_proxy</code>, so the syntax is quite elegant.</p>
+<div class="highlight"><pre><span></span><code><span class="nv">http_proxy</span><span class="o">=</span><span class="s1">&#39;http://server:port&#39;</span> curl <span class="s1">&#39;http://cluster-name/site&#39;</span>
+<span class="nv">http_proxy</span><span class="o">=</span><span class="s1">&#39;http://server:port&#39;</span> wget <span class="s1">&#39;http://cluster-name/site&#39;</span>
+</code></pre></div>
+
+<h4>Using PowerShell</h4>
+<div class="highlight"><pre><span></span><code><span class="nv">$prox</span> <span class="p">=</span> <span class="nb">new-object</span> <span class="n">System</span><span class="p">.</span><span class="n">Net</span><span class="p">.</span><span class="n">WebProxy</span> <span class="s1">&#39;http://server:port&#39;</span>
+<span class="nv">$req</span> <span class="p">=</span> <span class="no">[System.Net.WebRequest]</span><span class="p">::</span><span class="n">Create</span><span class="p">(</span><span class="s1">&#39;http://cluster-name/site&#39;</span><span class="p">)</span>
+<span class="nv">$req</span><span class="p">.</span><span class="n">Proxy</span> <span class="p">=</span> <span class="nv">$prox</span>
+<span class="nv">$req</span><span class="p">.</span><span class="n">GetResponse</span><span class="p">()</span>
+</code></pre></div>
+
+<h4>Using Python</h4>
+<p>Using the <a href="http://docs.python-requests.org/en/latest/">requests</a> module</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="n">proxies</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;http&#39;</span><span class="p">:</span> <span class="s1">&#39;http://server:port&#39;</span>
+<span class="p">}</span>
+
+<span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://cluster-name/site&#39;</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">proxies</span><span class="p">)</span>
+</code></pre></div>
+
+<h4>Using Ruby</h4>
+<div class="highlight"><pre><span></span><code><span class="nb">require</span> <span class="s1">&#39;net/http&#39;</span>
+<span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;cluster-name&#39;</span><span class="p">,</span> <span class="kp">nil</span><span class="p">,</span> <span class="s1">&#39;server&#39;</span><span class="p">,</span> <span class="s1">&#39;port&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">start</span> <span class="p">{</span>
+    <span class="o">|</span><span class="n">http</span><span class="o">|</span> <span class="n">http</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cluster-name/site&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

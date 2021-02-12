@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Sending mail on coredumps - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/mail-coredumps.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Linux,Scripts,Python,Email" />
+        <meta name="description" content="The Story I recently found out that some of our backend code suffers from memory-related ceashes, namely SIGSEGV (a program tries to access memory it doesn&#39;t own). My initial response was to install and enable Abrt, which is a collection of utilities used in RHEL. Ubuntu has a similar tool …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Sending mail on coredumps"/>
+        <meta property="og:url" content="https://blog.backslasher.net/mail-coredumps.html"/>
+        <meta property="og:description" content="The Story I recently found out that some of our backend code suffers from memory-related ceashes, namely SIGSEGV (a program tries to access memory it doesn&#39;t own). My initial response was to install and enable Abrt, which is a collection of utilities used in RHEL. Ubuntu has a similar tool …"/>
+        <meta property="article:published_time" content="2015-07-23" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="Python" />
+            <meta property="article:tag" content="Email" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/mail-coredumps.html"
+                       rel="bookmark"
+                       title="Permalink to Sending mail on coredumps">
+                        Sending mail on coredumps
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-07-23T09:00:00+02:00"> Thu 23 July 2015</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/python.html">Python</a>
+        /
+	<a href="https://blog.backslasher.net/tag/email.html">Email</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>The Story</h2>
+<p>I recently found out that some of our backend code suffers from memory-related ceashes, namely <code>SIGSEGV</code> (a program tries to access memory it doesn't own). My initial response was to install and enable <a href="https://fedorahosted.org/abrt/">Abrt</a>, which is a collection of utilities used in RHEL. Ubuntu has a similar tool called <a href="https://wiki.ubuntu.com/Apport">Apport</a>.<br>
+I like this tool because it sends the root user an email after every coredump / kernel oops / kernel panic, with the coredump attached (configurable) and helpful information about the process's state (environment variables, open files, uid...).<br>
+However, our issue was that our crashing processes are quite big (at least 2G of working memory) and might crash a lot, so taking coredumps for these processes was putting quite a strain on our servers' I/O. </p>
+<h2>A bit about Abrt</h2>
+<p>Abrt is built from multiple processes. The ones relevant to my issue were:</p>
+<ol>
+<li><code>abrt-hook-ccpp</code>, registered as the kernel's <code>core_pattern</code>, meaning it's invoked whenever a process should coredump. This utility creates a "dump" directory under <code>/var/spool/abrt</code> and puts the coredump and process trivia there</li>
+<li><code>abrtd</code>, a deamon that monitors said directory, and whenever a new dump directory appears, it reads the data inside and takes action (sends emails, reports to RHEL's support API...)</li>
+<li><code>abrt-ccpp</code>, a service that runs on startup and registers <code>abrt-hook-ccpp</code> as the <code>core_pattern</code></li>
+</ol>
+<p><code>abrt-ccpp</code> is registered by modifying <code>/proc/sys/kernel/core_pattern</code>, which usually specifies the filename to write core dumps to. However, when specifying a path that starts with <code>|</code>, it's instead treated as a program to execute on coredumps. The program's <code>STDIN</code> contains the coredump, and the offending process's <code>/proc/</code> directory is kept alive so you can collect the interesting data.<br>
+I couldn't utilize Abrt and skip the coredump - <code>abrt-hook-ccpp</code> refused to skip creating the coredump, and <code>abrtd</code> refused to process directories without the coredump. I had to emulate the behaviour on my own script.</p>
+<h2>The Script</h2>
+<p>This is my crude replacement - it's supposed to be called from <code>core_pattern</code>, so I also wrote a "service" to register it.<br>
+It's written in Python (and not Ruby, for instance) because Python comes installed on every server I encountered so far (because it powers Apt and Yum).<br>
+It basically harvests all interesting data from the failing process and emails it. The current list is:</p>
+<ul>
+<li><strong>cgroup</strong></li>
+<li><strong>cmdline</strong>: The commmand used to start the process, arguments and everything</li>
+<li><strong>executable</strong>: Path to the binary file being executed</li>
+<li><strong>signal</strong>: The signal causing the process to coredump</li>
+<li><strong>hostname</strong></li>
+<li><strong>kernel</strong></li>
+<li><strong>pwd</strong>: Current working directory for the faulting process</li>
+<li><strong>start_time</strong></li>
+<li><strong>end_time</strong></li>
+<li><strong>uid</strong></li>
+<li><strong>username</strong></li>
+<li><strong>dso_list</strong>: Loaded dynamic libraries</li>
+<li><strong>environ</strong>: Environment variables</li>
+<li><strong>limits</strong>: Ulimits for the process</li>
+<li><strong>maps</strong>: Allocated memory areas (including memory-mapped files)</li>
+<li><strong>open_fds</strong>: Open file descriptors (files, sockets, pipes...)</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python</span>
+
+<span class="c1">###########</span>
+<span class="c1"># Nitz Abrt</span>
+<span class="c1">###########</span>
+<span class="c1">#</span>
+<span class="c1"># A crude emulation of the Abrt utility for monitoring and diagnosing segfaults</span>
+<span class="c1"># Should be hooked from core_pattern - see your sysadmin</span>
+<span class="c1"># http://blog.backslasher.net/mail-coredumps.html</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pwd</span>
+<span class="kn">import</span> <span class="nn">syslog</span>
+
+<span class="k">def</span> <span class="nf">usage</span><span class="p">():</span>
+  <span class="nb">print</span> <span class="s1">&#39;Usage: </span><span class="si">{}</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%c</span><span class="s1"> %p </span><span class="si">%u</span><span class="s1"> </span><span class="si">%g</span><span class="s1"> %t e&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+  <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">  number of signal causing dump</span><span class="se">\n</span><span class="s1">&#39;</span>
+         <span class="s1">&#39;</span><span class="si">%c</span><span class="s1">  core file size soft resource limit of crashing process</span><span class="se">\n</span><span class="s1">&#39;</span>
+         <span class="s1">&#39;%p  PID of dumped process</span><span class="se">\n</span><span class="s1">&#39;</span>
+         <span class="s1">&#39;</span><span class="si">%u</span><span class="s1">  (numeric) real UID of dumped process</span><span class="se">\n</span><span class="s1">&#39;</span>
+         <span class="s1">&#39;</span><span class="si">%g</span><span class="s1">  (numeric) real GID of dumped process</span><span class="se">\n</span><span class="s1">&#39;</span>
+         <span class="s1">&#39;%t  time of dump, expressed as seconds since the Epoch, 1970-01-01 00:00:00 +0000 (UTC)</span><span class="se">\n</span><span class="s1">&#39;</span>
+         <span class="s1">&#39;e   ignored</span><span class="se">\n</span><span class="s1">&#39;</span>
+         <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+         <span class="s1">&#39;Should be called from core_pattern</span><span class="se">\n</span><span class="s1">&#39;</span>
+  <span class="p">)</span>
+  <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span><span class="o">!=</span><span class="mi">8</span><span class="p">):</span> <span class="n">usage</span><span class="p">()</span>
+
+<span class="n">signal</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">pid</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">uid</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">dump_time</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+
+<span class="n">proc_path</span><span class="o">=</span><span class="s1">&#39;/proc/</span><span class="si">%s</span><span class="s1">/&#39;</span> <span class="o">%</span> <span class="n">pid</span>
+
+
+
+<span class="k">def</span> <span class="nf">read_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+  <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">proc_path</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span>
+  <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">get_symlink</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+  <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">proc_path</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">readlink</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">get_start_time</span><span class="p">():</span>
+  <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">(</span><span class="n">proc_path</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">get_dso</span><span class="p">():</span>
+  <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">proc_path</span><span class="p">,</span><span class="s1">&#39;maps&#39;</span><span class="p">)</span>
+  <span class="n">files</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+  <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">list_dir_symlink</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+  <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">proc_path</span><span class="p">,</span><span class="n">dirname</span><span class="p">)</span>
+  <span class="n">link_hash</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">i</span><span class="p">,</span><span class="n">os</span><span class="o">.</span><span class="n">readlink</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span><span class="n">i</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">))</span>
+  <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">link_hash</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">link_hash</span><span class="o">.</span><span class="n">keys</span><span class="p">())])</span>
+
+<span class="n">exe_path</span><span class="o">=</span><span class="n">get_symlink</span><span class="p">(</span><span class="s1">&#39;exe&#39;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">fnmatch</span>
+<span class="n">blacklist</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;*/php-fpm&#39;</span><span class="p">]</span> <span class="c1"># These executables are uninteresting</span>
+<span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">blacklist</span><span class="p">:</span>
+  <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">exe_path</span><span class="p">,</span><span class="n">pattern</span><span class="p">):</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is blacklisted by pattern &quot;</span><span class="si">%s</span><span class="s1">&quot;. Ignoring&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">exe_path</span><span class="p">,</span><span class="n">pattern</span><span class="p">)</span>
+    <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;cgroup&#39;</span><span class="p">:</span> <span class="n">read_file</span><span class="p">(</span><span class="s1">&#39;cgroup&#39;</span><span class="p">),</span>
+  <span class="s1">&#39;cmdline&#39;</span><span class="p">:</span> <span class="n">read_file</span><span class="p">(</span><span class="s1">&#39;cmdline&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\0</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+  <span class="s1">&#39;executable&#39;</span><span class="p">:</span> <span class="n">exe_path</span><span class="p">,</span>
+  <span class="s1">&#39;signal&#39;</span><span class="p">:</span> <span class="n">signal</span><span class="p">,</span>
+  <span class="s1">&#39;hostname&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">uname</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span>
+  <span class="s1">&#39;kernel&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">uname</span><span class="p">()[</span><span class="mi">2</span><span class="p">],</span>
+  <span class="s1">&#39;pid&#39;</span><span class="p">:</span> <span class="n">pid</span><span class="p">,</span>
+  <span class="s1">&#39;pwd&#39;</span><span class="p">:</span> <span class="n">get_symlink</span><span class="p">(</span><span class="s1">&#39;cwd&#39;</span><span class="p">),</span>
+  <span class="s1">&#39;start_time&#39;</span><span class="p">:</span> <span class="n">get_start_time</span><span class="p">(),</span>
+  <span class="s1">&#39;end_time&#39;</span><span class="p">:</span> <span class="n">dump_time</span><span class="p">,</span>
+  <span class="s1">&#39;uid&#39;</span><span class="p">:</span> <span class="n">uid</span><span class="p">,</span>
+  <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">pwd</span><span class="o">.</span><span class="n">getpwuid</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span><span class="o">.</span><span class="n">pw_name</span><span class="p">,</span>
+  <span class="s1">&#39;dso_list&#39;</span><span class="p">:</span> <span class="n">get_dso</span><span class="p">(),</span>
+  <span class="s1">&#39;environ&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">read_file</span><span class="p">(</span><span class="s1">&#39;environ&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\0</span><span class="s1">&#39;</span><span class="p">)),</span>
+  <span class="s1">&#39;limits&#39;</span><span class="p">:</span><span class="n">read_file</span><span class="p">(</span><span class="s1">&#39;limits&#39;</span><span class="p">),</span>
+  <span class="s1">&#39;maps&#39;</span><span class="p">:</span> <span class="n">read_file</span><span class="p">(</span><span class="s1">&#39;maps&#39;</span><span class="p">),</span>
+  <span class="s1">&#39;open_fds&#39;</span><span class="p">:</span> <span class="n">list_dir_symlink</span><span class="p">(</span><span class="s1">&#39;fd&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="n">data_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;#</span><span class="si">%s</span><span class="s1">:</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())])</span>
+
+<span class="n">mail</span><span class="o">=</span><span class="s1">&#39;To:root</span><span class="se">\n</span><span class="s1">Subject:nabrt crash </span><span class="si">%s</span><span class="se">\n\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">exe_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">data_str</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="n">pmail</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;mail&#39;</span><span class="p">,</span><span class="s1">&#39;-t&#39;</span><span class="p">],</span><span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+<span class="n">pmail</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mail</span><span class="p">)</span>
+<span class="n">pmail</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+
+<h2>Bonus - modifying <code>STDIN</code></h2>
+<p>Because <code>abrt-hook-ccpp</code> takes its coredump from <code>STDIN</code>, I thought I could still utilize it by calling it with a modified STDIN that contains very little.
+This idea failed because <code>abrtd</code> wouldn't work with a "corrupted" coredump, but I think it's a novel idea and a cute script:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/sh</span>
+<span class="o">(</span>head -c <span class="k">$((</span><span class="m">5</span><span class="o">*</span><span class="m">1024</span><span class="k">))</span> &lt;<span class="p">&amp;</span><span class="m">0</span> <span class="o">)</span> <span class="p">|</span>          <span class="c1"># Only take the first 5 MB from STDIN and pass it along</span>
+<span class="nb">exec</span> /usr/libexec/abrt-hook-ccpp <span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span> <span class="c1"># Become original hook</span>
+</code></pre></div>
+
+<p>I initially tried closing <code>STDIN</code> completely, but turns out the kernel is only keeping the <code>/proc</code> directory of the faulting process when that stream is open - it thinks you're done collecting diagnostics when you close that stream.</p>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

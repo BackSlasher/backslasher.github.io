@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Using a global lock in Chef - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/chef-lock.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Chef,Mutex,Lock,Ruby,Scripts" />
+        <meta name="description" content="The Story Our dev team is currently using a Snowflake-like ID generation scheme that looks like this: (Diagram by Elad Rosenhim, architect and companion at Dynamic Yield. See his post about distributed keys and how to survive managing an HBase cluster) Those familiar with MongoDB might notice this structure …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Using a global lock in Chef"/>
+        <meta property="og:url" content="https://blog.backslasher.net/chef-lock.html"/>
+        <meta property="og:description" content="The Story Our dev team is currently using a Snowflake-like ID generation scheme that looks like this: (Diagram by Elad Rosenhim, architect and companion at Dynamic Yield. See his post about distributed keys and how to survive managing an HBase cluster) Those familiar with MongoDB might notice this structure …"/>
+        <meta property="article:published_time" content="2015-12-03" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="Chef" />
+            <meta property="article:tag" content="Mutex" />
+            <meta property="article:tag" content="Lock" />
+            <meta property="article:tag" content="Ruby" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/chef-lock.html"
+                       rel="bookmark"
+                       title="Permalink to Using a global lock in Chef">
+                        Using a global lock in Chef
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-12-03T18:00:00+01:00"> Thu 03 December 2015</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+        /
+	<a href="https://blog.backslasher.net/tag/mutex.html">Mutex</a>
+        /
+	<a href="https://blog.backslasher.net/tag/lock.html">Lock</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>The Story</h2>
+<p>Our dev team is currently using a <a href="https://blog.twitter.com/2010/announcing-snowflake">Snowflake</a>-like ID generation scheme that looks like this:<br>
+<img alt="snowflake diagram" src="https://blog.backslasher.net/images/chef-lock/snowflake.jpg"><br>
+(Diagram by Elad Rosenhim, architect and companion at Dynamic Yield. See <a href="https://www.dynamicyield.com/2015/05/apache-hbase-for-the-win-2/">his post</a> about distributed keys and how to survive managing an HBase cluster)  </p>
+<p>Those familiar with MongoDB might notice this structure is very similar to <a href="https://docs.mongodb.org/manual/reference/object-id/">MongoDB's ObjectId</a>.  </p>
+<p>This ID generator has several advantages over sequential generation, mainly:</p>
+<ol>
+<li>Partitioning-friendly:<br>
+    Because the most significant bits are rotated frequently, consecutive IDs will go to different partitions, avoiding a "hot-zone" problem.</li>
+<li>Independent generation:<br>
+    Every machine can generate IDs by itself, meaning there's no single point of failure (as opposed to using MySQL sequences for ID generation)</li>
+<li>Packed metadata:<br>
+    The key allows including 4 bytes of arbitrary metadata (e.g. user's country of origin), which can be later inferred from the key, in addition to the creation date. This metadata is "free" (not requiring an auxilary lookup).</li>
+</ol>
+<p><strong>The problematic bit for me</strong> is the need to assign a unique ID for every machine (to avoid machines creating duplicate keys).<br>
+As you can see from the diagram, I have 2 bytes allocated for this, which might seem like a lot (255 different machines), but this is not enough space to just put unique machine identifiers I already have (like FQDN, SSH fingerprint, EC2 instance ID).<br>
+I therefore needed to tell Chef to pick a machine ID that no other node has and use that.<br>
+Naively one could do something like this in a Chef recipe:</p>
+<div class="highlight"><pre><span></span><code><span class="k">unless</span> <span class="n">node</span><span class="o">[</span><span class="s1">&#39;machine&#39;</span><span class="o">][</span><span class="s1">&#39;id&#39;</span><span class="o">]</span> <span class="k">then</span>
+  <span class="n">range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">to_a</span> <span class="c1"># Total range allowed</span>
+  <span class="c1"># IDs in used, extracted using Chef search:</span>
+  <span class="n">used_ids</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="s1">&#39;machine_id:*&#39;</span><span class="p">,</span><span class="ss">filter_result</span><span class="p">:{</span><span class="s1">&#39;id&#39;</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="s1">&#39;machine&#39;</span><span class="p">,</span><span class="s1">&#39;id&#39;</span><span class="o">]</span><span class="p">})</span><span class="o">.</span>
+    <span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">node</span><span class="o">|</span><span class="n">node</span><span class="o">[</span><span class="s1">&#39;id&#39;</span><span class="o">]</span><span class="p">}</span>
+  <span class="n">available_ids</span> <span class="o">=</span> <span class="n">range</span> <span class="o">-</span> <span class="n">used_ids</span> <span class="c1"># Deduce remaining pool</span>
+  <span class="k">raise</span> <span class="s1">&#39;No free ids&#39;</span> <span class="k">unless</span> <span class="n">available_ids</span><span class="o">.</span><span class="n">any?</span> <span class="c1"># Upset if none</span>
+  <span class="n">my_id</span> <span class="o">=</span> <span class="n">available_ids</span><span class="o">.</span><span class="n">first</span>
+  <span class="n">node</span><span class="o">.</span><span class="n">normal</span><span class="o">[</span><span class="s1">&#39;machine&#39;</span><span class="o">][</span><span class="s1">&#39;id&#39;</span><span class="o">]</span> <span class="o">=</span> <span class="n">my_id</span> <span class="c1"># save it</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p><strong>However</strong>, several nodes could be running the same code at the same time, and since Chef offers no concurrency control, those nodes could get identical <code>available_ids</code> and choose the same <code>my_id</code>, leading to nodes with duplicate machine IDs, meaning they might create duplicate user IDs.</p>
+<h2>The solution</h2>
+<p>I initially thoguht about outsourcing the ID generation to a single-threaded HTTP application to eliminate any concurrency issues.<br>
+However, this application would have to hold all of the assigned IDs (as opposed to them being stored in the Chef server), and I find stateful applications much harder to maintain (backups, scaling etc).<br>
+Eventually, I thought about keeping the code inside a Chef recipe, but rely on an external service to ensure concurrency.<br>
+I found the <a href="https://github.com/thefab/restful-distributed-lock-manager">RDLM</a> (Restful Distributed Lock Manager) which is a simple global lock holder, where locks are acquired and released via HTTP requests, which was perfect for me.  </p>
+<p>To utilize the RDLM in Chef recipes, I built the <a href="https://github.com/BackSlasher/chef-lock_rdlm">lock_rdlm</a> cookbook  which includes several interesting functions.<br>
+The first is <a href="https://github.com/BackSlasher/chef-lock_rdlm/#user-content-lockrdlmwith_lock"><code>LockRDLM::with_lock</code></a>, which executes a code block as a critical section, using a specified lock name.<br>
+One could use it to run a "critical" code section like this:</p>
+<div class="highlight"><pre><span></span><code><span class="no">LockRDLM</span><span class="o">::</span><span class="n">with_lock</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="s1">&#39;lockname&#39;</span><span class="p">)</span> <span class="k">do</span>
+  <span class="c1"># Code here will be exclusive</span>
+  <span class="n">db</span> <span class="o">=</span> <span class="n">data_bag_item</span><span class="p">(</span><span class="s1">&#39;misc&#39;</span><span class="p">,</span><span class="s1">&#39;last_run&#39;</span><span class="p">)</span>
+  <span class="n">db</span><span class="o">[</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="o">]=</span><span class="no">Time</span><span class="o">.</span><span class="n">now</span>
+  <span class="n">db</span><span class="o">.</span><span class="n">save</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>The second is <a href="https://github.com/BackSlasher/chef-lock_rdlm/#user-content-lockrdlmassign_identity"><code>LockRDLM::assign_identity</code></a>, which uses <code>with_lock</code> to look for identities of other machines and choose a different one (out of a range) for the current node.<br>
+It's using the <code>with_lock</code> method internally, with the critical section doing the following:</p>
+<ol>
+<li>Iterates over all of the nodes in the Chef server and collects their values</li>
+<li>Chooses a free value for its own use</li>
+<li>Saves the value in the node object (for the current run).  </li>
+<li>Loads this node's object from the server, saves the value and immediately saves it back.<br>
+    This is done to ensure that the newly chosen value is present in the server upon leaving the critical section, and not in the run's end (when the Chef client updates the node object).</li>
+</ol>
+<p>I use it to solve my use unique identity issue like this:</p>
+<div class="highlight"><pre><span></span><code><span class="no">LockRDLM</span><span class="o">::</span><span class="n">assign_identity</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="o">[</span><span class="ss">:machine</span><span class="p">,</span><span class="ss">:id</span><span class="o">]</span><span class="p">,(</span><span class="mi">1</span><span class="o">..</span><span class="mi">254</span><span class="p">)</span><span class="o">.</span><span class="n">to_a</span><span class="p">)</span>
+<span class="c1"># Now I can use node[&#39;machine&#39;][&#39;id&#39;]</span>
+</code></pre></div>
+
+<h2>Interesting bits</h2>
+<ul>
+<li>Because the identities are stored in Chef node attributes, they are cleaned up when node objects are removed. This is another benefit over having all of the ID assignment handled in a separate application.</li>
+<li>When creating the lock handling functions, I couldn't rely on the Chef HTTP methods because they don't return HTTP headers, which I needed. I had to fall back to <code>net/http</code>, but it wasn't so bad.</li>
+<li>I found <a href="https://github.com/websterclay/chef-dominodes">Dominodes</a> that solves the same problem (critical sections accross nodes), but uses data bag items as the locks.<br>
+    I didn't take it becaue it doesn't seem to handle race conditions. Also, it's unmaintained since 2011, and I don't think it's because it's perfect.</li>
+<li>I use the helper function <code>LockRDLM::find_duplicate_identity</code> to monitor for duplicates. One can use this function in their recipe to fail a Chef run if a duplicate is found - I prefer having servers with an assigned identity not depending on the lock during run and one server being in charge of looking for duplicates.</li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

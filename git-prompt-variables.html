@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Git Prompt Variables - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/git-prompt-variables.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="git,bash" />
+        <meta name="description" content="I recently reinstalled my laptop and had to reconfigure my git prompt. I use the git prompt script that is included in Ubuntu&#39;s git package, and integrate it into my prompt by editing ~/.bashrc, executing source /etc/bash_completion.d/git-prompt, and adding $(__git_ps1) to my PS1 variable, just before the …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Git Prompt Variables"/>
+        <meta property="og:url" content="https://blog.backslasher.net/git-prompt-variables.html"/>
+        <meta property="og:description" content="I recently reinstalled my laptop and had to reconfigure my git prompt. I use the git prompt script that is included in Ubuntu&#39;s git package, and integrate it into my prompt by editing ~/.bashrc, executing source /etc/bash_completion.d/git-prompt, and adding $(__git_ps1) to my PS1 variable, just before the …"/>
+        <meta property="article:published_time" content="2014-10-22" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="git" />
+            <meta property="article:tag" content="bash" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/git-prompt-variables.html"
+                       rel="bookmark"
+                       title="Permalink to Git Prompt Variables">
+                        Git Prompt Variables
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-10-22T09:05:00+02:00"> Wed 22 October 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/git.html">git</a>
+        /
+	<a href="https://blog.backslasher.net/tag/bash.html">bash</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>I recently reinstalled my laptop and had to reconfigure my git prompt.
+I use the git prompt script that is included in Ubuntu's git package, and integrate it into my prompt by editing <code>~/.bashrc</code>, executing <code>source /etc/bash_completion.d/git-prompt</code>, and adding <code>$(__git_ps1)</code> to my <code>PS1</code> variable, just before the ending <code>\$</code> (which is the final <code>$</code> in your prompt).<br>
+This gives me a basic prompt, that looks something like:</p>
+<div class="highlight"><pre><span></span><code>nitz@computer:~/project (master)$
+</code></pre></div>
+
+<p>Note the <code>(master)</code> - that's the git prompt addition.<br>
+However, there are environment variables that can be set before calling <code>git-prompt</code>, that add more information to PS1. I always forget some because I haven't found an organized list of them, only comments in the <code>git-prompt</code> file itself. I've decided to compile my own list.</p>
+<h3>The Script</h3>
+<p>I used this nifty script to extract all variables mentioned in the actual <code>git-prompt</code> script with the pattern <code>GIT_PS_*</code>, since it looks like those are the relevant variables.</p>
+<div class="highlight"><pre><span></span><code>cat /usr/lib/git-core/git-sh-prompt <span class="p">|</span> perl -nle <span class="s1">&#39;print &quot;$1&quot; if (/(GIT_PS1_[a-zA-Z_]+)/)&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq
+</code></pre></div>
+
+<ul>
+<li><code>GIT_PS1_DESCRIBE_STYLE</code><br>
+  Modifies the way detached HEAD is shown. Possible values are:<ul>
+<li><code>contains</code>: Looks forward in the tree for a tag, so you know which tag you're behind</li>
+<li><code>branch</code>: Looks forward in the tree for a tag or a branch (whatever's nearest)</li>
+<li><code>describe</code>: Looks backwards in the tree for a tag, so you know which tag you're ahead of</li>
+<li>default: If your exactly on a tag, display it.
+  If the method you chose fails to find a tag/branch to display, you'll see the commit id instead.</li>
+</ul>
+</li>
+<li><code>GIT_PS1_SHOWCOLORHINTS</code><br>
+<code>__git_ps1</code> can be used to <strong>create</strong> the PS1 prompt and not just its own output. If that's the case, a non-empty value tells git to color the prompt according to the current state (dirty, untracked files...)</li>
+<li><code>GIT_PS1_SHOWDIRTYSTATE</code><br>
+  Shows the "dirty" indicator - meaning whether you modified tracked files.
+  Can be <code>*</code> for unstaged changes, <code>+</code> for staged changes, <code>#</code> for "no HEAD to compare against" (usually only happens before initial commit)</li>
+<li><code>GIT_PS1_SHOWSTASHSTATE</code><br>
+  Shows the "stash" indicator - meaning whether you have files <a href="http://git-scm.com/book/en/Git-Tools-Stashing">stashed</a>.<br>
+  Looks like <code>$</code></li>
+<li><code>GIT_PS1_SHOWUNTRACKEDFILES</code>
+  Shows the "untracked" indicator - meaning whether you have untracked files (files that are in the working directory but haven't been added using <code>git add</code> to the repository).<br>
+  Looks like <code>%</code></li>
+<li>
+<p><code>GIT_PS1_SHOWUPSTREAM</code><br>
+  Shows the difference between the upstream branch and the current branch. I only use "auto", meaning that I get the following values:</p>
+<ul>
+<li><code>&lt;</code> when I'm behind (I need to pull to get changes from the server)</li>
+<li><code>&gt;</code> when I'm ahead (I need to push to update the server with my changes)</li>
+<li><code>&lt;&gt;</code> when I'm diverged from the server (some conflict resolution will be required)</li>
+<li><code>=</code> when we're identical (no action is needed).</li>
+</ul>
+<p>This obviously requires me to <code>fetch</code> the remote server from time to time.</p>
+</li>
+</ul>
+<h3>How I did it</h3>
+<p>My prompt currently looks like this. The <code>if</code> actually sets the prompt and is mostly unmodified (except for adding <code>$(__git_ps1)</code>).</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Git</span>
+<span class="nv">GIT_PS1_SHOWDIRTYSTATE</span><span class="o">=</span><span class="s1">&#39;y&#39;</span>
+<span class="nv">GIT_PS1_SHOWSTASHSTATE</span><span class="o">=</span><span class="s1">&#39;y&#39;</span>
+<span class="nv">GIT_PS1_SHOWUNTRACKEDFILES</span><span class="o">=</span><span class="s1">&#39;y&#39;</span>
+<span class="nv">GIT_PS1_DESCRIBE_STYLE</span><span class="o">=</span><span class="s1">&#39;contains&#39;</span>
+<span class="nv">GIT_PS1_SHOWUPSTREAM</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span>
+
+<span class="nb">source</span> /etc/bash_completion.d/git-prompt
+
+<span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$color_prompt</span><span class="s2">&quot;</span> <span class="o">=</span> yes <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="nv">PS1</span><span class="o">=</span><span class="s1">&#39;${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]$(__git_ps1)\$ &#39;</span>
+<span class="k">else</span>
+    <span class="nv">PS1</span><span class="o">=</span><span class="s1">&#39;${debian_chroot:+($debian_chroot)}\u@\h:\w$(__git_ps1)\$ &#39;</span>
+<span class="k">fi</span>
+<span class="nb">unset</span> color_prompt force_color_prompt
+</code></pre></div>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

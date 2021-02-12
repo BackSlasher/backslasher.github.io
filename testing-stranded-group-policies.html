@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Testing stranded group policies - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/testing-stranded-group-policies.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="Group Policy,NTFRS,PowerShell,Active Directory" />
+        <meta name="description" content="Ever had GPO Version differences between the AD and the Sysvol? Sure, you might have a healthy FRS/DFSR architecture, but the replication takes time. It&#39;s annoying to check if the GP object is now OK on every server, because one would have to point the GPMC to every DC …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Testing stranded group policies"/>
+        <meta property="og:url" content="https://blog.backslasher.net/testing-stranded-group-policies.html"/>
+        <meta property="og:description" content="Ever had GPO Version differences between the AD and the Sysvol? Sure, you might have a healthy FRS/DFSR architecture, but the replication takes time. It&#39;s annoying to check if the GP object is now OK on every server, because one would have to point the GPMC to every DC …"/>
+        <meta property="article:published_time" content="2010-05-08" />
+            <meta property="article:section" content="Microsoft" />
+            <meta property="article:tag" content="Group Policy" />
+            <meta property="article:tag" content="NTFRS" />
+            <meta property="article:tag" content="PowerShell" />
+            <meta property="article:tag" content="Active Directory" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/microsoft.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher Microsoft ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/testing-stranded-group-policies.html"
+                       rel="bookmark"
+                       title="Permalink to Testing stranded group policies">
+                        Testing stranded group policies
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2010-05-08T16:13:00+02:00"> Sat 08 May 2010</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+        /
+	<a href="https://blog.backslasher.net/tag/ntfrs.html">NTFRS</a>
+        /
+	<a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+        /
+	<a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>Ever had GPO Version differences between the AD and the Sysvol? Sure,
+you might have a healthy FRS/DFSR architecture, but the replication takes
+time. It's annoying to check if the GP object is now OK on every server,
+because one would have to point the GPMC to every DC and check the
+version numbers...<br>
+My soultion - this nifty script. It's essentially grabbing the GP object
+through <code>Get-GPO</code> from every DC there is, and comparing its AD and Sysvol
+versions (for both <code>computer</code> and <code>user</code>), and pointing out if this DC's version
+is mismatched. Run this script once, and you'll know how the GP's doing
+on every (accessible) DC.  </p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="p">(</span><span class="o">-not</span> <span class="nb">gmo </span><span class="n">GroupPolicy</span><span class="p">)</span> <span class="p">{</span><span class="nb">ipmo </span><span class="n">GroupPolicy</span><span class="p">}</span>
+<span class="cm">&lt;#</span>
+<span class="sd">.SYNOPSIS</span><span class="cm"></span>
+<span class="cm">Gets a GPO object from every DC in the domain, and looks for stranded GPOs</span>
+
+<span class="sd">.Description</span><span class="cm"></span>
+<span class="cm">This function discovers all DCs in your domain, gets the GPO specified for every DC, and for every object checks all 4 versions (DS/Sysvol and Computer/User) to see if a gpo is only partially updated on a DC.</span>
+
+<span class="sd">.Parameter</span><span class="cm"> GPOName</span>
+
+<span class="sd">.EXAMPLE</span><span class="cm"></span>
+<span class="cm">Test-StrandedGPO &#39;Some Policy Name&#39;</span>
+<span class="sd">.LINK</span><span class="cm"></span>
+<span class="cm">My Blog: http://OneBoredAdmin.blogspot.com</span>
+<span class="cm">#&gt;</span>
+<span class="k">function</span> <span class="nb">Test-StrandedGPO</span>
+<span class="p">{</span>
+    <span class="k">param</span><span class="p">(</span>
+    <span class="p">[</span><span class="k">parameter</span><span class="p">(</span><span class="k">Mandatory</span><span class="p">=</span><span class="nv">$true</span><span class="p">)]</span>
+    <span class="no">[string]</span><span class="nv">$GPOName</span>
+    <span class="p">)</span>
+
+    <span class="c"># Get all DCs</span>
+    <span class="nv">$DCs</span> <span class="p">=</span> <span class="p">(</span><span class="no">[directoryservices.directorysearcher]</span><span class="s1">&#39;(&amp;(&amp;(&amp;(sAMAccountType=805306369)(useraccountcontrol:1.2.840.113556.1.4.804:=67117056))))&#39;</span><span class="p">).</span><span class="n">findAll</span><span class="p">()</span> <span class="p">|</span> <span class="p">%{</span><span class="nv">$_</span><span class="p">.</span><span class="n">Properties</span><span class="p">[</span><span class="s1">&#39;cn&#39;</span><span class="p">][</span><span class="n">0</span><span class="p">]}</span>
+
+    <span class="c"># For every DC, get the GP object</span>
+    <span class="nv">$GPObjects</span> <span class="p">=</span> <span class="nv">$DCs</span> <span class="p">|</span> <span class="p">%{</span>
+        <span class="nv">$temp</span> <span class="p">=</span> <span class="nb">Get-GPO</span> <span class="n">-Name</span> <span class="nv">$GPOName</span> <span class="n">-Server</span> <span class="nv">$_</span>
+        <span class="nv">$temp</span> <span class="p">|</span> <span class="nb">Add-Member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;Server&#39;</span> <span class="nv">$_</span><span class="p">;</span>
+        <span class="nv">$temp</span><span class="p">;</span>
+        <span class="p">};</span>
+    <span class="nv">$server</span> <span class="p">=</span> <span class="nv">$_</span><span class="p">;</span>
+    <span class="c"># For every GP object, check if the version is consistent</span>
+    <span class="nv">$GPObjects</span> <span class="p">|</span> <span class="p">%{</span>
+        <span class="nv">$objRet</span> <span class="p">=</span> <span class="nb">new-object</span> <span class="n">object</span><span class="p">;</span>
+        <span class="nv">$objRet</span> <span class="p">|</span> <span class="nb">add-member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;DisplayName&#39;</span> <span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">DisplayName</span><span class="p">)</span>
+        <span class="nv">$objRet</span> <span class="p">|</span> <span class="nb">add-member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;Server&#39;</span> <span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Server</span><span class="p">)</span>
+        <span class="nv">$objRet</span> <span class="p">|</span> <span class="nb">add-member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;ComputerDS&#39;</span> <span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Computer</span><span class="p">.</span><span class="n">DSVersion</span><span class="p">)</span>
+        <span class="nv">$objRet</span> <span class="p">|</span> <span class="nb">add-member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;ComputerSys&#39;</span> <span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">Computer</span><span class="p">.</span><span class="n">SysvolVersion</span><span class="p">)</span>
+        <span class="nv">$objRet</span> <span class="p">|</span> <span class="nb">add-member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;UserDS&#39;</span> <span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">User</span><span class="p">.</span><span class="n">DSVersion</span><span class="p">)</span>
+        <span class="nv">$objRet</span> <span class="p">|</span> <span class="nb">add-member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;UserSys&#39;</span> <span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">User</span><span class="p">.</span><span class="n">SysvolVersion</span><span class="p">)</span>
+        <span class="no">[bool]</span> <span class="nv">$VMismatch</span> <span class="p">=</span> <span class="p">!((</span><span class="nv">$_</span><span class="p">.</span><span class="n">Computer</span><span class="p">.</span><span class="n">DSVersion</span> <span class="o">-eq</span> <span class="nv">$_</span><span class="p">.</span><span class="n">Computer</span><span class="p">.</span><span class="n">SysvolVersion</span><span class="p">)</span> <span class="o">-and</span> <span class="p">(</span><span class="nv">$_</span><span class="p">.</span><span class="n">User</span><span class="p">.</span><span class="n">DSVersion</span> <span class="o">-eq</span> <span class="nv">$_</span><span class="p">.</span><span class="n">User</span><span class="p">.</span><span class="n">SysvolVersion</span><span class="p">))</span>
+        <span class="nv">$objRet</span> <span class="p">|</span> <span class="nb">add-member</span> <span class="n">NoteProperty</span> <span class="s1">&#39;VersionMismatch&#39;</span> <span class="p">(</span><span class="nv">$VMismatch</span><span class="p">)</span>
+
+        <span class="nv">$objRet</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>

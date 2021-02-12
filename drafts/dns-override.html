@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>DNS Override for a Single Process - BackSlasher</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.backslasher.net/drafts/dns-override.html">
+
+        <meta name="author" content="Nitz" />
+        <meta name="keywords" content="DNS,Scripts,C,Linux" />
+        <meta name="description" content="The Problem I needed to run a mobile emulator on my laptop, in order to test some DNS server changes before releasing them. However, since the emulator had no option to override its DNS settings it used my laptop&#39;s DNS settings, so to make it query a different server I …" />
+
+        <meta property="og:site_name" content="BackSlasher" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="DNS Override for a Single Process"/>
+        <meta property="og:url" content="https://blog.backslasher.net/drafts/dns-override.html"/>
+        <meta property="og:description" content="The Problem I needed to run a mobile emulator on my laptop, in order to test some DNS server changes before releasing them. However, since the emulator had no option to override its DNS settings it used my laptop&#39;s DNS settings, so to make it query a different server I …"/>
+        <meta property="article:published_time" content="2016-09-23" />
+            <meta property="article:section" content="FOSS" />
+            <meta property="article:tag" content="DNS" />
+            <meta property="article:tag" content="Scripts" />
+            <meta property="article:tag" content="C" />
+            <meta property="article:tag" content="Linux" />
+            <meta property="article:author" content="Nitz" />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="https://blog.backslasher.net/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.backslasher.net/theme/css/pygments/default.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.backslasher.net/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.backslasher.net/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher ATOM Feed"/>
+
+        <link href="https://blog.backslasher.net/feeds/foss.atom.xml" type="application/atom+xml" rel="alternate"
+              title="BackSlasher FOSS ATOM Feed"/>
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.backslasher.net/" class="navbar-brand">
+BackSlasher            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                         <li><a href="https://blog.backslasher.net/pages/about.html">
+                             About
+                          </a></li>
+                         <li><a href="https://blog.backslasher.net/pages/projects.html">
+                             Projects
+                          </a></li>
+                        <li class="active">
+                            <a href="https://blog.backslasher.net/category/foss.html">Foss</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/microsoft.html">Microsoft</a>
+                        </li>
+                        <li >
+                            <a href="https://blog.backslasher.net/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<!-- Banner -->
+<!-- End Banner -->
+
+<!-- Content Container -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.backslasher.net/drafts/dns-override.html"
+                       rel="bookmark"
+                       title="Permalink to DNS Override for a Single Process">
+                        DNS Override for a Single Process
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-09-23T12:00:00+02:00"> Fri 23 September 2016</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.backslasher.net/tag/dns.html">DNS</a>
+        /
+	<a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+        /
+	<a href="https://blog.backslasher.net/tag/c.html">C</a>
+        /
+	<a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>The Problem</h2>
+<p>I needed to run a mobile emulator on my laptop, in order to test some DNS server changes before releasing them.<br>
+However, since the emulator had no option to override its DNS settings it used my laptop's DNS settings, so to make it query a different server I had to modify my laptop's settings.<br>
+This meant that I broke a lot of other programs running on my laptop, so for example I couldn't edit the DNS server and test the emulator at the same time. Very frustrating.  </p>
+<h2>The Solution</h2>
+<p>I made a script that's using <code>LD_PRELOAD</code> to monkey-patch <code>fopen</code> and return a custom version of <code>/etc/resolv.conf</code>.<br>
+It basically works like this:  </p>
+<ol>
+<li>Create a new <code>resolv.conf</code> file and store it in an environment variable</li>
+<li>Append my shared library to <code>LD_PRELOAD</code> to make my <code>fopen</code> hide the standard one</li>
+<li><code>exec</code> to the binary you want to run</li>
+<li>When the binary calls <code>fopen</code>, our function is called. If the requested file is not <code>/etc/resolv.conf</code>, we pass everything to the original function. If it is, we open a pointer to the modified file instead</li>
+</ol>
+<p><strong>The code is available under <a href="https://github.com/BackSlasher/dns-override">dns-override</a></strong></p>
+<h2>Usage</h2>
+<p>Before:</p>
+<div class="highlight"><pre><span></span><code>nitz@mars:~$ nslookup google.com
+Server:   <span class="m">127</span>.0.1.1
+Address:  <span class="m">127</span>.0.1.1#53
+
+Non-authoritative answer:
+Name: google.com
+Address: <span class="m">172</span>.217.22.78
+
+nitz@mars:~$
+</code></pre></div>
+
+<p>After:</p>
+<div class="highlight"><pre><span></span><code><span class="n">nitz</span><span class="nv">@mars</span><span class="err">:</span><span class="o">~</span><span class="err">$</span><span class="w"> </span><span class="o">~/</span><span class="n">projects</span><span class="o">/</span><span class="n">dns</span><span class="o">-</span><span class="n">override</span><span class="o">/</span><span class="n">dns</span><span class="o">-</span><span class="n">override</span><span class="p">.</span><span class="n">sh</span><span class="w"> </span><span class="o">-</span><span class="n">s</span><span class="w"> </span><span class="mf">8.8.8.8</span><span class="w"> </span><span class="n">nslookup</span><span class="w"> </span><span class="n">google</span><span class="p">.</span><span class="n">com</span><span class="w"></span>
+<span class="nl">Server</span><span class="p">:</span><span class="w">     </span><span class="mf">8.8.8.8</span><span class="w"></span>
+<span class="nl">Address</span><span class="p">:</span><span class="w">    </span><span class="mf">8.8.8.8</span><span class="n">#53</span><span class="w"></span>
+
+<span class="n">Non</span><span class="o">-</span><span class="n">authoritative</span><span class="w"> </span><span class="nl">answer</span><span class="p">:</span><span class="w"></span>
+<span class="nl">Name</span><span class="p">:</span><span class="w">   </span><span class="n">google</span><span class="p">.</span><span class="n">com</span><span class="w"></span>
+<span class="nl">Address</span><span class="p">:</span><span class="w"> </span><span class="mf">216.58.212.174</span><span class="w"></span>
+
+<span class="n">nitz</span><span class="nv">@mars</span><span class="err">:</span><span class="o">~</span><span class="err">$</span><span class="w"> </span>
+</code></pre></div>
+
+<h3>Interesting points:</h3>
+<ol>
+<li>Took me a while to figure out there are <code>fopen</code> and <code>fopen64</code></li>
+<li>I'm opening read streams for <code>/etc/resolv.conf</code>, even when write streams are required. Could produce some weird behaviour</li>
+<li>My original goal was passing something like <code>DNS_SERVERS=1.2.3.4</code> to the library, but it was much easier generating the entire <code>resolv.conf</code> file in a shell script.</li>
+<li>I'm only targeting <code>glibc</code>'s <code>resolv</code>. However, that should cover all of my use cases so I'm happy.</li>
+</ol>
+            </div>
+            <!-- /.entry-content -->
+
+<div id="graphcomment"></div>
+<script type="text/javascript">
+
+  /* - - - CONFIGURATION VARIABLES - - - */
+
+  // make sure the id is yours
+  window.gc_params = {
+    graphcomment_id: 'Backslasher-net',
+
+    // if your website has a fixed header, indicate it's height in pixels
+    fixed_header_height: 0,
+  };
+
+  /* - - - DON'T EDIT BELOW THIS LINE - - - */
+
+  
+  (function() {
+    var gc = document.createElement('script'); gc.type = 'text/javascript'; gc.async = true;
+    gc.src = 'https://graphcomment.com/js/integration.js?' + Math.round(Math.random() * 1e8);
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(gc);
+  })();
+
+</script>        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+<!-- Sidebar -->
+<section class="well well-sm">
+  <ul class="list-group list-group-flush">
+
+<!-- Sidebar/Social -->
+<li class="list-group-item">
+  <h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+  <ul class="list-group" id="social">
+    <li class="list-group-item"><a href="http://github.com/BackSlasher"><i class="fa fa-github-square fa-lg"></i> github</a></li>
+    <li class="list-group-item"><a href="http://il.linkedin.com/in/nitzanraz/"><i class="fa fa-linkedin-square fa-lg"></i> linkedin</a></li>
+    <li class="list-group-item"><a href="http://careers.stackoverflow.com/backslasher"><i class="fa fa-stack-overflow fa-lg"></i> stack-overflow</a></li>
+  </ul>
+</li>
+<!-- End Sidebar/Social -->
+
+<!-- Sidebar/Tag Cloud -->
+<li class="list-group-item">
+  <a href="https://blog.backslasher.net/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+  <ul class="list-group " id="tags">
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/scripts.html">Scripts</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/powershell.html">PowerShell</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/linux.html">Linux</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/security.html">Security</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/mysteries-solved.html">Mysteries Solved</a>
+    </li>
+    <li class="list-group-item tag-1">
+      <a href="https://blog.backslasher.net/tag/active-directory.html">Active Directory</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ruby.html">Ruby</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/windows.html">Windows</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/chef.html">Chef</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/bash.html">Bash</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/ramblings.html">Ramblings</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/python.html">Python</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/one-liner.html">One-Liner</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/group-policy.html">Group Policy</a>
+    </li>
+    <li class="list-group-item tag-2">
+      <a href="https://blog.backslasher.net/tag/sharepoint.html">SharePoint</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/http.html">HTTP</a>
+    </li>
+    <li class="list-group-item tag-3">
+      <a href="https://blog.backslasher.net/tag/registry.html">Registry</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/filesystem.html">FileSystem</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/programming.html">Programming</a>
+    </li>
+    <li class="list-group-item tag-4">
+      <a href="https://blog.backslasher.net/tag/kerberos.html">Kerberos</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Tag Cloud -->
+
+<!-- Sidebar/Links -->
+<li class="list-group-item">
+  <h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+  <ul class="list-group" id="links">
+    <li class="list-group-item">
+      <a href="http://getpelican.com/" target="_blank">Pelican</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://python.org/" target="_blank">Python.org</a>
+    </li>
+    <li class="list-group-item">
+      <a href="http://jinja.pocoo.org/" target="_blank">Jinja2</a>
+    </li>
+  </ul>
+</li>
+<!-- End Sidebar/Links -->
+  </ul>
+</section>
+<!-- End Sidebar -->            </aside>
+        </div>
+    </div>
+</div>
+<!-- End Content Container -->
+
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2020 Nitz
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.backslasher.net/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.backslasher.net/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.backslasher.net/theme/js/respond.min.js"></script>
+
+
+    <!-- Google Analytics Universal -->
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-9527207-7', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics Universal Code -->
+
+
+</body>
+</html>
